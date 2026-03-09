@@ -1,0 +1,23 @@
+{
+  "title": "审批",
+  "description": "待处理的执行审批",
+  "pending": "{{count}} 个待处理",
+  "emptyTitle": "暂无待处理审批",
+  "emptyDescription": "所有执行请求已处理完毕。新请求将实时显示在此处。",
+  "allowOnce": "允许一次",
+  "allowAlways": "始终允许",
+  "deny": "拒绝",
+  "confirmAllowOnce": {
+    "title": "允许一次",
+    "description": "允许来自Agent 「{{agentId}}」 的 「{{command}}」 执行请求？"
+  },
+  "confirmAllowAlways": {
+    "title": "始终允许",
+    "description": "永久允许Agent 「{{agentId}}」 执行 「{{command}}」？此命令将在未来自动批准。"
+  },
+  "confirmDeny": {
+    "title": "拒绝执行",
+    "description": "拒绝来自Agent 「{{agentId}}」 的 「{{command}}」 执行请求？",
+    "confirmLabel": "拒绝"
+  }
+}

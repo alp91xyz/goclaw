@@ -1,0 +1,16 @@
+{
+  "expandSidebar": "Expand sidebar",
+  "collapseSidebar": "Collapse sidebar",
+  "openMenu": "Open menu",
+  "toggleTheme": "Toggle theme",
+  "logout": "Logout",
+  "language": "Language",
+  "pairingRequests": "Pairing requests",
+  "pendingPairingRequest": "{{count}} pending pairing request",
+  "pendingPairingRequests": "{{count}} pending pairing requests",
+  "languages": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文"
+  }
+}

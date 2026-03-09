@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, ChevronDown, ChevronRight, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
+  const { t } = useTranslation("config");
   const [draft, setDraft] = useState<AgentsData>(data ?? DEFAULT);
   const [dirty, setDirty] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -70,8 +72,8 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Agent Defaults</CardTitle>
-        <CardDescription>Default settings for all agents. Per-agent overrides are managed on the Agents page.</CardDescription>
+        <CardTitle className="text-base">{t("agents.title")}</CardTitle>
+        <CardDescription>{t("agents.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Core fields */}
@@ -80,14 +82,14 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
           onProviderChange={(v) => updateDefaults({ provider: v })}
           model={defaults.model ?? ""}
           onModelChange={(v) => updateDefaults({ model: v })}
-          providerTip="Default LLM provider for all agents. Must match a configured provider name."
-          modelTip="Default model ID for all agents. Agents can override this in their own settings."
+          providerTip={t("agents.providerTip")}
+          modelTip={t("agents.modelTip")}
           showVerify
         />
 
         <div className="grid grid-cols-4 gap-4">
           <div className="grid gap-1.5">
-            <InfoLabel tip="Maximum output tokens per LLM response. Higher values allow longer responses.">Max Tokens</InfoLabel>
+            <InfoLabel tip={t("agents.maxTokensTip")}>{t("agents.maxTokens")}</InfoLabel>
             <Input
               type="number"
               value={defaults.max_tokens ?? ""}
@@ -96,7 +98,7 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Sampling temperature (0-2). Lower = more deterministic, higher = more creative.">Temperature</InfoLabel>
+            <InfoLabel tip={t("agents.temperatureTip")}>{t("agents.temperature")}</InfoLabel>
             <Input
               type="number"
               step="0.1"
@@ -108,7 +110,7 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Maximum number of tool calls per agent request before stopping.">Max Tool Iterations</InfoLabel>
+            <InfoLabel tip={t("agents.maxToolIterationsTip")}>{t("agents.maxToolIterations")}</InfoLabel>
             <Input
               type="number"
               value={defaults.max_tool_iterations ?? ""}
@@ -117,7 +119,7 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Maximum context size in tokens. Should match the model's context window limit.">Context Window</InfoLabel>
+            <InfoLabel tip={t("agents.contextWindowTip")}>{t("agents.contextWindow")}</InfoLabel>
             <Input
               type="number"
               value={defaults.context_window ?? ""}
@@ -129,7 +131,7 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-1.5">
-            <InfoLabel tip="Default filesystem workspace path for agent file operations.">Workspace</InfoLabel>
+            <InfoLabel tip={t("agents.workspaceTip")}>{t("agents.workspace")}</InfoLabel>
             <Input
               value={defaults.workspace ?? ""}
               onChange={(e) => updateDefaults({ workspace: e.target.value })}
@@ -137,7 +139,7 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="flex items-center justify-between">
-            <InfoLabel tip="When enabled, agents can only read/write files within the workspace directory.">Restrict to Workspace</InfoLabel>
+            <InfoLabel tip={t("agents.restrictToWorkspaceTip")}>{t("agents.restrictToWorkspace")}</InfoLabel>
             <Switch
               checked={defaults.restrict_to_workspace ?? false}
               onCheckedChange={(v) => updateDefaults({ restrict_to_workspace: v })}
@@ -147,28 +149,28 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
 
         {/* Collapsible sub-sections */}
         <SubSection
-          title="Subagents"
-          desc="Concurrent subagent settings"
+          title={t("agents.subagents.title")}
+          desc={t("agents.subagents.desc")}
           open={openSubs.has("subagents")}
           onToggle={() => toggleSub("subagents")}
         >
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Max Concurrent" tip="Maximum subagents running at the same time." type="number" value={subagents.maxConcurrent} onChange={(v) => updateNested("subagents", { maxConcurrent: Number(v) })} placeholder="20" />
-            <Field label="Max Spawn Depth" tip="Maximum nesting depth for subagent spawning (agent → subagent → sub-subagent)." type="number" value={subagents.maxSpawnDepth} onChange={(v) => updateNested("subagents", { maxSpawnDepth: Number(v) })} placeholder="1" />
-            <Field label="Max Children/Agent" tip="Maximum child subagents a single agent can spawn." type="number" value={subagents.maxChildrenPerAgent} onChange={(v) => updateNested("subagents", { maxChildrenPerAgent: Number(v) })} placeholder="5" />
-            <Field label="Archive After (min)" tip="Auto-archive idle subagent sessions after this many minutes." type="number" value={subagents.archiveAfterMinutes} onChange={(v) => updateNested("subagents", { archiveAfterMinutes: Number(v) })} placeholder="60" />
+            <Field label={t("agents.subagents.maxConcurrent")} tip={t("agents.subagents.maxConcurrentTip")} type="number" value={subagents.maxConcurrent} onChange={(v) => updateNested("subagents", { maxConcurrent: Number(v) })} placeholder="20" />
+            <Field label={t("agents.subagents.maxSpawnDepth")} tip={t("agents.subagents.maxSpawnDepthTip")} type="number" value={subagents.maxSpawnDepth} onChange={(v) => updateNested("subagents", { maxSpawnDepth: Number(v) })} placeholder="1" />
+            <Field label={t("agents.subagents.maxChildrenPerAgent")} tip={t("agents.subagents.maxChildrenPerAgentTip")} type="number" value={subagents.maxChildrenPerAgent} onChange={(v) => updateNested("subagents", { maxChildrenPerAgent: Number(v) })} placeholder="5" />
+            <Field label={t("agents.subagents.archiveAfterMin")} tip={t("agents.subagents.archiveAfterMinTip")} type="number" value={subagents.archiveAfterMinutes} onChange={(v) => updateNested("subagents", { archiveAfterMinutes: Number(v) })} placeholder="60" />
           </div>
-          <Field label="Model Override" tip="Use a different model for subagents. Leave empty to inherit the parent agent's model." value={subagents.model} onChange={(v) => updateNested("subagents", { model: v })} placeholder="Use default" />
+          <Field label={t("agents.subagents.modelOverride")} tip={t("agents.subagents.modelOverrideTip")} value={subagents.model} onChange={(v) => updateNested("subagents", { model: v })} placeholder={t("agents.subagents.modelOverridePlaceholder")} />
         </SubSection>
 
         <SubSection
-          title="Memory"
-          desc="Embedding-based memory recall"
+          title={t("agents.memory.title")}
+          desc={t("agents.memory.desc")}
           open={openSubs.has("memory")}
           onToggle={() => toggleSub("memory")}
         >
           <div className="flex items-center justify-between">
-            <Label>Enabled</Label>
+            <Label>{t("agents.memory.enabled")}</Label>
             <Switch checked={memory.enabled !== false} onCheckedChange={(v) => updateNested("memory", { enabled: v })} />
           </div>
           <ProviderModelSelect
@@ -176,40 +178,40 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
             onProviderChange={(v) => updateNested("memory", { embedding_provider: v || undefined })}
             model={memory.embedding_model ?? ""}
             onModelChange={(v) => updateNested("memory", { embedding_model: v || undefined })}
-            providerLabel="Embedding Provider"
-            modelLabel="Embedding Model"
-            providerTip="Provider for generating text embeddings. Auto-detects from agent's main provider if empty."
-            modelTip="Embedding model name (e.g. text-embedding-3-small). Must be supported by the provider."
+            providerLabel={t("agents.memory.embeddingProvider")}
+            modelLabel={t("agents.memory.embeddingModel")}
+            providerTip={t("agents.memory.embeddingProviderTip")}
+            modelTip={t("agents.memory.embeddingModelTip")}
             providerPlaceholder="(auto)"
             modelPlaceholder="text-embedding-3-small"
           />
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Max Results" tip="Maximum memory entries returned per search query." type="number" value={memory.max_results} onChange={(v) => updateNested("memory", { max_results: Number(v) })} placeholder="6" />
-            <Field label="Min Score" tip="Minimum similarity score (0-1) for memory search results. Lower = more results but less relevant." type="number" step="0.01" value={memory.min_score} onChange={(v) => updateNested("memory", { min_score: Number(v) })} placeholder="0.35" />
+            <Field label={t("agents.memory.maxResults")} tip={t("agents.memory.maxResultsTip")} type="number" value={memory.max_results} onChange={(v) => updateNested("memory", { max_results: Number(v) })} placeholder="6" />
+            <Field label={t("agents.memory.minScore")} tip={t("agents.memory.minScoreTip")} type="number" step="0.01" value={memory.min_score} onChange={(v) => updateNested("memory", { min_score: Number(v) })} placeholder="0.35" />
           </div>
         </SubSection>
 
         <SubSection
-          title="Compaction"
-          desc="Context compaction & memory flush"
+          title={t("agents.compaction.title")}
+          desc={t("agents.compaction.desc")}
           open={openSubs.has("compaction")}
           onToggle={() => toggleSub("compaction")}
         >
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Reserve Tokens Floor" tip="Minimum tokens to reserve for new content after compaction. Prevents over-compaction." type="number" value={compaction.reserveTokensFloor} onChange={(v) => updateNested("compaction", { reserveTokensFloor: Number(v) })} placeholder="20000" />
-            <Field label="Max History Share" tip="Maximum fraction (0-1) of context window that conversation history can occupy before compaction triggers." type="number" step="0.05" value={compaction.maxHistoryShare} onChange={(v) => updateNested("compaction", { maxHistoryShare: Number(v) })} placeholder="0.75" />
+            <Field label={t("agents.compaction.reserveTokensFloor")} tip={t("agents.compaction.reserveTokensFloorTip")} type="number" value={compaction.reserveTokensFloor} onChange={(v) => updateNested("compaction", { reserveTokensFloor: Number(v) })} placeholder="20000" />
+            <Field label={t("agents.compaction.maxHistoryShare")} tip={t("agents.compaction.maxHistoryShareTip")} type="number" step="0.05" value={compaction.maxHistoryShare} onChange={(v) => updateNested("compaction", { maxHistoryShare: Number(v) })} placeholder="0.75" />
           </div>
         </SubSection>
 
         <SubSection
-          title="Context Pruning"
-          desc="Automatic pruning of stale context"
+          title={t("agents.pruning.title")}
+          desc={t("agents.pruning.desc")}
           open={openSubs.has("pruning")}
           onToggle={() => toggleSub("pruning")}
         >
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1.5">
-              <Label>Mode</Label>
+              <Label>{t("agents.pruning.mode")}</Label>
               <Select value={pruning.mode ?? "off"} onValueChange={(v) => updateNested("contextPruning", { mode: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -218,19 +220,19 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
                 </SelectContent>
               </Select>
             </div>
-            <Field label="Keep Last Assistants" tip="Number of recent assistant messages to always keep when pruning context." type="number" value={pruning.keepLastAssistants} onChange={(v) => updateNested("contextPruning", { keepLastAssistants: Number(v) })} placeholder="3" />
+            <Field label={t("agents.pruning.keepLastAssistants")} tip={t("agents.pruning.keepLastAssistantsTip")} type="number" value={pruning.keepLastAssistants} onChange={(v) => updateNested("contextPruning", { keepLastAssistants: Number(v) })} placeholder="3" />
           </div>
         </SubSection>
 
         <SubSection
-          title="Sandbox"
-          desc="Docker-based code sandbox"
+          title={t("agents.sandbox.title")}
+          desc={t("agents.sandbox.desc")}
           open={openSubs.has("sandbox")}
           onToggle={() => toggleSub("sandbox")}
         >
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1.5">
-              <Label>Mode</Label>
+              <Label>{t("agents.sandbox.mode")}</Label>
               <Select value={sandbox.mode ?? "off"} onValueChange={(v) => updateNested("sandbox", { mode: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -240,12 +242,12 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
                 </SelectContent>
               </Select>
             </div>
-            <Field label="Image" tip="Docker image name for the sandbox container." value={sandbox.image} onChange={(v) => updateNested("sandbox", { image: v })} placeholder="goclaw-sandbox:bookworm-slim" />
-            <Field label="Memory (MB)" tip="Memory limit in MB for the sandbox container." type="number" value={sandbox.memory_mb} onChange={(v) => updateNested("sandbox", { memory_mb: Number(v) })} placeholder="512" />
-            <Field label="CPUs" tip="CPU limit for the sandbox container (fractional values allowed)." type="number" step="0.5" value={sandbox.cpus} onChange={(v) => updateNested("sandbox", { cpus: Number(v) })} placeholder="1.0" />
-            <Field label="Timeout (sec)" tip="Maximum execution time in seconds before the sandbox is killed." type="number" value={sandbox.timeout_sec} onChange={(v) => updateNested("sandbox", { timeout_sec: Number(v) })} placeholder="300" />
+            <Field label={t("agents.sandbox.image")} tip={t("agents.sandbox.imageTip")} value={sandbox.image} onChange={(v) => updateNested("sandbox", { image: v })} placeholder="goclaw-sandbox:bookworm-slim" />
+            <Field label={t("agents.sandbox.memoryMb")} tip={t("agents.sandbox.memoryMbTip")} type="number" value={sandbox.memory_mb} onChange={(v) => updateNested("sandbox", { memory_mb: Number(v) })} placeholder="512" />
+            <Field label={t("agents.sandbox.cpus")} tip={t("agents.sandbox.cpusTip")} type="number" step="0.5" value={sandbox.cpus} onChange={(v) => updateNested("sandbox", { cpus: Number(v) })} placeholder="1.0" />
+            <Field label={t("agents.sandbox.timeoutSec")} tip={t("agents.sandbox.timeoutSecTip")} type="number" value={sandbox.timeout_sec} onChange={(v) => updateNested("sandbox", { timeout_sec: Number(v) })} placeholder="300" />
             <div className="flex items-center justify-between">
-              <Label>Network Enabled</Label>
+              <Label>{t("agents.sandbox.networkEnabled")}</Label>
               <Switch checked={sandbox.network_enabled ?? false} onCheckedChange={(v) => updateNested("sandbox", { network_enabled: v })} />
             </div>
           </div>
@@ -261,9 +263,9 @@ export function AgentsDefaultsSection({ data, onSave, saving }: Props) {
           <div className="flex justify-end pt-2">
             <Button size="sm" onClick={async () => {
               setSaveError(null);
-              try { await onSave(draft); } catch (err) { setSaveError(err instanceof Error ? err.message : "Failed to save"); }
+              try { await onSave(draft); } catch (err) { setSaveError(err instanceof Error ? err.message : t("agents.saveError")); }
             }} disabled={saving} className="gap-1.5">
-              <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save"}
+              <Save className="h-3.5 w-3.5" /> {saving ? t("saving") : t("save")}
             </Button>
           </div>
         )}

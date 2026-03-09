@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Search } from "lucide-react";
 import {
   Dialog,
@@ -18,6 +19,7 @@ interface MemorySearchDialogProps {
 }
 
 export function MemorySearchDialog({ open, onOpenChange, agentId }: MemorySearchDialogProps) {
+  const { t } = useTranslation("memory");
   const [query, setQuery] = useState("");
   const [userId, setUserId] = useState("");
   const { results, searching, search } = useMemorySearch(agentId);
@@ -37,7 +39,7 @@ export function MemorySearchDialog({ open, onOpenChange, agentId }: MemorySearch
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Search Memory</DialogTitle>
+          <DialogTitle>{t("searchDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex gap-2">
@@ -46,7 +48,7 @@ export function MemorySearchDialog({ open, onOpenChange, agentId }: MemorySearch
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search query..."
+              placeholder={t("searchDialog.queryPlaceholder")}
               autoFocus
             />
           </div>
@@ -54,23 +56,23 @@ export function MemorySearchDialog({ open, onOpenChange, agentId }: MemorySearch
             <Input
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
-              placeholder="User ID (opt.)"
+              placeholder={t("searchDialog.agentIdPlaceholder")}
             />
           </div>
           <Button onClick={handleSearch} disabled={searching || !query.trim()} className="gap-1">
             <Search className="h-3.5 w-3.5" />
-            {searching ? "..." : "Search"}
+            {searching ? "..." : t("searchDialog.search")}
           </Button>
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto mt-2">
           {results.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground text-sm">
-              {searching ? "Searching..." : "Enter a query and press Search."}
+              {searching ? t("searchDialog.searching") : t("searchDialog.noResults")}
             </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">{results.length} result(s)</p>
+              <p className="text-xs text-muted-foreground">{t("searchDialog.results")}: {results.length}</p>
               {results.map((r, i) => (
                 <div key={i} className="rounded-md border p-3">
                   <div className="flex items-center gap-2 mb-1">

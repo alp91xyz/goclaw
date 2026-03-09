@@ -1,0 +1,150 @@
+{
+  "title": "Teams",
+  "description": "Manage your agent teams",
+  "createTeam": "Create Team",
+  "searchPlaceholder": "Search teams...",
+  "emptyTitle": "No teams yet",
+  "emptyDescription": "Create your first team to get started.",
+  "noMatchTitle": "No matching teams",
+  "noMatchDescription": "Try a different search term.",
+  "delete": {
+    "title": "Delete Team",
+    "description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "confirmLabel": "Delete"
+  },
+  "detail": {
+    "lead": "Lead",
+    "memberCount": "{{count}} member",
+    "memberCountPlural": "{{count}} members",
+    "deleteDescription": "Are you sure you want to delete \"{{name}}\"? All members, tasks, and configuration will be permanently removed.",
+    "tabs": {
+      "tasks": "Tasks",
+      "members": "Members",
+      "delegations": "Delegations",
+      "settings": "Settings"
+    }
+  },
+  "members": {
+    "title": "Members",
+    "noMembers": "No members",
+    "addMember": "Add Member",
+    "addMemberTooltip": "Only predefined agents can be added as team members. Open agents are per-user and lack shared context needed for team collaboration.",
+    "selectAgent": "Select agent to add...",
+    "noAvailableAgents": "No available agents",
+    "searchAgents": "Search agents...",
+    "adding": "Adding...",
+    "add": "Add",
+    "removeMember": "Remove member",
+    "columns": {
+      "agent": "Agent",
+      "frontmatter": "Frontmatter",
+      "role": "Role",
+      "addedAt": "Added At",
+      "actions": "Actions"
+    }
+  },
+  "tasks": {
+    "title": "Tasks",
+    "loading": "Loading tasks...",
+    "noTasks": "No tasks yet",
+    "noTasksDescription": "Tasks are created by team agents during collaboration.",
+    "refresh": "Refresh",
+    "columns": {
+      "subject": "Subject",
+      "status": "Status",
+      "owner": "Owner",
+      "priority": "Priority",
+      "taskId": "Task ID",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "detail": {
+      "title": "Task Detail",
+      "subject": "Subject",
+      "status": "Status:",
+      "priority": "Priority:",
+      "owner": "Owner:",
+      "blockedBy": "Blocked by:",
+      "description": "Description",
+      "result": "Result",
+      "created": "Created:",
+      "updated": "Updated:",
+      "taskId": "Task ID:",
+      "noDescription": "No description",
+      "noResult": "No result yet"
+    }
+  },
+  "delegations": {
+    "noTitle": "No delegations",
+    "noDescription": "No delegation records found for this team.",
+    "refresh": "Refresh",
+    "columns": {
+      "sourceTarget": "Source / Target",
+      "task": "Task",
+      "status": "Status",
+      "duration": "Duration",
+      "time": "Time"
+    }
+  },
+  "settings": {
+    "title": "Team Settings",
+    "name": "Name",
+    "displayName": "Display Name",
+    "description": "Description",
+    "leadAgent": "Lead Agent",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "save": "Save Settings",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "failedSave": "Failed to save",
+    "userAccessControl": "User Access Control",
+    "allowedUsers": "Allowed Users",
+    "allowedUsersHint": "If set, only these users can trigger team workflows. Empty = all allowed.",
+    "deniedUsers": "Denied Users",
+    "deniedUsersHint": "Always blocked, overrides allow list.",
+    "channelRestrictions": "Channel Restrictions",
+    "allowedChannels": "Allowed Channels",
+    "allowedChannelsHint": "If set, only these channels can activate team workflows. Empty = all allowed.",
+    "deniedChannels": "Denied Channels",
+    "deniedChannelsHint": "Messages from these channels are always blocked.",
+    "notifications": "Notifications",
+    "progressNotifications": "Progress notifications",
+    "progressNotificationsHint": "Send periodic \"Your team is working on it...\" messages to chat during async delegations.",
+    "searchUsers": "Search users...",
+    "selectChannel": "Select channel..."
+  },
+  "create": {
+    "title": "Create Team",
+    "name": "Name *",
+    "namePlaceholder": "e.g. Research Team",
+    "nameHint": "Lowercase letters, numbers, hyphens",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional team description...",
+    "leadAgent": "Lead Agent *",
+    "selectLeadAgent": "Select lead agent...",
+    "loadingAgents": "Loading agents...",
+    "noActiveAgents": "No active agents found. Create agents first.",
+    "members": "Members",
+    "membersTooltip": "Only predefined agents can be added as team members. Open agents are per-user and lack shared context needed for team collaboration.",
+    "searchMembers": "Search and add members...",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "Support Team",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating..."
+  },
+  "toast": {
+    "created": "Team created",
+    "deleted": "Team deleted",
+    "updated": "Team updated",
+    "memberAdded": "Member added",
+    "memberRemoved": "Member removed",
+    "failedCreate": "Failed to create team",
+    "failedDelete": "Failed to delete team",
+    "failedUpdate": "Failed to update team",
+    "failedAddMember": "Failed to add member",
+    "failedRemoveMember": "Failed to remove member"
+  }
+}

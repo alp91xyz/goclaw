@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Package, RefreshCw, Settings, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,23 +21,10 @@ import { useDeferredLoading } from "@/hooks/use-deferred-loading";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-const CATEGORY_LABELS: Record<string, string> = {
-  filesystem: "Filesystem",
-  runtime: "Runtime",
-  web: "Web",
-  memory: "Memory",
-  media: "Media",
-  browser: "Browser",
-  sessions: "Sessions",
-  messaging: "Messaging",
-  scheduling: "Scheduling",
-  subagents: "Agents",
-  skills: "Skills",
-  delegation: "Delegation",
-  teams: "Teams",
-};
-
-const CATEGORY_ORDER = Object.keys(CATEGORY_LABELS);
+const CATEGORY_ORDER = [
+  "filesystem", "runtime", "web", "memory", "media", "browser",
+  "sessions", "messaging", "scheduling", "subagents", "skills", "delegation", "teams",
+];
 
 function hasEditableSettings(tool: BuiltinToolData): boolean {
   return tool.settings != null && Object.keys(tool.settings).length > 0;
@@ -47,6 +35,7 @@ function getConfigHint(tool: BuiltinToolData): string | undefined {
 }
 
 export function BuiltinToolsPage() {
+  const { t } = useTranslation("tools");
   const { tools, loading, refresh, updateTool } = useBuiltinTools();
   const spinning = useMinLoading(loading);
   const showSkeleton = useDeferredLoading(loading && tools.length === 0);
@@ -81,8 +70,8 @@ export function BuiltinToolsPage() {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Built-in Tools"
-        description="Manage system built-in tools. Enable/disable or configure settings globally."
+        title={t("builtin.title")}
+        description={t("builtin.description")}
         actions={
           <Button
             variant="outline"
@@ -92,7 +81,7 @@ export function BuiltinToolsPage() {
             className="gap-1"
           >
             <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} />
-            Refresh
+            {t("common:refresh", "Refresh")}
           </Button>
         }
       />
@@ -101,12 +90,14 @@ export function BuiltinToolsPage() {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search tools..."
+          placeholder={t("builtin.searchPlaceholder")}
           className="max-w-sm"
         />
         <span className="text-xs text-muted-foreground">
-          {filtered.length} tool{filtered.length !== 1 ? "s" : ""}
-          {sortedCategories.length > 0 && ` · ${sortedCategories.length} categories`}
+          {filtered.length !== 1
+            ? t("builtin.toolCountPlural", { count: filtered.length })
+            : t("builtin.toolCount", { count: filtered.length })}
+          {sortedCategories.length > 0 && ` · ${t("builtin.categoryCount", { count: sortedCategories.length })}`}
         </span>
       </div>
 
@@ -116,9 +107,9 @@ export function BuiltinToolsPage() {
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Package}
-            title={search ? "No matching tools" : "No built-in tools"}
+            title={search ? t("builtin.noMatchTitle") : t("builtin.emptyTitle")}
             description={
-              search ? "Try a different search term." : "No built-in tools have been seeded yet."
+              search ? t("builtin.noMatchDescription") : t("builtin.emptyDescription")
             }
           />
         ) : (
@@ -157,10 +148,11 @@ function CategoryGroup({
   onToggle: (tool: BuiltinToolData) => void;
   onSettings: (tool: BuiltinToolData) => void;
 }) {
+  const { t } = useTranslation("tools");
   return (
     <div className="rounded-lg border">
       <div className="flex items-center gap-2 border-b bg-muted/40 px-4 py-2">
-        <span className="text-sm font-medium">{CATEGORY_LABELS[category] ?? category}</span>
+        <span className="text-sm font-medium">{t(`builtin.categories.${category}`, category)}</span>
         <Badge variant="secondary" className="h-5 px-1.5 text-[11px]">
           {tools.length}
         </Badge>
@@ -183,6 +175,7 @@ function ToolRow({
   onToggle: (tool: BuiltinToolData) => void;
   onSettings: (tool: BuiltinToolData) => void;
 }) {
+  const { t } = useTranslation("tools");
   const configHint = getConfigHint(tool);
   const editable = hasEditableSettings(tool);
 
@@ -197,11 +190,11 @@ function ToolRow({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Badge variant="outline" className="ml-1 h-4 px-1 text-[10px] leading-none cursor-default">
-                    req
+                    {t("builtin.requires")}
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="text-xs">Requires: {tool.requires.join(", ")}</p>
+                  <p className="text-xs">{t("builtin.requiresTooltip", { list: tool.requires.join(", ") })}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -223,7 +216,7 @@ function ToolRow({
             className="h-7 gap-1 px-2 text-xs"
           >
             <Settings className="h-3 w-3" />
-            Settings
+            {t("builtin.settings")}
           </Button>
         )}
         {!editable && configHint && (
@@ -236,7 +229,7 @@ function ToolRow({
                 </span>
               </TooltipTrigger>
               <TooltipContent side="top">
-                <p className="text-xs">Configured via the Config page</p>
+                <p className="text-xs">{t("builtin.configuredVia")}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

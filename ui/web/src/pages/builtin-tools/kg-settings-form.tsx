@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   DialogHeader,
   DialogTitle,
@@ -32,6 +33,7 @@ interface Props {
 }
 
 export function KGSettingsForm({ initialSettings, onSave, onCancel }: Props) {
+  const { t } = useTranslation("tools");
   const [settings, setSettings] = useState<KGSettings>(defaultSettings);
   const [saving, setSaving] = useState(false);
 
@@ -55,9 +57,9 @@ export function KGSettingsForm({ initialSettings, onSave, onCancel }: Props) {
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Knowledge Graph Settings</DialogTitle>
+        <DialogTitle>{t("builtin.kgSettings.title")}</DialogTitle>
         <DialogDescription>
-          Configure entity extraction from memory writes. Requires a provider/model capable of structured JSON output.
+          {t("builtin.kgSettings.description")}
         </DialogDescription>
       </DialogHeader>
 
@@ -67,14 +69,14 @@ export function KGSettingsForm({ initialSettings, onSave, onCancel }: Props) {
           onProviderChange={(v) => setSettings((s) => ({ ...s, extraction_provider: v }))}
           model={settings.extraction_model}
           onModelChange={(v) => setSettings((s) => ({ ...s, extraction_model: v }))}
-          providerLabel="Extraction Provider"
-          modelLabel="Extraction Model"
-          providerTip="LLM provider used to extract entities and relations from text."
-          modelTip="Model ID for extraction. Should support structured JSON output."
+          providerLabel={t("builtin.kgSettings.extractionProvider")}
+          modelLabel={t("builtin.kgSettings.extractionModel")}
+          providerTip={t("builtin.kgSettings.providerTip")}
+          modelTip={t("builtin.kgSettings.modelTip")}
         />
 
         <div className="grid gap-1.5">
-          <Label htmlFor="kg-min-conf" className="text-sm">Min Confidence</Label>
+          <Label htmlFor="kg-min-conf" className="text-sm">{t("builtin.kgSettings.minConfidence")}</Label>
           <Input
             id="kg-min-conf"
             type="number"
@@ -86,15 +88,15 @@ export function KGSettingsForm({ initialSettings, onSave, onCancel }: Props) {
             className="max-w-[120px]"
           />
           <p className="text-xs text-muted-foreground">
-            Entities below this confidence score are discarded (0.0–1.0).
+            {t("builtin.kgSettings.minConfidenceHint")}
           </p>
         </div>
 
         <div className="flex items-center justify-between rounded-md border p-3">
           <div>
-            <Label htmlFor="kg-auto-extract" className="text-sm font-medium">Auto-extract on memory write</Label>
+            <Label htmlFor="kg-auto-extract" className="text-sm font-medium">{t("builtin.kgSettings.autoExtract")}</Label>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Automatically extract entities when agents write to memory files.
+              {t("builtin.kgSettings.autoExtractHint")}
             </p>
           </div>
           <Switch
@@ -106,9 +108,9 @@ export function KGSettingsForm({ initialSettings, onSave, onCancel }: Props) {
       </div>
 
       <DialogFooter>
-        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button variant="outline" onClick={onCancel}>{t("builtin.kgSettings.cancel")}</Button>
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save"}
+          {saving ? t("builtin.kgSettings.saving") : t("builtin.kgSettings.save")}
         </Button>
       </DialogFooter>
     </>

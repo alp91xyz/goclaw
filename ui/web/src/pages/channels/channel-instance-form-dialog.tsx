@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,8 @@ export function ChannelInstanceFormDialog({
   onSubmit,
   onUpdate,
 }: ChannelInstanceFormDialogProps) {
+  const { t } = useTranslation("channels");
+
   const [name, setName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [channelType, setChannelType] = useState("telegram");
@@ -141,18 +144,18 @@ export function ChannelInstanceFormDialog({
   };
 
   const handleSubmit = async () => {
-    if (!name.trim()) { setError("Key is required"); return; }
+    if (!name.trim()) { setError(t("form.errors.keyRequired")); return; }
     if (!isValidSlug(name.trim())) {
-      setError("Key must be a valid slug (lowercase letters, numbers, hyphens only)");
+      setError(t("form.errors.keySlug"));
       return;
     }
-    if (!agentId) { setError("Agent is required"); return; }
+    if (!agentId) { setError(t("form.errors.agentRequired")); return; }
 
     if (!instance) {
       const schema = credentialsSchema[channelType] ?? [];
       const missing = schema.filter((f) => f.required && !credsValues[f.key]);
       if (missing.length > 0) {
-        setError(`Required: ${missing.map((f) => f.label).join(", ")}`);
+        setError(t("form.errors.requiredFields", { fields: missing.map((f) => f.label).join(", ") }));
         return;
       }
     }
@@ -193,7 +196,7 @@ export function ChannelInstanceFormDialog({
         onOpenChange(false);
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to save");
+      setError(err instanceof Error ? err.message : t("form.errors.failedSave"));
     } finally {
       setLoading(false);
     }
@@ -211,7 +214,7 @@ export function ChannelInstanceFormDialog({
       await onUpdate(createdInstanceId, { config: cleanConfig });
       onOpenChange(false);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to save configuration");
+      setError(err instanceof Error ? err.message : t("form.errors.failedSaveConfig"));
     } finally {
       setLoading(false);
     }
@@ -235,12 +238,12 @@ export function ChannelInstanceFormDialog({
   const EditConfig = wizardEditConfigs[channelType];
 
   const dialogTitle = instance
-    ? "Edit Channel Instance"
+    ? t("form.editTitle")
     : step === "form"
-      ? "Create Channel Instance"
+      ? t("form.createTitle")
       : step === "auth"
-        ? `Authenticate — ${channelLabel}`
-        : `Configure — ${channelLabel}`;
+        ? t("form.authenticate", { label: channelLabel })
+        : t("form.configure", { label: channelLabel });
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!loading && canClose) onOpenChange(v); }}>
@@ -248,7 +251,9 @@ export function ChannelInstanceFormDialog({
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
           {hasWizard && (
-            <p className="text-xs text-muted-foreground">Step {currentStepNum} of {totalSteps}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("form.step", { current: currentStepNum, total: totalSteps })}
+            </p>
           )}
         </DialogHeader>
 
@@ -257,18 +262,18 @@ export function ChannelInstanceFormDialog({
           <>
             <div className="grid gap-4 py-2 px-0.5 -mx-0.5 overflow-y-auto min-h-0">
               <div className="grid gap-1.5">
-                <Label htmlFor="ci-name">Key *</Label>
-                <Input id="ci-name" value={name} onChange={(e) => setName(slugify(e.target.value))} placeholder="my-telegram-bot" disabled={!!instance} />
-                <p className="text-xs text-muted-foreground">Unique slug used as channel identifier</p>
+                <Label htmlFor="ci-name">{t("form.key")}</Label>
+                <Input id="ci-name" value={name} onChange={(e) => setName(slugify(e.target.value))} placeholder={t("form.keyPlaceholder")} disabled={!!instance} />
+                <p className="text-xs text-muted-foreground">{t("form.keyHint")}</p>
               </div>
 
               <div className="grid gap-1.5">
-                <Label htmlFor="ci-display">Display Name</Label>
-                <Input id="ci-display" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Sales Bot" />
+                <Label htmlFor="ci-display">{t("form.displayName")}</Label>
+                <Input id="ci-display" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder={t("form.displayNamePlaceholder")} />
               </div>
 
               <div className="grid gap-1.5">
-                <Label>Channel Type *</Label>
+                <Label>{t("form.channelType")}</Label>
                 <Select value={channelType} onValueChange={setChannelType} disabled={!!instance}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -280,9 +285,9 @@ export function ChannelInstanceFormDialog({
               </div>
 
               <div className="grid gap-1.5">
-                <Label>Agent *</Label>
+                <Label>{t("form.agent")}</Label>
                 <Select value={agentId} onValueChange={setAgentId}>
-                  <SelectTrigger><SelectValue placeholder="Select agent" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t("form.selectAgent")} /></SelectTrigger>
                   <SelectContent>
                     {agents.map((a) => (
                       <SelectItem key={a.id} value={a.id}>{a.display_name || a.agent_key}</SelectItem>
@@ -294,11 +299,11 @@ export function ChannelInstanceFormDialog({
               {credsFields.length > 0 && (
                 <fieldset className="rounded-md border p-3 space-y-3">
                   <legend className="px-1 text-sm font-medium">
-                    Credentials
-                    {instance && <span className="text-xs font-normal text-muted-foreground ml-1">(leave blank to keep current)</span>}
+                    {t("form.credentials")}
+                    {instance && <span className="text-xs font-normal text-muted-foreground ml-1">{t("form.credentialsHint")}</span>}
                   </legend>
                   <ChannelFields fields={credsFields} values={credsValues} onChange={handleCredsChange} idPrefix="ci-cred" isEdit={!!instance} />
-                  <p className="text-xs text-muted-foreground">Encrypted server-side. Never returned in API responses.</p>
+                  <p className="text-xs text-muted-foreground">{t("form.credentialsEncrypted")}</p>
                 </fieldset>
               )}
 
@@ -307,9 +312,13 @@ export function ChannelInstanceFormDialog({
                 <div className="rounded-md border border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950 p-3">
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${instance.has_credentials ? "bg-green-500" : "bg-amber-500"}`} />
-                    <span className="text-sm">{instance.has_credentials ? "Authenticated" : "Not authenticated"}</span>
+                    <span className="text-sm">
+                      {instance.has_credentials
+                        ? t("form.authStatus.authenticated")
+                        : t("form.authStatus.notAuthenticated")}
+                    </span>
                     {!instance.has_credentials && (
-                      <span className="text-xs text-muted-foreground ml-1">— Use the QR login button from the channels table</span>
+                      <span className="text-xs text-muted-foreground ml-1">{t("form.authStatus.useQrHint")}</span>
                     )}
                   </div>
                 </div>
@@ -324,7 +333,7 @@ export function ChannelInstanceFormDialog({
 
               {formCfgFields.length > 0 && (
                 <fieldset className="rounded-md border p-3 space-y-3">
-                  <legend className="px-1 text-sm font-medium">Configuration</legend>
+                  <legend className="px-1 text-sm font-medium">{t("form.configuration")}</legend>
                   <ChannelFields fields={formCfgFields} values={configValues} onChange={handleConfigChange} idPrefix="ci-cfg" />
                   {instance && EditConfig && <EditConfig instance={instance} configValues={configValues} onConfigChange={handleConfigChange} />}
                 </fieldset>
@@ -345,15 +354,15 @@ export function ChannelInstanceFormDialog({
 
               <div className="flex items-center gap-2">
                 <Switch id="ci-enabled" checked={enabled} onCheckedChange={setEnabled} />
-                <Label htmlFor="ci-enabled">Enabled</Label>
+                <Label htmlFor="ci-enabled">{t("form.enabled")}</Label>
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>{t("form.cancel")}</Button>
               <Button onClick={handleSubmit} disabled={loading}>
-                {loading ? "Saving..." : instance ? "Update" : wizard?.createLabel ?? "Create"}
+                {loading ? t("form.saving") : instance ? t("form.update") : (wizard?.createLabel ?? t("form.create"))}
               </Button>
             </DialogFooter>
           </>
@@ -381,8 +390,8 @@ export function ChannelInstanceFormDialog({
               {error && <p className="text-sm text-destructive mt-2">{error}</p>}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>Skip</Button>
-              <Button onClick={handleConfigDone} disabled={loading}>{loading ? "Saving..." : "Done"}</Button>
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>{t("form.skip")}</Button>
+              <Button onClick={handleConfigDone} disabled={loading}>{loading ? t("form.saving") : t("form.done")}</Button>
             </DialogFooter>
           </>
         )}

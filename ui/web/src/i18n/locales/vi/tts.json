@@ -1,0 +1,71 @@
+{
+  "autoModes": {
+    "always": "Luôn luôn",
+    "alwaysDesc": "Tất cả phản hồi đều có âm thanh",
+    "inbound": "Đầu vào",
+    "inboundDesc": "Chỉ khi người dùng gửi giọng nói/âm thanh",
+    "off": "Tắt",
+    "offDesc": "Agent có thể dùng công cụ TTS thủ công",
+    "tagged": "Đánh dấu",
+    "taggedDesc": "Chỉ khi phản hồi chứa thẻ [[tts]]"
+  },
+  "description": "Cấu hình provider TTS và cài đặt tự động",
+  "edge": {
+    "hint": "Edge TTS miễn phí, không cần API key.",
+    "speechRate": "Tốc độ nói",
+    "voice": "Giọng nói"
+  },
+  "elevenlabs": {
+    "apiKey": "API Key",
+    "baseUrl": "Base URL",
+    "modelId": "Model ID",
+    "voiceId": "Voice ID"
+  },
+  "general": {
+    "autoApplyMode": "Chế độ tự động phát",
+    "maxTextLength": "Độ dài text tối đa",
+    "primaryProvider": "Provider chính",
+    "replyMode": "Chế độ trả lời",
+    "timeout": "Thời gian chờ",
+    "title": "Cài đặt chung"
+  },
+  "minimax": {
+    "apiBase": "API Base",
+    "apiKey": "API Key",
+    "groupId": "Group ID",
+    "groupIdPlaceholder": "Nhập Group ID",
+    "model": "Model",
+    "voiceId": "Voice ID"
+  },
+  "openai": {
+    "apiBase": "API Base",
+    "apiKey": "API Key",
+    "model": "Model",
+    "voice": "Giọng nói"
+  },
+  "providerSettings": "Cài đặt {{provider}}",
+  "providers": {
+    "edge": "Edge (Miễn phí)",
+    "elevenlabs": "ElevenLabs",
+    "minimax": "MiniMax",
+    "none": "Không có (Tắt)",
+    "openai": "OpenAI"
+  },
+  "replyModes": {
+    "all": "Tất cả",
+    "allDesc": "Tất cả phản hồi bao gồm công cụ/khối",
+    "final": "Chỉ phản hồi cuối",
+    "finalDesc": "Chỉ phản hồi cuối cùng"
+  },
+  "save": "Lưu",
+  "saveChanges": "Lưu thay đổi",
+  "saving": "Đang lưu...",
+  "status": {
+    "activeProvider": "Provider đang hoạt động",
+    "configured": "Đã cấu hình",
+    "disabled": "Đã tắt",
+    "noProvider": "Chưa cấu hình provider TTS",
+    "title": "Trạng thái"
+  },
+  "title": "Chuyển văn bản thành giọng nói"
+}

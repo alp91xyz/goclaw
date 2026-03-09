@@ -1,0 +1,150 @@
+{
+  "title": "Agent Team",
+  "description": "管理您的Agent Team",
+  "createTeam": "创建Team",
+  "searchPlaceholder": "搜索Team...",
+  "emptyTitle": "暂无Team",
+  "emptyDescription": "创建您的第一个Team以开始使用。",
+  "noMatchTitle": "未找到匹配Team",
+  "noMatchDescription": "请尝试其他搜索词。",
+  "delete": {
+    "title": "删除Team",
+    "description": "确定要删除「{{name}}」吗？此操作无法撤销。",
+    "confirmLabel": "删除"
+  },
+  "detail": {
+    "lead": "负责人",
+    "memberCount": "{{count}} 位成员",
+    "memberCountPlural": "{{count}} 位成员",
+    "deleteDescription": "确定要删除「{{name}}」吗？所有成员、任务和配置将被永久移除。",
+    "tabs": {
+      "tasks": "任务",
+      "members": "成员",
+      "delegations": "委托",
+      "settings": "设置"
+    }
+  },
+  "members": {
+    "title": "成员",
+    "noMembers": "暂无成员",
+    "addMember": "添加成员",
+    "addMemberTooltip": "只有预定义Agent才能作为Team成员添加。开放Agent是按用户划分的，缺乏Team协作所需的共享上下文。",
+    "selectAgent": "选择要添加的Agent...",
+    "noAvailableAgents": "无可用Agent",
+    "searchAgents": "搜索Agent...",
+    "adding": "添加中...",
+    "add": "添加",
+    "removeMember": "移除成员",
+    "columns": {
+      "agent": "Agent",
+      "frontmatter": "前置信息",
+      "role": "角色",
+      "addedAt": "添加时间",
+      "actions": "操作"
+    }
+  },
+  "tasks": {
+    "title": "任务",
+    "loading": "加载任务中...",
+    "noTasks": "暂无任务",
+    "noTasksDescription": "任务由TeamAgent在协作过程中创建。",
+    "refresh": "刷新",
+    "columns": {
+      "subject": "主题",
+      "status": "状态",
+      "owner": "负责人",
+      "priority": "优先级",
+      "taskId": "任务 ID",
+      "created": "创建时间",
+      "actions": "操作"
+    },
+    "detail": {
+      "title": "任务详情",
+      "subject": "主题",
+      "status": "状态：",
+      "priority": "优先级：",
+      "owner": "负责人：",
+      "blockedBy": "被阻塞：",
+      "description": "描述",
+      "result": "结果",
+      "created": "创建时间：",
+      "updated": "更新时间：",
+      "taskId": "任务 ID：",
+      "noDescription": "无描述",
+      "noResult": "暂无结果"
+    }
+  },
+  "delegations": {
+    "noTitle": "暂无委托",
+    "noDescription": "未找到该Team的委托记录。",
+    "refresh": "刷新",
+    "columns": {
+      "sourceTarget": "来源 / 目标",
+      "task": "任务",
+      "status": "状态",
+      "duration": "耗时",
+      "time": "时间"
+    }
+  },
+  "settings": {
+    "title": "Team设置",
+    "name": "名称",
+    "displayName": "显示名称",
+    "description": "描述",
+    "leadAgent": "负责Agent",
+    "status": "状态",
+    "active": "活跃",
+    "inactive": "非活跃",
+    "save": "保存设置",
+    "saving": "保存中...",
+    "saved": "已保存",
+    "failedSave": "保存失败",
+    "userAccessControl": "用户访问控制",
+    "allowedUsers": "允许的用户",
+    "allowedUsersHint": "若已设置，仅这些用户可触发Team工作流。留空 = 所有人均可。",
+    "deniedUsers": "拒绝的用户",
+    "deniedUsersHint": "始终被阻止，覆盖允许列表。",
+    "channelRestrictions": "Channel限制",
+    "allowedChannels": "允许的Channel",
+    "allowedChannelsHint": "若已设置，仅这些Channel可激活Team工作流。留空 = 所有Channel均可。",
+    "deniedChannels": "拒绝的Channel",
+    "deniedChannelsHint": "来自这些Channel的消息始终被阻止。",
+    "notifications": "通知",
+    "progressNotifications": "进度通知",
+    "progressNotificationsHint": "在异步委托期间，定期向对话发送「您的Team正在处理中...」消息。",
+    "searchUsers": "搜索用户...",
+    "selectChannel": "选择Channel..."
+  },
+  "create": {
+    "title": "创建Team",
+    "name": "名称 *",
+    "namePlaceholder": "例如 研究Team",
+    "nameHint": "小写字母、数字、连字符",
+    "description": "描述",
+    "descriptionPlaceholder": "可选的Team描述...",
+    "leadAgent": "负责Agent *",
+    "selectLeadAgent": "选择负责Agent...",
+    "loadingAgents": "加载Agent中...",
+    "noActiveAgents": "未找到活跃Agent，请先创建Agent。",
+    "members": "成员",
+    "membersTooltip": "只有预定义Agent才能作为Team成员添加。开放Agent是按用户划分的，缺乏Team协作所需的共享上下文。",
+    "searchMembers": "搜索并添加成员...",
+    "displayName": "显示名称",
+    "displayNamePlaceholder": "支持Team",
+    "cancel": "取消",
+    "create": "创建",
+    "creating": "创建中..."
+  },
+  "toast": {
+    "created": "Team已创建",
+    "deleted": "Team已删除",
+    "updated": "Team已更新",
+    "memberAdded": "成员已添加",
+    "memberRemoved": "成员已移除",
+    "failedCreate": "创建Team失败",
+    "failedDelete": "删除Team失败",
+    "failedUpdate": "更新Team失败",
+    "failedAddMember": "添加成员失败",
+    "failedRemoveMember": "移除成员失败"
+  }
+}

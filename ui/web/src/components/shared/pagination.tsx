@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -29,16 +30,17 @@ export function Pagination({
   onPageSizeChange,
   pageSizes = PAGE_SIZES,
 }: PaginationProps) {
+  const { t } = useTranslation("common");
   if (total === 0) return null;
 
   return (
     <div className="flex flex-col items-center gap-2 border-t px-4 py-3 sm:flex-row sm:justify-between">
       <div className="text-sm text-muted-foreground">
-        {total} {total === 1 ? "item" : "items"}
+        {total} {t("items")}
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Rows</span>
+          <span className="text-sm text-muted-foreground">{t("rows")}</span>
           <Select
             value={String(pageSize)}
             onValueChange={(v) => onPageSizeChange(Number(v))}
@@ -56,7 +58,7 @@ export function Pagination({
           </Select>
         </div>
         <span className="text-sm text-muted-foreground">
-          Page {page} of {totalPages}
+          {t("pageOf", { page, totalPages })}
         </span>
         <div className="flex items-center gap-1">
           <Button

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Radar, Trash2, Pause, Play, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,17 +11,20 @@ import { Methods } from "@/api/protocol";
 import { EventCard } from "./event-sections";
 import type { TeamData } from "@/types/team";
 
-const EVENT_CATEGORIES = [
-  { label: "All", value: "all" },
-  { label: "Delegation", value: "delegation" },
-  { label: "Task", value: "team.task" },
-  { label: "Message", value: "team.message" },
-  { label: "Agent", value: "agent" },
-  { label: "Team CRUD", value: "team.crud" },
-  { label: "Agent Link", value: "agent_link" },
-] as const;
+const EVENT_CATEGORY_VALUES = ["all", "delegation", "team.task", "team.message", "agent", "team.crud", "agent_link"] as const;
+
+const CATEGORY_KEY_MAP: Record<string, string> = {
+  "all": "categories.all",
+  "delegation": "categories.delegation",
+  "team.task": "categories.task",
+  "team.message": "categories.message",
+  "agent": "categories.agent",
+  "team.crud": "categories.teamCrud",
+  "agent_link": "categories.agentLink",
+};
 
 export function EventsPage() {
+  const { t } = useTranslation("events");
   const allEvents = useTeamEventStore((s) => s.events);
   const paused = useTeamEventStore((s) => s.paused);
   const setPaused = useTeamEventStore((s) => s.setPaused);
@@ -52,7 +56,7 @@ export function EventsPage() {
 
   const resolveTeam = useCallback(
     (teamId: string | null): string => {
-      if (!teamId) return "Global";
+      if (!teamId) return t("global");
       return teamMap.get(teamId) ?? teamId.slice(0, 8);
     },
     [teamMap],
@@ -141,15 +145,15 @@ export function EventsPage() {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Realtime Events"
-        description="Live WebSocket events across all teams and agents"
+        title={t("title")}
+        description={t("description")}
         actions={
           <>
             <Badge variant={paused ? "warning" : "success"} className="text-xs">
-              {paused ? "Paused" : "Live"}
+              {paused ? t("paused") : t("live")}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              {filteredEvents.length} event{filteredEvents.length !== 1 ? "s" : ""}
+              {filteredEvents.length !== 1 ? t("eventCountPlural", { count: filteredEvents.length }) : t("eventCount", { count: filteredEvents.length })}
             </span>
             <Button
               variant="outline"
@@ -158,7 +162,7 @@ export function EventsPage() {
               className="h-8 gap-1.5"
             >
               {paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
-              {paused ? "Resume" : "Pause"}
+              {paused ? t("resume") : t("pause")}
             </Button>
             <Button
               variant="outline"
@@ -166,7 +170,7 @@ export function EventsPage() {
               onClick={clear}
               className="h-8 gap-1.5"
             >
-              <Trash2 className="h-3.5 w-3.5" /> Clear
+              <Trash2 className="h-3.5 w-3.5" /> {t("clear")}
             </Button>
           </>
         }
@@ -176,18 +180,18 @@ export function EventsPage() {
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {/* Category pills */}
         <div className="flex flex-wrap items-center gap-1.5">
-          {EVENT_CATEGORIES.map((cat) => (
+          {EVENT_CATEGORY_VALUES.map((val) => (
             <button
-              key={cat.value}
+              key={val}
               type="button"
-              onClick={() => setCategoryFilter(cat.value)}
+              onClick={() => setCategoryFilter(val)}
               className={`rounded-full px-2.5 py-0.5 text-xs transition-colors ${
-                categoryFilter === cat.value
+                categoryFilter === val
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-muted"
               }`}
             >
-              {cat.label}
+              {t(CATEGORY_KEY_MAP[val] ?? val)}
             </button>
           ))}
         </div>
@@ -199,7 +203,7 @@ export function EventsPage() {
             onChange={(e) => setTeamFilter(e.target.value)}
             className="h-7 rounded-md border bg-background px-2 text-xs"
           >
-            <option value="all">All teams</option>
+            <option value="all">{t("filters.allTeams")}</option>
             {uniqueTeams.map((id) => (
               <option key={id} value={id}>
                 {resolveTeam(id)}
@@ -214,7 +218,7 @@ export function EventsPage() {
           onChange={(e) => setUserFilter(e.target.value)}
           className="h-7 rounded-md border bg-background px-2 text-xs"
         >
-          <option value="all">All users</option>
+          <option value="all">{t("filters.allUsers")}</option>
           {uniqueUsers.map((uid) => (
             <option key={uid} value={uid}>
               {uid}
@@ -228,7 +232,7 @@ export function EventsPage() {
           onChange={(e) => setChatFilter(e.target.value)}
           className="h-7 rounded-md border bg-background px-2 text-xs"
         >
-          <option value="all">All chats</option>
+          <option value="all">{t("filters.allChats")}</option>
           {uniqueChats.map((cid) => (
             <option key={cid} value={cid}>
               {cid}
@@ -243,12 +247,8 @@ export function EventsPage() {
           <div className="px-4 py-12">
             <EmptyState
               icon={Radar}
-              title="No events yet"
-              description={
-                paused
-                  ? "Event capture is paused. Resume to see new events."
-                  : "Waiting for real-time events... Events will appear as agents work."
-              }
+              title={t("emptyTitle")}
+              description={paused ? t("emptyPaused") : t("emptyWaiting")}
             />
           </div>
         ) : (
@@ -269,7 +269,7 @@ export function EventsPage() {
                 type="button"
                 onClick={scrollToBottom}
                 className="absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border bg-background shadow-md transition-colors hover:bg-muted"
-                title="Scroll to bottom"
+                title={t("scrollToBottom")}
               >
                 <ArrowDown className="h-4 w-4" />
               </button>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Folder,
   FolderOpen,
@@ -119,6 +120,7 @@ export function FileTreePanel({
   onDelete?: (path: string, isDir: boolean) => void;
   showSize?: boolean;
 }) {
+  const { t } = useTranslation("common");
   if (filesLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -127,7 +129,7 @@ export function FileTreePanel({
     );
   }
   if (tree.length === 0) {
-    return <p className="px-3 py-4 text-sm text-muted-foreground">No files found.</p>;
+    return <p className="px-3 py-4 text-sm text-muted-foreground">{t("noFiles")}</p>;
   }
   return (
     <>

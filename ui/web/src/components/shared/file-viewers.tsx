@@ -1,4 +1,5 @@
 import { useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, Copy, Loader2 } from "lucide-react";
 import { MarkdownRenderer } from "@/components/shared/markdown-renderer";
 import { useClipboard } from "@/hooks/use-clipboard";
@@ -162,6 +163,7 @@ export function FileContentPanel({
   fileContent: { content: string; path: string; size: number } | null;
   contentLoading: boolean;
 }) {
+  const { t } = useTranslation("common");
   if (contentLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -174,7 +176,7 @@ export function FileContentPanel({
   }
   return (
     <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
-      Select a file to view its content
+      {t("selectFileToView")}
     </div>
   );
 }

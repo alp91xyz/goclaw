@@ -2,10 +2,10 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/internal/tools"
 )
@@ -39,26 +39,28 @@ type toolsInvokeRequest struct {
 }
 
 func (h *ToolsInvokeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
+
 	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": i18n.T(locale, i18n.MsgMethodNotAllowed)})
 		return
 	}
 
 	if h.token != "" {
 		if extractBearerToken(r) != h.token {
-			http.Error(w, `{"error":{"code":"UNAUTHORIZED","message":"Invalid token"}}`, http.StatusUnauthorized)
+			writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 			return
 		}
 	}
 
 	var req toolsInvokeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":{"code":"BAD_REQUEST","message":"%s"}}`, err), http.StatusBadRequest)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 
 	if req.Tool == "" {
-		http.Error(w, `{"error":{"code":"BAD_REQUEST","message":"tool is required"}}`, http.StatusBadRequest)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "tool")})
 		return
 	}
 
@@ -68,7 +70,7 @@ func (h *ToolsInvokeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Just check if tool exists and return its schema
 		tool, ok := h.registry.Get(req.Tool)
 		if !ok {
-			writeToolError(w, http.StatusNotFound, "NOT_FOUND", fmt.Sprintf("Tool '%s' not found", req.Tool))
+			writeToolError(w, http.StatusNotFound, "NOT_FOUND", i18n.T(locale, i18n.MsgNotFound, "tool", req.Tool))
 			return
 		}
 

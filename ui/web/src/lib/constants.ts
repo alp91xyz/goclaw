@@ -41,4 +41,14 @@ export const LOCAL_STORAGE_KEYS = {
   SENDER_ID: "goclaw:senderID",
   THEME: "goclaw:theme",
   SIDEBAR_COLLAPSED: "goclaw:sidebarCollapsed",
+  LANGUAGE: "goclaw:language",
 } as const;
+
+export const SUPPORTED_LANGUAGES = ["en", "vi", "zh"] as const;
+export type Language = (typeof SUPPORTED_LANGUAGES)[number];
+
+export const LANGUAGE_LABELS: Record<Language, string> = {
+  en: "English",
+  vi: "Tiếng Việt",
+  zh: "中文",
+};

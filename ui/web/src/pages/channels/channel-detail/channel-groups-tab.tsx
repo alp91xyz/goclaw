@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Save, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ChannelInstanceData } from "@/types/channel";
@@ -16,6 +17,7 @@ interface ChannelGroupsTabProps {
 }
 
 export function ChannelGroupsTab({ instance, onUpdate }: ChannelGroupsTabProps) {
+  const { t } = useTranslation("channels");
   const config = (instance.config ?? {}) as Record<string, unknown>;
   const [groups, setGroups] = useState<Record<string, GroupConfigWithTopics>>(
     (config.groups as Record<string, GroupConfigWithTopics>) ?? {},
@@ -59,12 +61,12 @@ export function ChannelGroupsTab({ instance, onUpdate }: ChannelGroupsTabProps) 
       <div className="flex items-center justify-end gap-2">
         {saved && (
           <span className="flex items-center gap-1 text-sm text-success">
-            <Check className="h-3.5 w-3.5" /> Saved
+            <Check className="h-3.5 w-3.5" /> {t("detail.groups.saved")}
           </span>
         )}
         <Button onClick={handleSave} disabled={saving}>
           {!saving && <Save className="h-4 w-4" />}
-          {saving ? "Saving..." : "Save Groups"}
+          {saving ? t("detail.groups.saving") : t("detail.groups.saveGroups")}
         </Button>
       </div>
     </div>

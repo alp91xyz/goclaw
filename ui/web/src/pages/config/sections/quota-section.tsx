@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, Plus, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -53,10 +54,11 @@ function QuotaWindowInputs({
   value: QuotaWindow;
   onChange: (v: QuotaWindow) => void;
 }) {
+  const { t } = useTranslation("config");
   return (
     <div className="grid grid-cols-3 gap-3">
       <div className="grid gap-1.5">
-        <InfoLabel tip="Max requests per hour (0 = unlimited)">Hour</InfoLabel>
+        <InfoLabel tip={t("quota.hourTip")}>{t("quota.hour")}</InfoLabel>
         <Input
           type="number"
           min={0}
@@ -65,7 +67,7 @@ function QuotaWindowInputs({
         />
       </div>
       <div className="grid gap-1.5">
-        <InfoLabel tip="Max requests per day (0 = unlimited)">Day</InfoLabel>
+        <InfoLabel tip={t("quota.dayTip")}>{t("quota.day")}</InfoLabel>
         <Input
           type="number"
           min={0}
@@ -74,7 +76,7 @@ function QuotaWindowInputs({
         />
       </div>
       <div className="grid gap-1.5">
-        <InfoLabel tip="Max requests per week (0 = unlimited)">Week</InfoLabel>
+        <InfoLabel tip={t("quota.weekTip")}>{t("quota.week")}</InfoLabel>
         <Input
           type="number"
           min={0}
@@ -130,6 +132,8 @@ function OverridesTable({
     onChange({ ...entries, [key]: window });
   };
 
+  const { t } = useTranslation("config");
+
   return (
     <div className="space-y-2">
       <InfoLabel tip={tip}>{label}</InfoLabel>
@@ -138,7 +142,7 @@ function OverridesTable({
           <div className="flex items-end gap-2 min-w-[420px]">
             <div className="grid gap-1.5 min-w-[180px]">
               {i === 0 && (
-                <span className="text-xs text-muted-foreground">Key</span>
+                <span className="text-xs text-muted-foreground">{t("quota.keyLabel")}</span>
               )}
               {options ? (
                 <Select
@@ -174,7 +178,7 @@ function OverridesTable({
             </div>
             <div className="grid gap-1.5 w-20">
               {i === 0 && (
-                <span className="text-xs text-muted-foreground">Hour</span>
+                <span className="text-xs text-muted-foreground">{t("quota.hour")}</span>
               )}
               <Input
                 type="number"
@@ -190,7 +194,7 @@ function OverridesTable({
             </div>
             <div className="grid gap-1.5 w-20">
               {i === 0 && (
-                <span className="text-xs text-muted-foreground">Day</span>
+                <span className="text-xs text-muted-foreground">{t("quota.day")}</span>
               )}
               <Input
                 type="number"
@@ -206,7 +210,7 @@ function OverridesTable({
             </div>
             <div className="grid gap-1.5 w-20">
               {i === 0 && (
-                <span className="text-xs text-muted-foreground">Week</span>
+                <span className="text-xs text-muted-foreground">{t("quota.week")}</span>
               )}
               <Input
                 type="number"
@@ -238,7 +242,7 @@ function OverridesTable({
         >
           <SelectTrigger className="w-auto gap-1.5" size="sm">
             <Plus className="h-3.5 w-3.5" />
-            <SelectValue placeholder="Add override" />
+            <SelectValue placeholder={t("quota.addOverride")} />
           </SelectTrigger>
           <SelectContent>
             {availableOptions && availableOptions.length > 0 ? (
@@ -249,14 +253,14 @@ function OverridesTable({
               ))
             ) : (
               <SelectItem value="__none__" disabled>
-                All options added
+                {t("quota.allOptionsAdded")}
               </SelectItem>
             )}
           </SelectContent>
         </Select>
       ) : (
         <Button variant="outline" size="sm" onClick={() => addRow()} className="gap-1.5">
-          <Plus className="h-3.5 w-3.5" /> Add override
+          <Plus className="h-3.5 w-3.5" /> {t("quota.addOverride")}
         </Button>
       )}
     </div>
@@ -264,6 +268,7 @@ function OverridesTable({
 }
 
 export function QuotaSection({ data, onSave, saving }: Props) {
+  const { t } = useTranslation("config");
   const [draft, setDraft] = useState<QuotaData>(
     data?.quota ?? DEFAULT_QUOTA
   );
@@ -309,16 +314,12 @@ export function QuotaSection({ data, onSave, saving }: Props) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Quota Limits</CardTitle>
-        <CardDescription>
-          Per-user/group request quotas. Limits are enforced per time window
-          (hour/day/week). Config merge priority: Group &gt; Channel &gt;
-          Provider &gt; Default.
-        </CardDescription>
+        <CardTitle className="text-base">{t("quota.title")}</CardTitle>
+        <CardDescription>{t("quota.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
-          <InfoLabel tip="Enable request quota enforcement">Enabled</InfoLabel>
+          <InfoLabel tip={t("quota.enabledTip")}>{t("quota.enabled")}</InfoLabel>
           <Switch
             checked={draft.enabled}
             onCheckedChange={(v) => update({ enabled: v })}
@@ -328,8 +329,8 @@ export function QuotaSection({ data, onSave, saving }: Props) {
         {draft.enabled && (
           <>
             <div className="space-y-2">
-              <InfoLabel tip="Default limits applied to all users/groups unless overridden">
-                Default Limits
+              <InfoLabel tip={t("quota.defaultLimitsTip")}>
+                {t("quota.defaultLimits")}
               </InfoLabel>
               <QuotaWindowInputs
                 value={draft.default}
@@ -338,29 +339,29 @@ export function QuotaSection({ data, onSave, saving }: Props) {
             </div>
 
             <OverridesTable
-              label="Provider Overrides"
-              tip="Per-provider quota limits (e.g., anthropic, openai)"
+              label={t("quota.providerOverrides")}
+              tip={t("quota.providerOverridesTip")}
               entries={draft.providers ?? {}}
               onChange={(v) => update({ providers: v })}
-              keyPlaceholder="Select provider"
+              keyPlaceholder={t("quota.selectProvider")}
               options={providerOptions}
             />
 
             <OverridesTable
-              label="Channel Overrides"
-              tip="Per-channel quota limits (e.g., telegram, discord)"
+              label={t("quota.channelOverrides")}
+              tip={t("quota.channelOverridesTip")}
               entries={draft.channels ?? {}}
               onChange={(v) => update({ channels: v })}
-              keyPlaceholder="Select channel"
+              keyPlaceholder={t("quota.selectChannel")}
               options={channelOptions}
             />
 
             <OverridesTable
-              label="Group/User Overrides"
-              tip="Per-user or group quota limits (e.g., group:telegram:-100123)"
+              label={t("quota.groupOverrides")}
+              tip={t("quota.groupOverridesTip")}
               entries={draft.groups ?? {}}
               onChange={(v) => update({ groups: v })}
-              keyPlaceholder="Select group"
+              keyPlaceholder={t("quota.selectGroup")}
               options={groupOptions.length > 0 ? groupOptions : undefined}
             />
           </>
@@ -375,7 +376,7 @@ export function QuotaSection({ data, onSave, saving }: Props) {
               className="gap-1.5"
             >
               <Save className="h-3.5 w-3.5" />{" "}
-              {saving ? "Saving..." : "Save"}
+              {saving ? t("saving") : t("save")}
             </Button>
           </div>
         )}

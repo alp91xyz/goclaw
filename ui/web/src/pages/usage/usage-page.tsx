@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { BarChart3, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/shared/page-header";
@@ -12,6 +13,7 @@ import { useMinLoading } from "@/hooks/use-min-loading";
 import { useDeferredLoading } from "@/hooks/use-deferred-loading";
 
 export function UsagePage() {
+  const { t } = useTranslation("usage");
   const { records, total, summary, loading, loadRecords, loadSummary } = useUsage();
   const spinning = useMinLoading(loading);
   const showSkeleton = useDeferredLoading(loading && records.length === 0);
@@ -38,11 +40,11 @@ export function UsagePage() {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Usage"
-        description="Token usage and costs by agent"
+        title={t("title")}
+        description={t("description")}
         actions={
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={spinning} className="gap-1">
-            <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> Refresh
+            <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> {t("common:refresh", "Refresh")}
           </Button>
         }
       />
@@ -60,19 +62,19 @@ export function UsagePage() {
                 <div key={agentId} className="rounded-lg border p-4">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium">{agentId}</h4>
-                    <Badge variant="secondary">{data.sessions} sessions</Badge>
+                    <Badge variant="secondary">{t("summary.sessions", { count: data.sessions })}</Badge>
                   </div>
                   <div className="mt-3 space-y-1 text-sm text-muted-foreground">
                     <div className="flex justify-between">
-                      <span>Input tokens</span>
+                      <span>{t("summary.inputTokens")}</span>
                       <span className="font-medium text-foreground">{formatTokens(data.inputTokens)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Output tokens</span>
+                      <span>{t("summary.outputTokens")}</span>
                       <span className="font-medium text-foreground">{formatTokens(data.outputTokens)}</span>
                     </div>
                     <div className="flex justify-between border-t pt-1">
-                      <span>Total</span>
+                      <span>{t("summary.total")}</span>
                       <span className="font-medium text-foreground">{formatTokens(data.totalTokens)}</span>
                     </div>
                   </div>
@@ -83,24 +85,24 @@ export function UsagePage() {
 
           {/* Recent records table */}
           <div className="mt-6">
-            <h3 className="mb-3 text-sm font-medium">Recent Records</h3>
+            <h3 className="mb-3 text-sm font-medium">{t("recentRecords")}</h3>
             {records.length === 0 ? (
               <EmptyState
                 icon={BarChart3}
-                title="No usage data"
-                description="Usage data will appear here after agents process requests."
+                title={t("emptyTitle")}
+                description={t("emptyDescription")}
               />
             ) : (
               <div className="rounded-md border">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b bg-muted/50">
-                      <th className="px-4 py-3 text-left font-medium">Agent</th>
-                      <th className="px-4 py-3 text-left font-medium">Model</th>
-                      <th className="px-4 py-3 text-left font-medium">Provider</th>
-                      <th className="px-4 py-3 text-right font-medium">Input</th>
-                      <th className="px-4 py-3 text-right font-medium">Output</th>
-                      <th className="px-4 py-3 text-right font-medium">Total</th>
+                      <th className="px-4 py-3 text-left font-medium">{t("columns.agent")}</th>
+                      <th className="px-4 py-3 text-left font-medium">{t("columns.model")}</th>
+                      <th className="px-4 py-3 text-left font-medium">{t("columns.provider")}</th>
+                      <th className="px-4 py-3 text-right font-medium">{t("columns.input")}</th>
+                      <th className="px-4 py-3 text-right font-medium">{t("columns.output")}</th>
+                      <th className="px-4 py-3 text-right font-medium">{t("columns.total")}</th>
                     </tr>
                   </thead>
                   <tbody>

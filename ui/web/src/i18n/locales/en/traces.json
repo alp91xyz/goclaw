@@ -1,0 +1,49 @@
+{
+  "title": "Traces",
+  "description": "LLM call traces and performance data",
+  "filterPlaceholder": "Filter by agent ID...",
+  "filter": "Filter",
+  "emptyTitle": "No traces",
+  "emptyDescription": "No traces found. Traces are recorded when agents process requests.",
+  "columns": {
+    "name": "Name",
+    "status": "Status",
+    "duration": "Duration",
+    "tokens": "Tokens",
+    "spans": "Spans",
+    "time": "Time"
+  },
+  "unnamed": "Unnamed",
+  "cached": "cached",
+  "detail": {
+    "title": "Trace Detail",
+    "copyTraceId": "Copy trace ID",
+    "notFound": "Trace not found.",
+    "name": "Name:",
+    "status": "Status:",
+    "duration": "Duration:",
+    "channel": "Channel:",
+    "tokens": "Tokens:",
+    "spans": "Spans:",
+    "started": "Started:",
+    "delegatedFrom": "Delegated from:",
+    "input": "Input",
+    "output": "Output",
+    "spansCount": "Spans ({{count}})",
+    "llmCalls": "LLM",
+    "toolCalls": "tool"
+  },
+  "span": {
+    "model": "Model:",
+    "tokens": "Tokens:",
+    "input": "Input:",
+    "output": "Output:",
+    "cacheRead": "read",
+    "cacheWrite": "write",
+    "thinking": "thinking",
+    "cached": "cached"
+  },
+  "toast": {
+    "failedLoad": "Failed to load traces"
+  }
+}

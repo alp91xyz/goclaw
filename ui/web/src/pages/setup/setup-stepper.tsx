@@ -1,11 +1,5 @@
 import { Check } from "lucide-react";
-
-const STEPS: { num: number; label: string; sublabel?: string }[] = [
-  { num: 1, label: "Provider" },
-  { num: 2, label: "Model" },
-  { num: 3, label: "Agent" },
-  { num: 4, label: "Channel", sublabel: "(Optional)" },
-];
+import { useTranslation } from "react-i18next";
 
 interface SetupStepperProps {
   currentStep: 1 | 2 | 3 | 4;
@@ -13,6 +7,15 @@ interface SetupStepperProps {
 }
 
 export function SetupStepper({ currentStep, completedSteps }: SetupStepperProps) {
+  const { t } = useTranslation("setup");
+
+  const STEPS: { num: number; label: string; sublabel?: string }[] = [
+    { num: 1, label: t("steps.provider") },
+    { num: 2, label: t("steps.model") },
+    { num: 3, label: t("steps.agent") },
+    { num: 4, label: t("steps.channel"), sublabel: t("steps.channelOptional") },
+  ];
+
   return (
     <div className="flex items-center justify-center gap-0">
       {STEPS.map((step, i) => {

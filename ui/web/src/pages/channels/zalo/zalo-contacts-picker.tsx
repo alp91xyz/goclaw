@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ interface ZaloContactsPickerProps {
 }
 
 export function ZaloContactsPicker({ instanceId, hasCredentials, value, onChange }: ZaloContactsPickerProps) {
+  const { t } = useTranslation("channels");
   const [contacts, setContacts] = useState<ContactsResult | null>(null);
   const [search, setSearch] = useState("");
   const [manualId, setManualId] = useState("");
@@ -82,8 +84,8 @@ export function ZaloContactsPicker({ instanceId, hasCredentials, value, onChange
   if (!hasCredentials) {
     return (
       <div className="grid gap-1.5">
-        <Label>Allowed Users</Label>
-        <p className="text-sm text-muted-foreground">Complete QR login to load contacts</p>
+        <Label>{t("zalo.allowedUsers")}</Label>
+        <p className="text-sm text-muted-foreground">{t("zalo.completeQrLogin")}</p>
       </div>
     );
   }
@@ -99,10 +101,10 @@ export function ZaloContactsPicker({ instanceId, hasCredentials, value, onChange
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Label>Allowed Users</Label>
+        <Label>{t("zalo.allowedUsers")}</Label>
         {!contacts && (
           <Button type="button" variant="outline" size="sm" onClick={handleLoad} disabled={loading}>
-            {loading ? "Loading..." : "Load Contacts"}
+            {loading ? t("zalo.loading") : t("zalo.loadContacts")}
           </Button>
         )}
       </div>
@@ -127,7 +129,7 @@ export function ZaloContactsPicker({ instanceId, hasCredentials, value, onChange
       {contacts && (
         <>
           <Input
-            placeholder="Search contacts..."
+            placeholder={t("zalo.searchContacts")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-8"
@@ -135,7 +137,7 @@ export function ZaloContactsPicker({ instanceId, hasCredentials, value, onChange
           <div className="max-h-48 overflow-y-auto rounded border p-2 space-y-1">
             {filteredFriends.length > 0 && (
               <>
-                <p className="text-xs font-medium text-muted-foreground">Friends</p>
+                <p className="text-xs font-medium text-muted-foreground">{t("zalo.friends")}</p>
                 {filteredFriends.map((f) => (
                   <label key={f.userId} className="flex items-center gap-2 py-0.5 text-sm cursor-pointer hover:bg-muted/50 rounded px-1">
                     <input type="checkbox" checked={value.includes(f.userId)} onChange={() => toggle(f.userId)} />
@@ -147,19 +149,19 @@ export function ZaloContactsPicker({ instanceId, hasCredentials, value, onChange
             )}
             {filteredGroups.length > 0 && (
               <>
-                <p className="text-xs font-medium text-muted-foreground mt-2">Groups</p>
+                <p className="text-xs font-medium text-muted-foreground mt-2">{t("zalo.groups")}</p>
                 {filteredGroups.map((g) => (
                   <label key={g.groupId} className="flex items-center gap-2 py-0.5 text-sm cursor-pointer hover:bg-muted/50 rounded px-1">
                     <input type="checkbox" checked={value.includes(g.groupId)} onChange={() => toggle(g.groupId)} />
                     <span>{g.name}</span>
-                    <span className="text-xs text-muted-foreground ml-auto">{g.totalMember} members</span>
+                    <span className="text-xs text-muted-foreground ml-auto">{t("zalo.membersCount", { count: g.totalMember })}</span>
                   </label>
                 ))}
               </>
             )}
             {filteredFriends.length === 0 && filteredGroups.length === 0 && (
               <p className="text-sm text-muted-foreground py-2 text-center">
-                {search ? `No contacts match "${search}"` : "No contacts found"}
+                {search ? t("zalo.noContactsMatch", { search }) : t("zalo.noContacts")}
               </p>
             )}
           </div>
@@ -169,17 +171,17 @@ export function ZaloContactsPicker({ instanceId, hasCredentials, value, onChange
       {/* Manual ID entry */}
       <div className="flex gap-2">
         <Input
-          placeholder="Add ID manually"
+          placeholder={t("zalo.addManualPlaceholder")}
           value={manualId}
           onChange={(e) => setManualId(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addManual(); } }}
           className="h-8"
         />
         <Button type="button" variant="outline" size="sm" onClick={addManual} disabled={!manualId.trim()}>
-          Add
+          {t("zalo.add")}
         </Button>
       </div>
-      <p className="text-xs text-muted-foreground">Zalo user IDs or group IDs</p>
+      <p className="text-xs text-muted-foreground">{t("zalo.zaloIdsHint")}</p>
     </div>
   );
 }

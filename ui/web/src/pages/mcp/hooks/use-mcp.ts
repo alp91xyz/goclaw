@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import i18next from "i18next";
 import { useHttp } from "@/hooks/use-ws";
 import { queryKeys } from "@/lib/query-keys";
 import { toast } from "@/stores/use-toast-store";
@@ -29,10 +30,10 @@ export function useMCP() {
       try {
         const res = await http.post<MCPServerData>("/v1/mcp/servers", data);
         await invalidate();
-        toast.success("MCP server created", `${data.name} has been added`);
+        toast.success(i18next.t("mcp:toast.created"));
         return res;
       } catch (err) {
-        toast.error("Failed to create MCP server", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("mcp:toast.failedCreate"), err instanceof Error ? err.message : "");
         throw err;
       }
     },
@@ -44,9 +45,9 @@ export function useMCP() {
       try {
         await http.put(`/v1/mcp/servers/${id}`, data);
         await invalidate();
-        toast.success("MCP server updated");
+        toast.success(i18next.t("mcp:toast.updated"));
       } catch (err) {
-        toast.error("Failed to update MCP server", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("mcp:toast.failedUpdate"), err instanceof Error ? err.message : "");
         throw err;
       }
     },
@@ -58,9 +59,9 @@ export function useMCP() {
       try {
         await http.delete(`/v1/mcp/servers/${id}`);
         await invalidate();
-        toast.success("MCP server deleted");
+        toast.success(i18next.t("mcp:toast.deleted"));
       } catch (err) {
-        toast.error("Failed to delete MCP server", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("mcp:toast.failedDelete"), err instanceof Error ? err.message : "");
         throw err;
       }
     },

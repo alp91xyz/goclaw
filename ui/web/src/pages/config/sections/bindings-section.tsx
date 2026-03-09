@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, Plus, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,7 @@ interface Props {
 const EMPTY_BINDING: Binding = { agentId: "", match: { channel: "", peer: { kind: "", id: "" } } };
 
 export function BindingsSection({ data, onSave, saving }: Props) {
+  const { t } = useTranslation("config");
   const [draft, setDraft] = useState<Binding[]>(data ?? []);
   const [dirty, setDirty] = useState(false);
 
@@ -75,23 +77,23 @@ export function BindingsSection({ data, onSave, saving }: Props) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Bindings</CardTitle>
-            <CardDescription>Route channels/peers to specific agents</CardDescription>
+            <CardTitle className="text-base">{t("bindings.title")}</CardTitle>
+            <CardDescription>{t("bindings.description")}</CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={addBinding} className="gap-1.5">
-            <Plus className="h-3.5 w-3.5" /> Add
+            <Plus className="h-3.5 w-3.5" /> {t("bindings.add")}
           </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {draft.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No bindings configured. Default agent routing applies.</p>
+          <p className="text-sm text-muted-foreground">{t("bindings.noBindings")}</p>
         ) : (
           draft.map((binding, idx) => (
             <div key={idx} className="flex items-start gap-3 rounded-md border p-3">
               <div className="grid flex-1 grid-cols-4 gap-3">
                 <div className="grid gap-1">
-                  <Label className="text-xs">Agent ID</Label>
+                  <Label className="text-xs">{t("bindings.agentId")}</Label>
                   <Input
                     value={binding.agentId ?? ""}
                     onChange={(e) => updateBinding(idx, { agentId: e.target.value })}
@@ -99,7 +101,7 @@ export function BindingsSection({ data, onSave, saving }: Props) {
                   />
                 </div>
                 <div className="grid gap-1">
-                  <Label className="text-xs">Channel</Label>
+                  <Label className="text-xs">{t("bindings.channel")}</Label>
                   <Select value={binding.match?.channel ?? ""} onValueChange={(v) => updateMatch(idx, { channel: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Any" />
@@ -115,7 +117,7 @@ export function BindingsSection({ data, onSave, saving }: Props) {
                   </Select>
                 </div>
                 <div className="grid gap-1">
-                  <Label className="text-xs">Peer Kind</Label>
+                  <Label className="text-xs">{t("bindings.peerKind")}</Label>
                   <Select value={binding.match?.peer?.kind ?? ""} onValueChange={(v) => updatePeer(idx, { kind: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Any" />
@@ -127,7 +129,7 @@ export function BindingsSection({ data, onSave, saving }: Props) {
                   </Select>
                 </div>
                 <div className="grid gap-1">
-                  <Label className="text-xs">Peer ID</Label>
+                  <Label className="text-xs">{t("bindings.peerId")}</Label>
                   <Input
                     value={binding.match?.peer?.id ?? ""}
                     onChange={(e) => updatePeer(idx, { id: e.target.value })}
@@ -145,7 +147,7 @@ export function BindingsSection({ data, onSave, saving }: Props) {
         {dirty && (
           <div className="flex justify-end pt-2">
             <Button size="sm" onClick={() => onSave(draft)} disabled={saving} className="gap-1.5">
-              <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save"}
+              <Save className="h-3.5 w-3.5" /> {saving ? t("saving") : t("save")}
             </Button>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function TelegramTopicOverrides({ topics, onChange }: Props) {
+  const { t } = useTranslation("channels");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [newTopicId, setNewTopicId] = useState("");
 
@@ -42,7 +44,7 @@ export function TelegramTopicOverrides({ topics, onChange }: Props) {
 
   return (
     <div className="space-y-2">
-      <Label className="text-xs font-medium text-muted-foreground">Topic Overrides</Label>
+      <Label className="text-xs font-medium text-muted-foreground">{t("groupOverrides.topicOverrides")}</Label>
 
       {topicIds.map((id) => (
         <div key={id} className="rounded-md border border-dashed p-2 space-y-2">
@@ -53,7 +55,7 @@ export function TelegramTopicOverrides({ topics, onChange }: Props) {
               onClick={() => toggle(id)}
             >
               {expanded[id] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-              Topic: {id}
+              {t("groupOverrides.topicLabel", { id })}
             </button>
             <Button
               type="button"
@@ -82,13 +84,13 @@ export function TelegramTopicOverrides({ topics, onChange }: Props) {
         <Input
           value={newTopicId}
           onChange={(e) => setNewTopicId(e.target.value.replace(/\D/g, ""))}
-          placeholder="Topic thread ID"
+          placeholder={t("groupOverrides.addTopicPlaceholder")}
           className="h-8 w-40 text-sm"
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTopic())}
         />
         <Button type="button" variant="outline" size="sm" className="h-8" onClick={addTopic} disabled={!newTopicId.trim()}>
           <Plus className="h-3.5 w-3.5 mr-1" />
-          Add Topic
+          {t("groupOverrides.addTopic")}
         </Button>
       </div>
     </div>

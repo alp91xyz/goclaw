@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { Activity, Bot, Hash, Radio, AlertTriangle } from "lucide-react";
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -31,6 +32,7 @@ import { QuotaUsageCard } from "./quota-usage-card";
 const REFRESH_INTERVAL = 30_000;
 
 export function OverviewPage() {
+  const { t } = useTranslation("overview");
   const connected = useAuthStore((s) => s.connected);
   const { call: fetchHealth, data: health } =
     useWsCall<HealthPayload>(Methods.HEALTH);
@@ -89,8 +91,8 @@ export function OverviewPage() {
     <div className="space-y-6 p-4 sm:p-6">
       {/* Header */}
       <PageHeader
-        title="Dashboard"
-        description="Gateway overview and quota usage"
+        title={t("title")}
+        description={t("description")}
         actions={
           <div className="flex items-center gap-2">
             {health?.version && (
@@ -100,7 +102,7 @@ export function OverviewPage() {
             )}
             <StatusBadge
               status={connected ? "success" : "error"}
-              label={connected ? "Connected" : "Disconnected"}
+              label={connected ? t("common:connected", "Connected") : t("common:disconnected", "Disconnected")}
             />
           </div>
         }
@@ -112,18 +114,18 @@ export function OverviewPage() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>
             {hasNoProviders
-              ? "No LLM providers configured"
-              : "No LLM providers enabled"}
+              ? t("providers.noProvidersTitle")
+              : t("providers.noEnabledTitle")}
           </AlertTitle>
           <AlertDescription>
             {hasNoProviders
-              ? "You need to add at least one LLM provider before agents can work. "
-              : "All providers are currently disabled. Enable at least one to start using agents. "}
+              ? t("providers.noProvidersDesc")
+              : t("providers.noEnabledDesc")}
             <Link
               to={ROUTES.PROVIDERS}
               className="font-medium underline underline-offset-4 hover:text-foreground"
             >
-              Go to Provider Settings
+              {t("providers.goToSettings")}
             </Link>
           </AlertDescription>
         </Alert>
@@ -133,45 +135,45 @@ export function OverviewPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={Activity}
-          label="Requests Today"
+          label={t("statCards.requestsToday")}
           value={quota?.requestsToday ?? 0}
           sub={
             quota?.uniqueUsersToday
-              ? `${quota.uniqueUsersToday} users`
+              ? t("statCards.users", { count: quota.uniqueUsersToday })
               : undefined
           }
         />
         <StatCard
           icon={Hash}
-          label="Tokens Today"
+          label={t("statCards.tokensToday")}
           value={formatTokens(
             (quota?.inputTokensToday ?? 0) + (quota?.outputTokensToday ?? 0),
           )}
           sub={
             quota
-              ? `${formatTokens(quota.inputTokensToday)} in / ${formatTokens(quota.outputTokensToday)} out`
+              ? t("statCards.inOut", { input: formatTokens(quota.inputTokensToday), output: formatTokens(quota.outputTokensToday) })
               : undefined
           }
         />
         <StatCard
           icon={Bot}
-          label="Agents"
+          label={t("statCards.agents")}
           value={
             agentTotal > 0
               ? `${runningAgents} / ${agentTotal}`
               : "0"
           }
-          sub={agentTotal > 0 ? "running" : undefined}
+          sub={agentTotal > 0 ? t("statCards.running") : undefined}
         />
         <StatCard
           icon={Radio}
-          label="Channels"
+          label={t("statCards.channels")}
           value={
             channelEntries.length > 0
               ? `${channelsOnline} / ${channelEntries.length}`
               : "0"
           }
-          sub={channelEntries.length > 0 ? "online" : undefined}
+          sub={channelEntries.length > 0 ? t("statCards.online") : undefined}
         />
       </div>
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +22,7 @@ export function RegenerateDialog({
   onOpenChange,
   onRegenerate,
 }: RegenerateDialogProps) {
+  const { t } = useTranslation("agents");
   const [prompt, setPrompt] = useState("");
   const [regenerating, setRegenerating] = useState(false);
 
@@ -42,18 +44,17 @@ export function RegenerateDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
-            Edit with AI
+            {t("fileEditor.editWithAi")}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3 py-2">
           <p className="text-sm text-muted-foreground">
-            Describe what you want to change. AI will read the current files and
-            update them accordingly.
+            {t("fileEditor.editAiDescription")}
           </p>
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="e.g. Make the agent more formal, add Vietnamese language support, change the name to Luna..."
+            placeholder={t("fileEditor.editAiPlaceholder")}
             className="min-h-[100px] max-h-[300px] resize-none"
           />
         </div>
@@ -63,7 +64,7 @@ export function RegenerateDialog({
             onClick={() => onOpenChange(false)}
             disabled={regenerating}
           >
-            Cancel
+            {t("fileEditor.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -71,7 +72,7 @@ export function RegenerateDialog({
             className="gap-1.5"
           >
             <Sparkles className="h-3.5 w-3.5" />
-            {regenerating ? "Sending..." : "Regenerate"}
+            {regenerating ? t("fileEditor.sending") : t("fileEditor.regenerate")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +37,7 @@ export function SummoningModal({
   hideClose = false,
   onContinue,
 }: SummoningModalProps) {
+  const { t } = useTranslation("agents");
   const [generatedFiles, setGeneratedFiles] = useState<string[]>([]);
   const [status, setStatus] = useState<"summoning" | "completed" | "failed">("summoning");
   const [errorMsg, setErrorMsg] = useState("");
@@ -71,11 +73,11 @@ export function SummoningModal({
       }
       if (data.type === "failed") {
         setStatus("failed");
-        setErrorMsg(data.error || "Summoning failed");
+        setErrorMsg(data.error || t("summoning.failed"));
         onCompleted();
       }
     },
-    [agentId, onCompleted],
+    [agentId, onCompleted, t],
   );
 
   useWsEvent("agent.summoning", handleSummoningEvent);
@@ -100,10 +102,10 @@ export function SummoningModal({
         <DialogHeader>
           <DialogTitle className="text-center">
             {status === "completed"
-              ? "Summoning Complete!"
+              ? t("summoning.completed")
               : status === "failed"
-                ? "Summoning Failed"
-                : "Summoning Your Agent..."}
+                ? t("summoning.failed")
+                : t("summoning.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -153,14 +155,14 @@ export function SummoningModal({
           <p className="text-sm text-foreground">
             {status === "completed" ? (
               <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                {agentName} is ready!
+                {t("summoning.agentReady", { name: agentName })}
               </span>
             ) : status === "failed" ? (
               <span className="font-medium text-red-600 dark:text-red-400">
-                {errorMsg || "Using template files as fallback."}
+                {errorMsg || t("summoning.failed")}
               </span>
             ) : (
-              <>Weaving the soul of <span className="font-semibold text-foreground">{agentName}</span>...</>
+              <>{t("summoning.weavingSoul")} <span className="font-semibold text-foreground">{agentName}</span>...</>
             )}
           </p>
 
@@ -200,7 +202,7 @@ export function SummoningModal({
                         animate={{ opacity: 1, scale: 1 }}
                         className="text-xs text-violet-600 dark:text-violet-400"
                       >
-                        done
+                        {t("summoning.done")}
                       </motion.span>
                     )}
                   </motion.div>
@@ -211,19 +213,19 @@ export function SummoningModal({
 
           {status === "summoning" && (
             <p className="text-center text-xs text-muted-foreground">
-              This usually takes few minutes. Please wait...
+              {t("summoning.wait")}
             </p>
           )}
 
           {status === "completed" && onContinue && (
             <Button size="sm" onClick={onContinue}>
-              Continue
+              {t("summoning.continue")}
             </Button>
           )}
 
           {status === "failed" && (
             <Button variant="outline" size="sm" onClick={handleRetry} disabled={retrying}>
-              {retrying ? "Retrying..." : "Retry"}
+              {retrying ? t("summoning.retrying") : t("summoning.retry")}
             </Button>
           )}
         </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
+import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { ROUTES } from "@/lib/constants";
 import { LoginLayout } from "./login-layout";
@@ -8,6 +9,7 @@ import { TokenForm } from "./token-form";
 import { PairingForm } from "./pairing-form";
 
 export function LoginPage() {
+  const { t } = useTranslation("login");
   const [mode, setMode] = useState<LoginMode>("token");
 
   const setCredentials = useAuthStore((s) => s.setCredentials);
@@ -30,7 +32,7 @@ export function LoginPage() {
   }
 
   return (
-    <LoginLayout subtitle="Sign in to the gateway dashboard">
+    <LoginLayout subtitle={t("subtitle")}>
       <LoginTabs mode={mode} onModeChange={setMode} />
       {mode === "token" ? (
         <TokenForm onSubmit={handleTokenLogin} />

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectContent,
@@ -17,15 +18,17 @@ interface ToolPolicySectionProps {
 }
 
 export function ToolPolicySection({ enabled, value, onToggle, onChange }: ToolPolicySectionProps) {
+  const { t } = useTranslation("agents");
+  const s = "configSections.toolPolicy";
   return (
     <ConfigSection
-      title="Tool Policy"
-      description="Control which tools this agent can use"
+      title={t(`${s}.title`)}
+      description={t(`${s}.description`)}
       enabled={enabled}
       onToggle={onToggle}
     >
       <div className="space-y-2">
-        <InfoLabel tip="Base tool profile. 'full' allows all tools, 'coding' includes filesystem/runtime/sessions/memory, 'messaging' includes messaging/sessions, 'minimal' allows only session_status.">Profile</InfoLabel>
+        <InfoLabel tip="Base tool profile. 'full' allows all tools, 'coding' includes filesystem/runtime/sessions/memory, 'messaging' includes messaging/sessions, 'minimal' allows only session_status.">{t(`${s}.profile`)}</InfoLabel>
         <Select
           value={value.profile ?? ""}
           onValueChange={(v) => onChange({ ...value, profile: v || undefined })}
@@ -40,27 +43,27 @@ export function ToolPolicySection({ enabled, value, onToggle, onChange }: ToolPo
         </Select>
       </div>
       <div className="space-y-2">
-        <InfoLabel tip="Explicit allowlist. Only these tools will be available (overrides profile). Leave empty to use profile defaults.">Allow</InfoLabel>
+        <InfoLabel tip="Explicit allowlist. Only these tools will be available (overrides profile). Leave empty to use profile defaults.">{t(`${s}.allow`)}</InfoLabel>
         <ToolNameSelect
           value={value.allow ?? []}
           onChange={(v) => onChange({ ...value, allow: v.length > 0 ? v : undefined })}
-          placeholder="Select tools to allow..."
+          placeholder={t(`${s}.selectToolsAllow`)}
         />
       </div>
       <div className="space-y-2">
-        <InfoLabel tip="Denylist. These tools will be blocked even if allowed by the profile.">Deny</InfoLabel>
+        <InfoLabel tip="Denylist. These tools will be blocked even if allowed by the profile.">{t(`${s}.deny`)}</InfoLabel>
         <ToolNameSelect
           value={value.deny ?? []}
           onChange={(v) => onChange({ ...value, deny: v.length > 0 ? v : undefined })}
-          placeholder="Select tools to deny..."
+          placeholder={t(`${s}.selectToolsDeny`)}
         />
       </div>
       <div className="space-y-2">
-        <InfoLabel tip="Additional tools on top of profile defaults. Useful for enabling optional tools without overriding the whole profile.">Also Allow</InfoLabel>
+        <InfoLabel tip="Additional tools on top of profile defaults. Useful for enabling optional tools without overriding the whole profile.">{t(`${s}.alsoAllow`)}</InfoLabel>
         <ToolNameSelect
           value={value.alsoAllow ?? []}
           onChange={(v) => onChange({ ...value, alsoAllow: v.length > 0 ? v : undefined })}
-          placeholder="Select additional tools..."
+          placeholder={t(`${s}.selectToolsAlsoAllow`)}
         />
       </div>
     </ConfigSection>

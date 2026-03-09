@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTranslation } from "react-i18next";
 import { useAgents } from "@/pages/agents/hooks/use-agents";
 import type { TeamMemberData } from "@/types/team";
 import { MemberList } from "./member-sections";
@@ -21,6 +22,7 @@ interface TeamMembersTabProps {
 }
 
 export function TeamMembersTab({ members, onAddMember, onRemoveMember }: TeamMembersTabProps) {
+  const { t } = useTranslation("teams");
   const { agents, refresh: refreshAgents } = useAgents();
   const [selectedAgent, setSelectedAgent] = useState("");
   const [adding, setAdding] = useState(false);
@@ -57,16 +59,14 @@ export function TeamMembersTab({ members, onAddMember, onRemoveMember }: TeamMem
       {onAddMember && (
         <div className="space-y-2">
           <Label className="inline-flex items-center gap-1">
-            Add Member
+            {t("members.addMember")}
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  Only predefined agents can be added as team members.
-                  <br />
-                  Open agents are per-user and lack shared context needed for team collaboration.
+                  {t("members.addMemberTooltip")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -77,7 +77,7 @@ export function TeamMembersTab({ members, onAddMember, onRemoveMember }: TeamMem
                 value={selectedAgent}
                 onChange={setSelectedAgent}
                 options={availableAgents}
-                placeholder={availableAgents.length === 0 ? "No available agents" : "Search agents..."}
+                placeholder={availableAgents.length === 0 ? t("members.noAvailableAgents") : t("members.searchAgents")}
               />
             </div>
             <Button
@@ -87,7 +87,7 @@ export function TeamMembersTab({ members, onAddMember, onRemoveMember }: TeamMem
               onClick={handleAdd}
             >
               <UserPlus className="h-4 w-4" />
-              {adding ? "Adding..." : "Add"}
+              {adding ? t("members.adding") : t("members.add")}
             </Button>
           </div>
         </div>

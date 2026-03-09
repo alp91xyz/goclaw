@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ interface AgentCreateDialogProps {
 }
 
 export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateDialogProps) {
+  const { t } = useTranslation("agents");
   const { providers } = useProviders();
   const [agentKey, setAgentKey] = useState("");
   const [keyTouched, setKeyTouched] = useState(false);
@@ -99,7 +101,7 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
       setSelfEvolve(false);
       setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create agent");
+      setError(err instanceof Error ? err.message : t("create.failedToCreate"));
     } finally {
       setLoading(false);
     }
@@ -114,12 +116,12 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Create Agent</DialogTitle>
+          <DialogTitle>{t("create.title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4 px-0.5 -mx-0.5 overflow-y-auto min-h-0">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="displayName">Display Name *</Label>
+              <Label htmlFor="displayName">{t("create.displayName")}</Label>
               <Input
                 id="displayName"
                 value={displayName}
@@ -129,11 +131,11 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
                     setAgentKey(slugify(displayName.trim()));
                   }
                 }}
-                placeholder="My Agent"
+                placeholder={t("create.displayNamePlaceholder")}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="agentKey">Agent Key *</Label>
+              <Label htmlFor="agentKey">{t("create.agentKey")}</Label>
               <Input
                 id="agentKey"
                 value={agentKey}
@@ -142,18 +144,18 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
                   setAgentKey(e.target.value);
                 }}
                 onBlur={() => setAgentKey(slugify(agentKey))}
-                placeholder="e.g. my-agent"
+                placeholder={t("create.agentKeyPlaceholder")}
               />
-              <p className="text-xs text-muted-foreground">Lowercase, numbers, hyphens</p>
+              <p className="text-xs text-muted-foreground">{t("create.agentKeyHint")}</p>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>Provider *</Label>
+              <Label>{t("create.provider")}</Label>
               {enabledProviders.length > 0 ? (
                 <Select value={provider} onValueChange={handleProviderChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select provider" />
+                    <SelectValue placeholder={t("create.selectProvider")} />
                   </SelectTrigger>
                   <SelectContent>
                     {enabledProviders.map((p) => (
@@ -172,14 +174,14 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
               )}
             </div>
             <div className="space-y-2">
-              <Label>Model *</Label>
+              <Label>{t("create.model")}</Label>
               <div className="flex gap-2">
                 <div className="flex-1">
                   <Combobox
                     value={model}
                     onChange={setModel}
                     options={models.map((m) => ({ value: m.id, label: m.name }))}
-                    placeholder={modelsLoading ? "Loading models..." : "Enter or select model"}
+                    placeholder={modelsLoading ? t("create.loadingModels") : t("create.enterOrSelectModel")}
                   />
                 </div>
                 <Button
@@ -190,21 +192,21 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
                   disabled={!selectedProviderId || !model.trim() || verifying}
                   onClick={handleVerify}
                 >
-                  {verifying ? "..." : "Check"}
+                  {verifying ? "..." : t("create.check")}
                 </Button>
               </div>
               {verifyResult && (
                 <p className={`text-xs ${verifyResult.valid ? "text-success" : "text-destructive"}`}>
-                  {verifyResult.valid ? "Model verified" : verifyResult.error || "Verification failed"}
+                  {verifyResult.valid ? t("create.modelVerified") : verifyResult.error || t("create.verificationFailed")}
                 </p>
               )}
               {!verifyResult && provider && !modelsLoading && models.length === 0 && (
-                <p className="text-xs text-muted-foreground">This provider doesn't list models — type the model ID manually.</p>
+                <p className="text-xs text-muted-foreground">{t("create.noModelsHint")}</p>
               )}
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Agent Type</Label>
+            <Label>{t("create.agentType")}</Label>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -215,8 +217,8 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
                     : "border-input bg-background hover:bg-accent"
                 }`}
               >
-                Open
-                <span className="block text-xs font-normal opacity-70">Per-user context</span>
+                {t("create.open")}
+                <span className="block text-xs font-normal opacity-70">{t("create.openSubLabel")}</span>
               </button>
               <button
                 type="button"
@@ -227,15 +229,15 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
                     : "border-input bg-background hover:bg-accent"
                 }`}
               >
-                Predefined
-                <span className="block text-xs font-normal opacity-70">Agent-level config</span>
+                {t("create.predefined")}
+                <span className="block text-xs font-normal opacity-70">{t("create.predefinedSubLabel")}</span>
               </button>
             </div>
           </div>
 
           {agentType === "predefined" && (
             <div className="space-y-3">
-              <Label>Describe Your Agent</Label>
+              <Label>{t("create.describeAgent")}</Label>
               <div className="flex flex-wrap gap-1.5">
                 {AGENT_PRESETS.map((preset) => (
                   <button
@@ -251,17 +253,16 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe your agent's personality, purpose, and behavior..."
+                placeholder={t("create.descriptionPlaceholder")}
                 className="min-h-[120px]"
               />
               <p className="text-xs text-muted-foreground">
-                AI will automatically generate your agent's context files from this description.
-                Leave empty to start with templates.
+                {t("create.descriptionHint")}
               </p>
               <div className="flex items-center justify-between gap-4 rounded-md border px-3 py-2.5">
                 <div className="space-y-0.5">
-                  <Label htmlFor="create-self-evolve" className="text-sm font-normal">Self-Evolution</Label>
-                  <p className="text-xs text-muted-foreground">Allow agent to evolve its style and tone over time via SOUL.md</p>
+                  <Label htmlFor="create-self-evolve" className="text-sm font-normal">{t("create.selfEvolution")}</Label>
+                  <p className="text-xs text-muted-foreground">{t("create.selfEvolutionHint")}</p>
                 </div>
                 <Switch id="create-self-evolve" checked={selfEvolve} onCheckedChange={setSelfEvolve} />
               </div>
@@ -273,17 +274,17 @@ export function AgentCreateDialog({ open, onOpenChange, onCreate }: AgentCreateD
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancel
+            {t("create.cancel")}
           </Button>
           {loading ? (
-            <Button disabled>Creating...</Button>
+            <Button disabled>{t("create.creating")}</Button>
           ) : !verifyResult?.valid && selectedProviderId && model.trim() ? (
             <Button onClick={handleVerifyAndCreate} disabled={verifying || !displayName.trim() || !agentKey.trim() || !isValidSlug(agentKey) || (agentType === "predefined" && !description.trim())}>
-              {verifying ? "Checking..." : "Check & Create"}
+              {verifying ? t("create.checking") : t("create.checkAndCreate")}
             </Button>
           ) : (
             <Button onClick={handleCreate} disabled={!displayName.trim() || !agentKey.trim() || !isValidSlug(agentKey) || !provider.trim() || !model.trim() || !verifyResult?.valid || (agentType === "predefined" && !description.trim())}>
-              Create
+              {t("create.create")}
             </Button>
           )}
         </DialogFooter>

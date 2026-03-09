@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, Check, AlertCircle, Users, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +11,7 @@ interface AgentInstancesTabProps {
 }
 
 export function AgentInstancesTab({ agentId }: AgentInstancesTabProps) {
+  const { t } = useTranslation("agents");
   const { instances, loading, saving, getFiles, setFile } = useAgentInstances(agentId);
   const [selected, setSelected] = useState<string | null>(null);
   const [content, setContent] = useState("");
@@ -18,7 +20,6 @@ export function AgentInstancesTab({ agentId }: AgentInstancesTabProps) {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load USER.md when an instance is selected
   useEffect(() => {
     if (!selected) return;
     let cancelled = false;
@@ -31,12 +32,12 @@ export function AgentInstancesTab({ agentId }: AgentInstancesTabProps) {
       setContent(c);
       setOriginalContent(c);
     }).catch((err) => {
-      if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load files");
+      if (!cancelled) setError(err instanceof Error ? err.message : t("instances.loading"));
     }).finally(() => {
       if (!cancelled) setLoadingFiles(false);
     });
     return () => { cancelled = true; };
-  }, [selected, getFiles]);
+  }, [selected, getFiles, t]);
 
   const handleSave = async () => {
     if (!selected) return;
@@ -48,22 +49,22 @@ export function AgentInstancesTab({ agentId }: AgentInstancesTabProps) {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save");
+      setError(err instanceof Error ? err.message : t("instances.saving"));
     }
   };
 
   const isDirty = content !== originalContent;
 
   if (loading) {
-    return <div className="py-8 text-center text-sm text-muted-foreground">Loading instances...</div>;
+    return <div className="py-8 text-center text-sm text-muted-foreground">{t("instances.loadingInstances")}</div>;
   }
 
   if (instances.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 py-12 text-center">
         <Users className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-sm text-muted-foreground">No user instances yet.</p>
-        <p className="text-xs text-muted-foreground/70">Instances are created when users interact with this agent.</p>
+        <p className="text-sm text-muted-foreground">{t("instances.noInstances")}</p>
+        <p className="text-xs text-muted-foreground/70">{t("instances.noInstancesDesc")}</p>
       </div>
     );
   }
@@ -89,11 +90,11 @@ export function AgentInstancesTab({ agentId }: AgentInstancesTabProps) {
       <div className="flex flex-1 flex-col gap-3">
         {!selected ? (
           <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-            Select an instance to view and edit its USER.md
+            {t("instances.selectInstance")}
           </div>
         ) : loadingFiles ? (
           <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-            Loading...
+            {t("instances.loading")}
           </div>
         ) : (
           <>
@@ -118,12 +119,12 @@ export function AgentInstancesTab({ agentId }: AgentInstancesTabProps) {
             <div className="flex items-center justify-end gap-2">
               {saved && (
                 <span className="flex items-center gap-1 text-sm text-success">
-                  <Check className="h-3.5 w-3.5" /> Saved
+                  <Check className="h-3.5 w-3.5" /> {t("instances.saved")}
                 </span>
               )}
               <Button onClick={handleSave} disabled={saving || !isDirty} size="sm">
                 {!saving && <Save className="h-4 w-4" />}
-                {saving ? "Saving..." : "Save"}
+                {saving ? t("instances.saving") : t("instances.save")}
               </Button>
             </div>
           </>

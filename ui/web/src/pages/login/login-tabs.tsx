@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 export type LoginMode = "token" | "pairing";
 
 interface LoginTabsProps {
@@ -6,6 +8,7 @@ interface LoginTabsProps {
 }
 
 export function LoginTabs({ mode, onModeChange }: LoginTabsProps) {
+  const { t } = useTranslation("login");
   return (
     <div className="flex rounded-md border bg-muted p-1">
       <button
@@ -17,7 +20,7 @@ export function LoginTabs({ mode, onModeChange }: LoginTabsProps) {
             : "text-muted-foreground hover:text-foreground"
         }`}
       >
-        Token
+        {t("tabs.token")}
       </button>
       <button
         type="button"
@@ -28,7 +31,7 @@ export function LoginTabs({ mode, onModeChange }: LoginTabsProps) {
             : "text-muted-foreground hover:text-foreground"
         }`}
       >
-        Pairing
+        {t("tabs.pairing")}
       </button>
     </div>
   );

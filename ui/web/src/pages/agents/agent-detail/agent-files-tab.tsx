@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Lock, RotateCcw, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,6 +35,7 @@ export function AgentFilesTab({
   onRegenerate,
   onResummon,
 }: AgentFilesTabProps) {
+  const { t } = useTranslation("agents");
   const userId = useAuthStore((s) => s.userId);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [content, setContent] = useState("");
@@ -49,7 +51,6 @@ export function AgentFilesTab({
   const isOwner = agent.owner_id === userId;
   const canEdit = !isPredefined || isOwner;
 
-  // Hide MEMORY.json and BOOTSTRAP.md for predefined agents
   const displayFiles = files.filter(
     (f) =>
       f.name !== "MEMORY.json" &&
@@ -113,7 +114,7 @@ export function AgentFilesTab({
           className="gap-1.5"
         >
           <RotateCcw className="h-3.5 w-3.5" />
-          Resummon
+          {t("files.resummon")}
         </Button>
       )}
       {onRegenerate && (
@@ -124,7 +125,7 @@ export function AgentFilesTab({
           className="gap-1.5"
         >
           <Sparkles className="h-3.5 w-3.5" />
-          Edit with AI
+          {t("files.editWithAi")}
         </Button>
       )}
     </>
@@ -136,10 +137,8 @@ export function AgentFilesTab({
         <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
           <Lock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
           <div className="text-sm">
-            <p className="font-medium">Read-only</p>
-            <p className="text-muted-foreground">
-              Only the agent owner can edit predefined context files.
-            </p>
+            <p className="font-medium">{t("files.readOnly")}</p>
+            <p className="text-muted-foreground">{t("files.readOnlyDesc")}</p>
           </div>
         </div>
       )}
@@ -177,13 +176,11 @@ export function AgentFilesTab({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <RotateCcw className="h-4 w-4" />
-              Resummon Agent
+              {t("files.resummonTitle")}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will regenerate <strong>SOUL.md</strong>, <strong>IDENTITY.md</strong>, and
-            optionally <strong>USER_PREDEFINED.md</strong> from scratch using the original
-            description. Any manual edits to these files will be overwritten.
+            {t("files.resummonDesc")}
           </p>
           <DialogFooter>
             <Button
@@ -191,7 +188,7 @@ export function AgentFilesTab({
               onClick={() => setResummonOpen(false)}
               disabled={resummonning}
             >
-              Cancel
+              {t("files.cancel")}
             </Button>
             <Button
               variant="destructive"
@@ -200,7 +197,7 @@ export function AgentFilesTab({
               className="gap-1.5"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              {resummonning ? "Summoning..." : "Resummon"}
+              {resummonning ? t("files.summoning") : t("files.resummonConfirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

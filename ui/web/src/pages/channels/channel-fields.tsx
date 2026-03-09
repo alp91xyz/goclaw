@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -49,8 +50,9 @@ function FieldRenderer({
   id: string;
   isEdit?: boolean;
 }) {
+  const { t } = useTranslation("channels");
   const labelSuffix = field.required && !isEdit ? " *" : "";
-  const editHint = isEdit && field.type === "password" ? " (leave blank to keep current)" : "";
+  const editHint = isEdit && field.type === "password" ? ` ${t("form.credentialsHint")}` : "";
 
   switch (field.type) {
     case "text":
@@ -133,7 +135,7 @@ function FieldRenderer({
               const lines = e.target.value.split("\n").map((l) => l.trim()).filter(Boolean);
               onChange(lines.length > 0 ? lines : undefined);
             }}
-            placeholder="One per line"
+            placeholder={t("groupOverrides.fields.allowedUsersPlaceholder")}
             rows={3}
             className="font-mono text-sm"
           />

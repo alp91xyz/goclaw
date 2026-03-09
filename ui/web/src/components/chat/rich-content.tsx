@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
   Video,
@@ -126,33 +127,26 @@ const mediaIcons: Record<string, typeof Image> = {
   animation: Video,
 };
 
-const mediaLabels: Record<string, string> = {
-  image: "Image",
-  video: "Video",
-  audio: "Audio",
-  voice: "Voice message",
-  document: "Document",
-  animation: "Animation",
-};
-
 function MediaBadge({ mediaType }: { mediaType: string }) {
+  const { t } = useTranslation("chat");
   const Icon = mediaIcons[mediaType] ?? FileText;
-  const label = mediaLabels[mediaType] ?? mediaType;
+  const label = t(`media.${mediaType}`, { defaultValue: mediaType });
 
   return (
     <span className="inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300">
       <Icon className="h-3.5 w-3.5" />
-      {label} attached
+      {label} {t("media.attached")}
     </span>
   );
 }
 
 function ForwardBadge({ from, date }: { from: string; date: string }) {
+  const { t } = useTranslation("chat");
   return (
     <div className="flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300">
       <Forward className="h-3.5 w-3.5" />
       <span>
-        Forwarded from <span className="font-medium">{from}</span>
+        {t("forwardedFrom")} <span className="font-medium">{from}</span>
         {date && <span className="text-amber-600 dark:text-amber-400"> &middot; {date}</span>}
       </span>
     </div>
@@ -160,11 +154,12 @@ function ForwardBadge({ from, date }: { from: string; date: string }) {
 }
 
 function ReplyQuote({ sender, body }: { sender: string; body: string }) {
+  const { t } = useTranslation("chat");
   return (
     <div className="rounded-md border-l-2 border-muted-foreground/40 bg-muted/50 px-3 py-2">
       <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         <Reply className="h-3 w-3" />
-        Replying to {sender}
+        {t("replyingTo")} {sender}
       </div>
       <div className="mt-1 text-xs text-muted-foreground/80 line-clamp-3">{body}</div>
     </div>

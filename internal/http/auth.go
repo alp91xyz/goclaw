@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
 
@@ -65,4 +66,22 @@ func extractAgentID(r *http.Request, model string) string {
 	}
 
 	return "default"
+}
+
+// extractLocale parses the Accept-Language header and returns a supported locale.
+// Falls back to "en" if no supported language is found.
+func extractLocale(r *http.Request) string {
+	accept := r.Header.Get("Accept-Language")
+	if accept == "" {
+		return i18n.DefaultLocale
+	}
+	// Simple parser: take the first language tag before comma or semicolon
+	for _, part := range strings.Split(accept, ",") {
+		tag := strings.TrimSpace(strings.SplitN(part, ";", 2)[0])
+		locale := i18n.Normalize(tag)
+		if locale != i18n.DefaultLocale || strings.HasPrefix(tag, "en") {
+			return locale
+		}
+	}
+	return i18n.DefaultLocale
 }

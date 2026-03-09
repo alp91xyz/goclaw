@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/media"
 )
 
@@ -34,7 +35,8 @@ func (h *MediaServeHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 				provided = r.URL.Query().Get("token")
 			}
 			if provided != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
@@ -43,9 +45,10 @@ func (h *MediaServeHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func (h *MediaServeHandler) handleServe(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	id := r.PathValue("id")
 	if id == "" || strings.Contains(id, "..") || strings.Contains(id, "/") {
-		http.Error(w, "invalid media id", http.StatusBadRequest)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidRequest, "invalid media id")})
 		return
 	}
 

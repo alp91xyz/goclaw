@@ -1,0 +1,16 @@
+{
+  "collapseSidebar": "收起侧边栏",
+  "expandSidebar": "展开侧边栏",
+  "language": "语言",
+  "languages": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文"
+  },
+  "logout": "退出登录",
+  "openMenu": "打开菜单",
+  "pairingRequests": "配对请求",
+  "pendingPairingRequest": "待处理配对请求",
+  "pendingPairingRequests": "{{count}} 个待处理配对请求",
+  "toggleTheme": "切换主题"
+}

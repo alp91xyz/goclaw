@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, Play, Trash2, Power, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +39,7 @@ interface CronDetailPageProps {
 }
 
 export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunLog, onRefresh }: CronDetailPageProps) {
+  const { t } = useTranslation("cron");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmToggle, setConfirmToggle] = useState(false);
   const [runLog, setRunLog] = useState<CronRunLogEntry[]>([]);
@@ -93,7 +95,7 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
             <h3 className="flex items-center gap-2 font-medium">
               {job.name}
               <Badge variant={job.enabled ? "success" : "secondary"}>
-                {job.enabled ? "enabled" : "disabled"}
+                {job.enabled ? t("detail.enabled") : t("detail.disabled")}
               </Badge>
             </h3>
             <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
@@ -105,7 +107,7 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
                     : job.state.lastStatus === "running" ? "outline"
                     : "destructive"
                 }>
-                  {job.state.lastStatus === "running" ? "running..." : job.state.lastStatus}
+                  {job.state.lastStatus === "running" ? t("detail.runningStatus") : job.state.lastStatus}
                 </Badge>
               )}
             </div>
@@ -123,7 +125,7 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
             }}
           >
             {isRunning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
-            {isRunning ? "Running..." : "Run Now"}
+            {isRunning ? t("detail.running") : t("detail.runNow")}
           </Button>
           <Button
             variant="outline"
@@ -131,10 +133,10 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
             className="gap-1"
             onClick={() => setConfirmToggle(true)}
           >
-            <Power className="h-3.5 w-3.5" /> {job.enabled ? "Disable" : "Enable"}
+            <Power className="h-3.5 w-3.5" /> {job.enabled ? t("detail.disable") : t("detail.enable")}
           </Button>
           <Button variant="destructive" size="sm" className="gap-1" onClick={() => setConfirmDelete(true)}>
-            <Trash2 className="h-3.5 w-3.5" /> Delete
+            <Trash2 className="h-3.5 w-3.5" /> {t("detail.delete")}
           </Button>
         </div>
       </div>
@@ -144,30 +146,30 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
         <div className="mx-auto max-w-3xl space-y-6">
           {/* Job Info */}
           <div className="grid grid-cols-2 gap-4 rounded-md border p-4 text-sm">
-            <InfoRow label="Schedule" value={formatScheduleDetail(job)} />
-            {job.schedule.tz && <InfoRow label="Timezone" value={job.schedule.tz} />}
+            <InfoRow label={t("detail.infoRows.schedule")} value={formatScheduleDetail(job)} />
+            {job.schedule.tz && <InfoRow label={t("detail.infoRows.timezone")} value={job.schedule.tz} />}
             {job.state?.nextRunAtMs && (
-              <InfoRow label="Next Run" value={formatDate(new Date(job.state.nextRunAtMs))} />
+              <InfoRow label={t("detail.infoRows.nextRun")} value={formatDate(new Date(job.state.nextRunAtMs))} />
             )}
             {job.state?.lastRunAtMs && (
-              <InfoRow label="Last Run" value={formatDate(new Date(job.state.lastRunAtMs))} />
+              <InfoRow label={t("detail.infoRows.lastRun")} value={formatDate(new Date(job.state.lastRunAtMs))} />
             )}
-            <InfoRow label="Created" value={formatDate(new Date(job.createdAtMs))} />
-            <InfoRow label="Updated" value={formatDate(new Date(job.updatedAtMs))} />
-            {job.deleteAfterRun && <InfoRow label="Auto-delete" value="Yes (one-time)" />}
+            <InfoRow label={t("detail.infoRows.created")} value={formatDate(new Date(job.createdAtMs))} />
+            <InfoRow label={t("detail.infoRows.updated")} value={formatDate(new Date(job.updatedAtMs))} />
+            {job.deleteAfterRun && <InfoRow label={t("detail.infoRows.autoDelete")} value={t("detail.infoRows.autoDeleteValue")} />}
           </div>
 
           {/* Payload */}
           <div className="rounded-md border p-4 text-sm">
-            <h4 className="mb-2 font-medium">Payload</h4>
+            <h4 className="mb-2 font-medium">{t("detail.payload")}</h4>
             <div className="space-y-2">
               <div className="rounded bg-muted p-3 font-mono text-xs whitespace-pre-wrap">
-                {job.payload?.message || "(empty)"}
+                {job.payload?.message || t("detail.empty")}
               </div>
               <div className="flex gap-4 text-xs text-muted-foreground">
-                {job.payload?.deliver && <span>Deliver: direct</span>}
-                {job.payload?.channel && <span>Channel: {job.payload.channel}</span>}
-                {job.payload?.to && <span>To: {job.payload.to}</span>}
+                {job.payload?.deliver && <span>{t("detail.deliverDirect")}</span>}
+                {job.payload?.channel && <span>{t("detail.channel", { name: job.payload.channel })}</span>}
+                {job.payload?.to && <span>{t("detail.to", { name: job.payload.to })}</span>}
               </div>
             </div>
           </div>
@@ -175,7 +177,7 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
           {/* Last Error */}
           {job.state?.lastError && (
             <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm">
-              <h4 className="mb-1 font-medium text-destructive">Last Error</h4>
+              <h4 className="mb-1 font-medium text-destructive">{t("detail.lastError")}</h4>
               <p className="text-xs text-destructive/80">{job.state.lastError}</p>
             </div>
           )}
@@ -183,9 +185,9 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
           {/* Run History */}
           <div>
             <div className="mb-3 flex items-center justify-between">
-              <h4 className="font-medium">Run History</h4>
+              <h4 className="font-medium">{t("detail.runHistory")}</h4>
               <Button variant="ghost" size="sm" onClick={() => loadRunLog()} className="text-xs">
-                Refresh
+                {t("detail.refresh")}
               </Button>
             </div>
             {runLogLoading && runLog.length === 0 ? (
@@ -193,7 +195,7 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
               </div>
             ) : runLog.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">No run history yet.</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">{t("detail.noHistory")}</p>
             ) : (
               <>
                 <div className="space-y-2">
@@ -209,7 +211,7 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
                         <div className="flex items-center gap-2">
                           {(entry.inputTokens != null && entry.inputTokens > 0) && (
                             <span className="text-xs text-muted-foreground">
-                              {formatTokens(entry.inputTokens)} in / {formatTokens(entry.outputTokens ?? 0)} out
+                              {t("detail.inOut", { input: formatTokens(entry.inputTokens), output: formatTokens(entry.outputTokens ?? 0) })}
                             </span>
                           )}
                           <Badge variant={entry.status === "ok" || entry.status === "success" ? "success" : "destructive"}>
@@ -244,9 +246,9 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}
-        title="Delete Cron Job"
-        description={`Delete "${job.name}"? This cannot be undone.`}
-        confirmLabel="Delete"
+        title={t("delete.title")}
+        description={t("delete.description", { name: job.name })}
+        confirmLabel={t("delete.confirmLabel")}
         variant="destructive"
         onConfirm={async () => {
           await onDelete(job.id);
@@ -257,13 +259,13 @@ export function CronDetailPage({ job, onBack, onRun, onToggle, onDelete, getRunL
       <ConfirmDialog
         open={confirmToggle}
         onOpenChange={setConfirmToggle}
-        title={job.enabled ? "Disable Cron Job" : "Enable Cron Job"}
+        title={job.enabled ? t("disable.title") : t("enable.title")}
         description={
           job.enabled
-            ? `Disable "${job.name}"? It will stop running until re-enabled.`
-            : `Enable "${job.name}"? It will start running on schedule.`
+            ? t("disable.description", { name: job.name })
+            : t("enable.description", { name: job.name })
         }
-        confirmLabel={job.enabled ? "Disable" : "Enable"}
+        confirmLabel={job.enabled ? t("disable.confirmLabel") : t("enable.confirmLabel")}
         variant={job.enabled ? "destructive" : "default"}
         onConfirm={async () => {
           await onToggle(job.id, !job.enabled);

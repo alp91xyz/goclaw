@@ -7,22 +7,24 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
 
 func (h *MCPHandler) handleCreateRequest(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	var req store.MCPAccessRequest
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&req); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 
 	if req.ServerID == uuid.Nil || req.Scope == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "server_id and scope are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "server_id and scope")})
 		return
 	}
 	if req.Scope != "agent" && req.Scope != "user" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "scope must be 'agent' or 'user'"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidRequest, "scope must be 'agent' or 'user'")})
 		return
 	}
 
@@ -50,9 +52,10 @@ func (h *MCPHandler) handleListPendingRequests(w http.ResponseWriter, r *http.Re
 }
 
 func (h *MCPHandler) handleReviewRequest(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	requestID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "request")})
 		return
 	}
 
@@ -61,7 +64,7 @@ func (h *MCPHandler) handleReviewRequest(w http.ResponseWriter, r *http.Request)
 		Note     string `json:"note,omitempty"`
 	}
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&req); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 

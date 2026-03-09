@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router";
 import { Plus, Users } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
@@ -16,6 +17,8 @@ import { TeamDetailPage } from "./team-detail-page";
 import { usePagination } from "@/hooks/use-pagination";
 
 export function TeamsPage() {
+  const { t } = useTranslation("teams");
+  const { t: tc } = useTranslation("common");
   const { id: detailId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { teams, loading, load, createTeam, deleteTeam } = useTeams();
@@ -54,11 +57,11 @@ export function TeamsPage() {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Teams"
-        description="Manage your agent teams"
+        title={t("title")}
+        description={t("description")}
         actions={
           <Button onClick={() => setCreateOpen(true)} className="gap-1">
-            <Plus className="h-4 w-4" /> Create Team
+            <Plus className="h-4 w-4" /> {t("createTeam")}
           </Button>
         }
       />
@@ -67,7 +70,7 @@ export function TeamsPage() {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search teams..."
+          placeholder={t("searchPlaceholder")}
           className="max-w-sm"
         />
       </div>
@@ -82,12 +85,8 @@ export function TeamsPage() {
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Users}
-            title={search ? "No matching teams" : "No teams yet"}
-            description={
-              search
-                ? "Try a different search term."
-                : "Create your first team to get started."
-            }
+            title={search ? t("noMatchTitle") : t("emptyTitle")}
+            description={search ? tc("tryDifferentSearch") : t("emptyDescription")}
           />
         ) : (
           <>
@@ -126,9 +125,9 @@ export function TeamsPage() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={() => setDeleteTarget(null)}
-        title="Delete Team"
-        description={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t("delete.title")}
+        description={t("delete.description", { name: deleteTarget?.name })}
+        confirmLabel={t("delete.confirmLabel")}
         variant="destructive"
         onConfirm={async () => {
           if (deleteTarget) {

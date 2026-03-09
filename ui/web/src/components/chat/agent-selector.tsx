@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Bot, ChevronDown } from "lucide-react";
 import { useHttp } from "@/hooks/use-ws";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -10,6 +11,7 @@ interface AgentSelectorProps {
 }
 
 export function AgentSelector({ value, onChange }: AgentSelectorProps) {
+  const { t } = useTranslation("common");
   const http = useHttp();
   const connected = useAuthStore((s) => s.connected);
   const [agents, setAgents] = useState<AgentData[]>([]);
@@ -37,7 +39,7 @@ export function AgentSelector({ value, onChange }: AgentSelectorProps) {
       >
         <Bot className="h-4 w-4 shrink-0 text-muted-foreground" />
         <span className="flex-1 truncate text-left">
-          {selected?.display_name ?? selected?.agent_key ?? (value || "Select agent")}
+          {selected?.display_name ?? selected?.agent_key ?? (value || t("selectAgent"))}
         </span>
         <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
       </button>
@@ -48,7 +50,7 @@ export function AgentSelector({ value, onChange }: AgentSelectorProps) {
           <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border bg-popover p-1 shadow-md">
             {agents.length === 0 && (
               <div className="px-3 py-2 text-sm text-muted-foreground">
-                No agents available
+                {t("noAgentsAvailable")}
               </div>
             )}
             {agents.map((agent) => (
@@ -68,7 +70,7 @@ export function AgentSelector({ value, onChange }: AgentSelectorProps) {
                   {agent.display_name || agent.agent_key}
                 </span>
                 {agent.is_default && (
-                  <span className="text-xs text-muted-foreground">default</span>
+                  <span className="text-xs text-muted-foreground">{t("default")}</span>
                 )}
               </button>
             ))}

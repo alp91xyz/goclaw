@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Users, Trash2 } from "lucide-react";
 import { DetailPageSkeleton } from "@/components/shared/loading-skeleton";
 import { ConfirmDeleteDialog } from "@/components/shared/confirm-delete-dialog";
+import { useTranslation } from "react-i18next";
 import { useTeams } from "./hooks/use-teams";
 import { TeamMembersTab } from "./team-members-tab";
 import { TeamTasksTab } from "./team-tasks-tab";
@@ -18,6 +19,7 @@ interface TeamDetailPageProps {
 }
 
 export function TeamDetailPage({ teamId, onBack }: TeamDetailPageProps) {
+  const { t } = useTranslation("teams");
   const { getTeam, getTeamTasks, addMember, removeMember, deleteTeam } = useTeams();
   const [team, setTeam] = useState<TeamData | null>(null);
   const [members, setMembers] = useState<TeamMemberData[]>([]);
@@ -88,11 +90,15 @@ export function TeamDetailPage({ teamId, onBack }: TeamDetailPageProps) {
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
             {team.lead_agent_key && (
               <>
-                <span>Lead: {team.lead_agent_key}</span>
+                <span>{t("detail.lead")}: {team.lead_agent_key}</span>
                 <span className="text-border">|</span>
               </>
             )}
-            <span>{members.length} member{members.length !== 1 ? "s" : ""}</span>
+            <span>
+              {members.length !== 1
+                ? t("detail.memberCountPlural", { count: members.length })
+                : t("detail.memberCount", { count: members.length })}
+            </span>
           </div>
           {team.description && (
             <p className="mt-1 text-sm text-muted-foreground/70">{team.description}</p>
@@ -112,10 +118,10 @@ export function TeamDetailPage({ teamId, onBack }: TeamDetailPageProps) {
       <div className="max-w-4xl rounded-xl border bg-card p-3 shadow-sm sm:p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full justify-start overflow-x-auto overflow-y-hidden">
-            <TabsTrigger value="members">Members</TabsTrigger>
-            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-            <TabsTrigger value="delegations">Delegations</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="members">{t("detail.tabs.members")}</TabsTrigger>
+            <TabsTrigger value="tasks">{t("detail.tabs.tasks")}</TabsTrigger>
+            <TabsTrigger value="delegations">{t("detail.tabs.delegations")}</TabsTrigger>
+            <TabsTrigger value="settings">{t("detail.tabs.settings")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="members" className="mt-4">
@@ -144,10 +150,10 @@ export function TeamDetailPage({ teamId, onBack }: TeamDetailPageProps) {
       <ConfirmDeleteDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete Team"
-        description={`Are you sure you want to delete "${team.name}"? All members, tasks, and configuration will be permanently removed.`}
+        title={t("delete.title")}
+        description={t("detail.deleteDescription", { name: team.name })}
         confirmValue={team.name}
-        confirmLabel="Delete"
+        confirmLabel={t("delete.confirmLabel")}
         onConfirm={async () => {
           await deleteTeam(teamId);
           setDeleteOpen(false);

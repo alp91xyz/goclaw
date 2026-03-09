@@ -1,0 +1,71 @@
+{
+  "title": "Text-to-Speech",
+  "description": "Configure TTS providers and auto-apply settings",
+  "save": "Save",
+  "saving": "Saving...",
+  "saveChanges": "Save Changes",
+  "status": {
+    "title": "Status",
+    "configured": "Configured",
+    "disabled": "Disabled",
+    "noProvider": "No TTS provider configured",
+    "activeProvider": "Primary provider: {{provider}}, Auto: {{auto}}"
+  },
+  "general": {
+    "title": "General Settings",
+    "primaryProvider": "Primary Provider",
+    "autoApplyMode": "Auto-Apply Mode",
+    "replyMode": "Reply Mode",
+    "maxTextLength": "Max Text Length",
+    "timeout": "Timeout (ms)"
+  },
+  "providers": {
+    "none": "None (Disabled)",
+    "openai": "OpenAI",
+    "elevenlabs": "ElevenLabs",
+    "edge": "Edge (Free)",
+    "minimax": "MiniMax"
+  },
+  "autoModes": {
+    "off": "Off",
+    "offDesc": "Agent can use TTS tool manually",
+    "always": "Always",
+    "alwaysDesc": "All replies get audio",
+    "inbound": "Inbound",
+    "inboundDesc": "Only when user sends voice/audio",
+    "tagged": "Tagged",
+    "taggedDesc": "Only when reply contains [[tts]] tag"
+  },
+  "replyModes": {
+    "final": "Final only",
+    "finalDesc": "Only final replies",
+    "all": "All",
+    "allDesc": "All replies including tool/block"
+  },
+  "providerSettings": "{{provider}} Settings",
+  "openai": {
+    "apiKey": "API Key",
+    "apiBase": "API Base URL",
+    "model": "Model",
+    "voice": "Voice"
+  },
+  "elevenlabs": {
+    "apiKey": "API Key",
+    "baseUrl": "Base URL",
+    "voiceId": "Voice ID",
+    "modelId": "Model ID"
+  },
+  "edge": {
+    "voice": "Voice",
+    "speechRate": "Speech Rate",
+    "hint": "Edge TTS is free and requires no API key. Install with: pip install edge-tts"
+  },
+  "minimax": {
+    "apiKey": "API Key",
+    "groupId": "Group ID *",
+    "groupIdPlaceholder": "Required for MiniMax",
+    "apiBase": "API Base",
+    "model": "Model",
+    "voiceId": "Voice ID"
+  }
+}

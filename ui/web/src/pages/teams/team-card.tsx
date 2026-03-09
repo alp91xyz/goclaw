@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Users, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ interface TeamCardProps {
 }
 
 export function TeamCard({ team, onClick, onDelete }: TeamCardProps) {
+  const { t } = useTranslation("teams");
   return (
     <button
       type="button"
@@ -40,7 +42,7 @@ export function TeamCard({ team, onClick, onDelete }: TeamCardProps) {
       <div className="flex items-center gap-1.5">
         {team.lead_agent_key && (
           <Badge variant="outline" className="text-[11px]">
-            Lead: {team.lead_agent_key}
+            {t("settings.leadAgent")}: {team.lead_agent_key}
           </Badge>
         )}
         {onDelete && (

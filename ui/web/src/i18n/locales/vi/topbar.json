@@ -1,0 +1,16 @@
+{
+  "collapseSidebar": "Thu gọn thanh bên",
+  "expandSidebar": "Mở rộng thanh bên",
+  "language": "Ngôn ngữ",
+  "languages": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "zh": "中文"
+  },
+  "logout": "Đăng xuất",
+  "openMenu": "Mở menu",
+  "pairingRequests": "Yêu cầu ghép nối",
+  "pendingPairingRequest": "{{count}} yêu cầu ghép nối đang chờ",
+  "pendingPairingRequests": "{{count}} yêu cầu ghép nối đang chờ",
+  "toggleTheme": "Chuyển đổi giao diện"
+}

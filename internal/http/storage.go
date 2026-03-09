@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 )
 
 // StorageHandler provides HTTP endpoints for browsing and managing
@@ -33,7 +35,8 @@ func (h *StorageHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 		if h.token != "" {
 			provided := extractBearerToken(r)
 			if !tokenMatch(provided, h.token) {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
@@ -65,10 +68,11 @@ func isProtectedPath(rel string) bool {
 // handleList lists all files and directories under ~/.goclaw/.
 // Optional query param ?path= scopes the listing to a subtree.
 func (h *StorageHandler) handleList(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	subPath := r.URL.Query().Get("path")
 	if strings.Contains(subPath, "..") {
 		slog.Warn("security.storage_traversal", "path", subPath)
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 		return
 	}
 
@@ -77,7 +81,7 @@ func (h *StorageHandler) handleList(w http.ResponseWriter, r *http.Request) {
 		rootDir = filepath.Join(h.baseDir, filepath.Clean(subPath))
 		if !strings.HasPrefix(rootDir, h.baseDir) {
 			slog.Warn("security.storage_escape", "resolved", rootDir, "root", h.baseDir)
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 			return
 		}
 	}
@@ -87,8 +91,8 @@ func (h *StorageHandler) handleList(w http.ResponseWriter, r *http.Request) {
 		Name      string `json:"name"`
 		IsDir     bool   `json:"isDir"`
 		Size      int64  `json:"size"`
-		TotalSize int64  `json:"totalSize"`  // recursive size for directories
-		Protected bool   `json:"protected"`  // true if deletion is blocked
+		TotalSize int64  `json:"totalSize"` // recursive size for directories
+		Protected bool   `json:"protected"` // true if deletion is blocked
 	}
 
 	// Compute directory sizes via a two-pass approach:
@@ -180,38 +184,39 @@ func (h *StorageHandler) handleList(w http.ResponseWriter, r *http.Request) {
 
 // handleRead reads a single file's content by relative path.
 func (h *StorageHandler) handleRead(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	relPath := r.PathValue("path")
 	if relPath == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "path is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "path")})
 		return
 	}
 	if strings.Contains(relPath, "..") {
 		slog.Warn("security.storage_traversal", "path", relPath)
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 		return
 	}
 
 	absPath := filepath.Join(h.baseDir, filepath.Clean(relPath))
 	if !strings.HasPrefix(absPath, h.baseDir+string(filepath.Separator)) {
 		slog.Warn("security.storage_escape", "resolved", absPath, "root", h.baseDir)
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 		return
 	}
 
 	info, err := os.Lstat(absPath)
 	if err != nil || info.IsDir() {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "file not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgFileNotFound)})
 		return
 	}
 	if info.Mode()&os.ModeSymlink != 0 {
 		slog.Warn("security.storage_symlink", "path", absPath)
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 		return
 	}
 
 	data, err := os.ReadFile(absPath)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to read file"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToReadFile)})
 		return
 	}
 
@@ -225,33 +230,34 @@ func (h *StorageHandler) handleRead(w http.ResponseWriter, r *http.Request) {
 // handleDelete removes a file or directory (recursively).
 // Rejects deletion of the root dir and any path inside excluded directories.
 func (h *StorageHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	relPath := r.PathValue("path")
 	if relPath == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "path is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "path")})
 		return
 	}
 	if strings.Contains(relPath, "..") {
 		slog.Warn("security.storage_traversal", "path", relPath)
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 		return
 	}
 
 	if isProtectedPath(relPath) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "cannot delete skills directories"})
+		writeJSON(w, http.StatusForbidden, map[string]string{"error": i18n.T(locale, i18n.MsgCannotDeleteSkillsDir)})
 		return
 	}
 
 	absPath := filepath.Join(h.baseDir, filepath.Clean(relPath))
 	if !strings.HasPrefix(absPath, h.baseDir+string(filepath.Separator)) {
 		slog.Warn("security.storage_escape", "resolved", absPath, "root", h.baseDir)
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 		return
 	}
 
 	// Verify path exists
 	info, err := os.Lstat(absPath)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "path", relPath)})
 		return
 	}
 
@@ -266,7 +272,7 @@ func (h *StorageHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		slog.Error("storage.delete_failed", "path", absPath, "error", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to delete"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToDeleteFile)})
 		return
 	}
 

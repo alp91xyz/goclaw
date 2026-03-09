@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Upload } from "lucide-react";
 import {
   Dialog,
@@ -17,6 +18,7 @@ interface SkillUploadDialogProps {
 }
 
 export function SkillUploadDialog({ open, onOpenChange, onUpload }: SkillUploadDialogProps) {
+  const { t } = useTranslation("skills");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,7 +34,7 @@ export function SkillUploadDialog({ open, onOpenChange, onUpload }: SkillUploadD
       setFile(null);
       onOpenChange(false);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Upload failed");
+      setError(err instanceof Error ? err.message : t("upload.uploading"));
     } finally {
       setLoading(false);
     }
@@ -57,7 +59,7 @@ export function SkillUploadDialog({ open, onOpenChange, onUpload }: SkillUploadD
       setFile(dropped);
       setError("");
     } else {
-      setError("Only .zip files are accepted");
+      setError(t("upload.onlyZip"));
     }
   };
 
@@ -65,9 +67,9 @@ export function SkillUploadDialog({ open, onOpenChange, onUpload }: SkillUploadD
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Upload Skill</DialogTitle>
+          <DialogTitle>{t("upload.title")}</DialogTitle>
           <DialogDescription>
-            Upload a ZIP file containing a SKILL.md at the root with YAML frontmatter (name, description, slug).
+            {t("upload.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -88,7 +90,7 @@ export function SkillUploadDialog({ open, onOpenChange, onUpload }: SkillUploadD
             <p className="text-sm font-medium">{file.name} ({(file.size / 1024).toFixed(1)} KB)</p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              {dragging ? "Drop .zip file here" : "Click or drag & drop a .zip file"}
+              {dragging ? t("upload.dropHere") : t("upload.dropOrClick")}
             </p>
           )}
           <input
@@ -107,10 +109,10 @@ export function SkillUploadDialog({ open, onOpenChange, onUpload }: SkillUploadD
 
         <DialogFooter>
           <Button variant="outline" onClick={() => handleClose(false)} disabled={loading}>
-            Cancel
+            {t("upload.cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={!file || loading}>
-            {loading ? "Uploading..." : "Upload"}
+            {loading ? t("upload.uploading") : t("upload.button")}
           </Button>
         </DialogFooter>
       </DialogContent>

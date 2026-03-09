@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronRight, Brain } from "lucide-react";
 
 interface ThinkingBlockProps {
@@ -7,6 +8,7 @@ interface ThinkingBlockProps {
 }
 
 export function ThinkingBlock({ text, isStreaming = false }: ThinkingBlockProps) {
+  const { t } = useTranslation("common");
   const [expanded, setExpanded] = useState(isStreaming);
 
   return (
@@ -18,7 +20,7 @@ export function ThinkingBlock({ text, isStreaming = false }: ThinkingBlockProps)
       >
         <Brain className="h-3.5 w-3.5 shrink-0" />
         <span className="text-xs font-medium">
-          Thinking{isStreaming ? "..." : ""}
+          {isStreaming ? t("thinkingStreaming") : t("thinking")}
         </span>
         {expanded ? (
           <ChevronDown className="ml-auto h-3.5 w-3.5" />

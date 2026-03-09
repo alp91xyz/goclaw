@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
 
@@ -44,6 +45,7 @@ func (h *MemoryHandler) handleListDocuments(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *MemoryHandler) handleGetDocument(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	agentID := r.PathValue("agentID")
 	path := r.PathValue("path")
 	userID := r.URL.Query().Get("user_id")
@@ -51,13 +53,14 @@ func (h *MemoryHandler) handleGetDocument(w http.ResponseWriter, r *http.Request
 	detail, err := h.store.GetDocumentDetail(r.Context(), agentID, userID, path)
 	if err != nil {
 		slog.Warn("memory.get_document failed", "error", err, "path", path)
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "document not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "document", path)})
 		return
 	}
 	writeJSON(w, http.StatusOK, detail)
 }
 
 func (h *MemoryHandler) handlePutDocument(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	agentID := r.PathValue("agentID")
 	path := r.PathValue("path")
 
@@ -66,7 +69,7 @@ func (h *MemoryHandler) handlePutDocument(w http.ResponseWriter, r *http.Request
 		UserID  string `json:"user_id"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 
@@ -92,12 +95,13 @@ func (h *MemoryHandler) handleDeleteDocument(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *MemoryHandler) handleListChunks(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	agentID := r.PathValue("agentID")
 	path := r.URL.Query().Get("path")
 	userID := r.URL.Query().Get("user_id")
 
 	if path == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "path query parameter required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "path")})
 		return
 	}
 
@@ -114,6 +118,7 @@ func (h *MemoryHandler) handleListChunks(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *MemoryHandler) handleIndexDocument(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	agentID := r.PathValue("agentID")
 
 	var body struct {
@@ -121,11 +126,11 @@ func (h *MemoryHandler) handleIndexDocument(w http.ResponseWriter, r *http.Reque
 		UserID string `json:"user_id"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 	if body.Path == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "path is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "path")})
 		return
 	}
 
@@ -154,6 +159,7 @@ func (h *MemoryHandler) handleIndexAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MemoryHandler) handleSearch(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	agentID := r.PathValue("agentID")
 
 	var body struct {
@@ -163,11 +169,11 @@ func (h *MemoryHandler) handleSearch(w http.ResponseWriter, r *http.Request) {
 		MinScore   float64 `json:"min_score"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 	if body.Query == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "query is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "query")})
 		return
 	}
 

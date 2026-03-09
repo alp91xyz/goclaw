@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -12,9 +13,10 @@ interface TagInputProps {
 export function TagInput({
   value,
   onChange,
-  placeholder = "Type and press Enter...",
+  placeholder,
   className,
 }: TagInputProps) {
+  const { t } = useTranslation("common");
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -70,7 +72,7 @@ export function TagInput({
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={() => { if (input.trim()) addTag(input); }}
-        placeholder={value.length === 0 ? placeholder : ""}
+        placeholder={value.length === 0 ? (placeholder ?? t("typeAndPressEnter")) : ""}
         className="placeholder:text-muted-foreground min-w-[80px] flex-1 bg-transparent py-0.5 text-sm outline-none"
       />
     </div>

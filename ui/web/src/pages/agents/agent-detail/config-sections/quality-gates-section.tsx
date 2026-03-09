@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,9 @@ const defaultGate: QualityGateConfig = {
 };
 
 export function QualityGatesSection({ enabled, value, onToggle, onChange }: QualityGatesSectionProps) {
+  const { t } = useTranslation("agents");
+  const s = "configSections.qualityGates";
+
   const updateGate = (i: number, patch: Partial<QualityGateConfig>) => {
     const next = [...value];
     next[i] = { ...next[i], ...patch } as QualityGateConfig;
@@ -44,20 +48,20 @@ export function QualityGatesSection({ enabled, value, onToggle, onChange }: Qual
 
   return (
     <ConfigSection
-      title="Quality Gates"
-      description="Validate delegation output before returning to the caller"
+      title={t(`${s}.title`)}
+      description={t(`${s}.description`)}
       enabled={enabled}
       onToggle={onToggle}
     >
       {value.length === 0 ? (
         <p className="text-xs text-muted-foreground italic">
-          No quality gates configured. Click &ldquo;Add Gate&rdquo; to create one.
+          {t(`${s}.noGates`)}
         </p>
       ) : (
         value.map((gate, i) => (
           <div key={i} className="relative rounded-md border p-3 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">Gate #{i + 1}</span>
+              <span className="text-xs font-medium text-muted-foreground">{t(`${s}.gateNumber`, { number: i + 1 })}</span>
               <Button
                 variant="ghost"
                 size="icon"
@@ -69,7 +73,7 @@ export function QualityGatesSection({ enabled, value, onToggle, onChange }: Qual
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <InfoLabel tip="Validation method. 'Agent' delegates to a reviewer agent, 'Command' runs a shell command and checks exit code.">Type</InfoLabel>
+                <InfoLabel tip="Validation method. 'Agent' delegates to a reviewer agent, 'Command' runs a shell command and checks exit code.">{t(`${s}.type`)}</InfoLabel>
                 <Select
                   value={gate.type}
                   onValueChange={(v) => updateGate(i, {
@@ -88,7 +92,7 @@ export function QualityGatesSection({ enabled, value, onToggle, onChange }: Qual
               <div className="space-y-2">
                 {gate.type === "agent" ? (
                   <>
-                    <InfoLabel tip="Key of the agent used to review and validate the delegation output.">Reviewer Agent Key</InfoLabel>
+                    <InfoLabel tip="Key of the agent used to review and validate the delegation output.">{t(`${s}.reviewerAgentKey`)}</InfoLabel>
                     <Input
                       placeholder="qa-reviewer"
                       value={gate.agent ?? ""}
@@ -97,7 +101,7 @@ export function QualityGatesSection({ enabled, value, onToggle, onChange }: Qual
                   </>
                 ) : (
                   <>
-                    <InfoLabel tip="Shell command to run for validation. Exit code 0 = pass, non-zero = fail.">Command</InfoLabel>
+                    <InfoLabel tip="Shell command to run for validation. Exit code 0 = pass, non-zero = fail.">{t(`${s}.command`)}</InfoLabel>
                     <Input
                       placeholder="npm test"
                       value={gate.command ?? ""}
@@ -113,11 +117,11 @@ export function QualityGatesSection({ enabled, value, onToggle, onChange }: Qual
                   checked={gate.block_on_failure}
                   onCheckedChange={(v) => updateGate(i, { block_on_failure: v })}
                 />
-                <InfoLabel tip="When enabled, a failed gate prevents the result from being returned to the caller and triggers retries.">Block on Failure</InfoLabel>
+                <InfoLabel tip="When enabled, a failed gate prevents the result from being returned to the caller and triggers retries.">{t(`${s}.blockOnFailure`)}</InfoLabel>
               </div>
               {gate.block_on_failure && (
                 <div className="space-y-2">
-                  <InfoLabel tip="Number of times to retry the delegation if the quality gate fails.">Max Retries</InfoLabel>
+                  <InfoLabel tip="Number of times to retry the delegation if the quality gate fails.">{t(`${s}.maxRetries`)}</InfoLabel>
                   <Input
                     type="number"
                     placeholder="2"
@@ -129,7 +133,7 @@ export function QualityGatesSection({ enabled, value, onToggle, onChange }: Qual
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <InfoLabel tip="Maximum time in seconds to wait for the quality gate check to complete before timing out.">Timeout (seconds)</InfoLabel>
+                <InfoLabel tip="Maximum time in seconds to wait for the quality gate check to complete before timing out.">{t(`${s}.timeout`)}</InfoLabel>
                 <Input
                   type="number"
                   placeholder="120"
@@ -142,7 +146,7 @@ export function QualityGatesSection({ enabled, value, onToggle, onChange }: Qual
         ))
       )}
       <Button variant="outline" size="sm" onClick={addGate} className="gap-1">
-        <Plus className="h-3.5 w-3.5" /> Add Gate
+        <Plus className="h-3.5 w-3.5" /> {t(`${s}.addGate`)}
       </Button>
     </ConfigSection>
   );

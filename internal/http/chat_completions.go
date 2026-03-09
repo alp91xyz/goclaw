@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/nextlevelbuilder/goclaw/internal/agent"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/sessions"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
@@ -74,14 +75,16 @@ type chatUsage struct {
 }
 
 func (h *ChatCompletionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
+
 	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, i18n.T(locale, i18n.MsgMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
 
 	// Auth check (timing-safe comparison)
 	if !tokenMatch(extractBearerToken(r), h.token) {
-		http.Error(w, `{"error":{"message":"Invalid authentication","type":"invalid_request_error"}}`, http.StatusUnauthorized)
+		http.Error(w, fmt.Sprintf(`{"error":{"message":"%s","type":"invalid_request_error"}}`, i18n.T(locale, i18n.MsgInvalidAuth)), http.StatusUnauthorized)
 		return
 	}
 
@@ -93,7 +96,7 @@ func (h *ChatCompletionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		}
 		if !h.rateLimiter(key) {
 			w.Header().Set("Retry-After", "60")
-			http.Error(w, `{"error":{"message":"Rate limit exceeded","type":"rate_limit_error"}}`, http.StatusTooManyRequests)
+			http.Error(w, fmt.Sprintf(`{"error":{"message":"%s","type":"rate_limit_error"}}`, i18n.T(locale, i18n.MsgRateLimitExceeded)), http.StatusTooManyRequests)
 			return
 		}
 	}
@@ -104,25 +107,25 @@ func (h *ChatCompletionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 	var req chatCompletionsRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":{"message":"Invalid JSON: %s"}}`, err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf(`{"error":{"message":"%s"}}`, i18n.T(locale, i18n.MsgInvalidRequest, err.Error())), http.StatusBadRequest)
 		return
 	}
 
 	if len(req.Messages) == 0 {
-		http.Error(w, `{"error":{"message":"messages is required"}}`, http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf(`{"error":{"message":"%s"}}`, i18n.T(locale, i18n.MsgMsgsRequired)), http.StatusBadRequest)
 		return
 	}
 
 	agentID := extractAgentID(r, req.Model)
 	userID := extractUserID(r)
 	if h.isManaged && userID == "" {
-		http.Error(w, `{"error":{"message":"X-GoClaw-User-Id header is required in managed mode"}}`, http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf(`{"error":{"message":"%s"}}`, i18n.T(locale, i18n.MsgUserIDHeader)), http.StatusBadRequest)
 		return
 	}
 
 	loop, err := h.agents.Get(agentID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":{"message":"Agent not found: %s"}}`, agentID), http.StatusNotFound)
+		http.Error(w, fmt.Sprintf(`{"error":{"message":"%s"}}`, i18n.T(locale, i18n.MsgNotFound, "agent", agentID)), http.StatusNotFound)
 		return
 	}
 
@@ -135,12 +138,12 @@ func (h *ChatCompletionsHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		}
 	}
 	if lastMessage == "" {
-		http.Error(w, `{"error":{"message":"No user message found"}}`, http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf(`{"error":{"message":"%s"}}`, i18n.T(locale, i18n.MsgNoUserMessage)), http.StatusBadRequest)
 		return
 	}
 
-	// Inject user_id into context for downstream stores/tools
-	ctx := r.Context()
+	// Inject user_id and locale into context for downstream stores/tools
+	ctx := store.WithLocale(r.Context(), extractLocale(r))
 	if userID != "" {
 		ctx = store.WithUserID(ctx, userID)
 	}
@@ -174,7 +177,8 @@ func (h *ChatCompletionsHandler) handleNonStream(w http.ResponseWriter, r *http.
 	})
 
 	if err != nil {
-		http.Error(w, fmt.Sprintf(`{"error":{"message":"Agent error: %s"}}`, err), http.StatusInternalServerError)
+		locale := store.LocaleFromContext(r.Context())
+		http.Error(w, fmt.Sprintf(`{"error":{"message":"%s"}}`, i18n.T(locale, i18n.MsgInternalError, err.Error())), http.StatusInternalServerError)
 		return
 	}
 
@@ -205,7 +209,8 @@ func (h *ChatCompletionsHandler) handleNonStream(w http.ResponseWriter, r *http.
 func (h *ChatCompletionsHandler) handleStream(w http.ResponseWriter, r *http.Request, loop agent.Agent, runID, sessionKey, message, model, userID string) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-		http.Error(w, "streaming not supported", http.StatusInternalServerError)
+		locale := store.LocaleFromContext(r.Context())
+		http.Error(w, i18n.T(locale, i18n.MsgStreamingNotSupported), http.StatusInternalServerError)
 		return
 	}
 

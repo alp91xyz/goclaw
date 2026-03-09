@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import {
   Dialog,
@@ -28,6 +29,7 @@ interface SkillEditDialogProps {
 }
 
 export function SkillEditDialog({ skill, onClose, onSave }: SkillEditDialogProps) {
+  const { t } = useTranslation("skills");
   const [name, setName] = useState(skill.name);
   const [description, setDescription] = useState(skill.description);
   const [visibility, setVisibility] = useState(skill.visibility ?? "private");
@@ -44,9 +46,9 @@ export function SkillEditDialog({ skill, onClose, onSave }: SkillEditDialogProps
   }, [skill]);
 
   const addTag = () => {
-    const t = tagInput.trim().toLowerCase();
-    if (t && !tags.includes(t)) {
-      setTags([...tags, t]);
+    const tag = tagInput.trim().toLowerCase();
+    if (tag && !tags.includes(tag)) {
+      setTags([...tags, tag]);
     }
     setTagInput("");
   };
@@ -63,7 +65,7 @@ export function SkillEditDialog({ skill, onClose, onSave }: SkillEditDialogProps
       await onSave(skill.id, { name, description, visibility, tags });
       onClose();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to save");
+      setError(err instanceof Error ? err.message : t("edit.save"));
     } finally {
       setLoading(false);
     }
@@ -73,12 +75,12 @@ export function SkillEditDialog({ skill, onClose, onSave }: SkillEditDialogProps
     <Dialog open onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Skill</DialogTitle>
+          <DialogTitle>{t("edit.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="skill-name">Name</Label>
+            <Label htmlFor="skill-name">{t("edit.name")}</Label>
             <Input
               id="skill-name"
               value={name}
@@ -87,7 +89,7 @@ export function SkillEditDialog({ skill, onClose, onSave }: SkillEditDialogProps
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="skill-desc">Description</Label>
+            <Label htmlFor="skill-desc">{t("edit.description")}</Label>
             <Textarea
               id="skill-desc"
               value={description}
@@ -97,21 +99,21 @@ export function SkillEditDialog({ skill, onClose, onSave }: SkillEditDialogProps
           </div>
 
           <div className="space-y-1.5">
-            <Label>Visibility</Label>
+            <Label>{t("edit.visibility")}</Label>
             <Select value={visibility} onValueChange={setVisibility}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="private">Private (owner only)</SelectItem>
-                <SelectItem value="internal">Internal (granted agents/users)</SelectItem>
-                <SelectItem value="public">Public (all agents)</SelectItem>
+                <SelectItem value="private">{t("edit.privateOption")}</SelectItem>
+                <SelectItem value="internal">{t("edit.internalOption")}</SelectItem>
+                <SelectItem value="public">{t("edit.publicOption")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Tags</Label>
+            <Label>{t("edit.tags")}</Label>
             <div className="flex gap-2">
               <Input
                 value={tagInput}
@@ -119,11 +121,11 @@ export function SkillEditDialog({ skill, onClose, onSave }: SkillEditDialogProps
                 onKeyDown={(e) => {
                   if (e.key === "Enter") { e.preventDefault(); addTag(); }
                 }}
-                placeholder="Add tag..."
+                placeholder={t("edit.addTag")}
                 className="flex-1"
               />
               <Button type="button" variant="outline" size="sm" onClick={addTag}>
-                Add
+                {t("edit.add")}
               </Button>
             </div>
             {tags.length > 0 && (
@@ -145,10 +147,10 @@ export function SkillEditDialog({ skill, onClose, onSave }: SkillEditDialogProps
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={loading}>
-            Cancel
+            {t("edit.cancel")}
           </Button>
           <Button onClick={handleSave} disabled={loading || !name.trim()}>
-            {loading ? "Saving..." : "Save"}
+            {loading ? t("edit.saving") : t("edit.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

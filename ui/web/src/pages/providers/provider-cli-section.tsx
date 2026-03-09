@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, AlertTriangle, RefreshCw } from "lucide-react";
 import { useHttp } from "@/hooks/use-ws";
@@ -11,6 +12,7 @@ interface CLIAuthStatus {
 }
 
 export function CLISection({ open }: { open: boolean }) {
+  const { t } = useTranslation("providers");
   const http = useHttp();
   const [cliAuth, setCliAuth] = useState<CLIAuthStatus | null>(null);
   const [loading, setLoading] = useState(false);
@@ -35,12 +37,12 @@ export function CLISection({ open }: { open: boolean }) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        Claude CLI uses your local <code className="rounded bg-muted px-1 py-0.5">claude</code> binary. No API key needed.
+        {t("cli.description")} <code className="rounded bg-muted px-1 py-0.5">claude</code> {t("cli.descriptionSuffix")}
       </p>
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Checking authentication...
+          {t("cli.checkingAuth")}
         </div>
       ) : cliAuth?.logged_in ? (
         <div className="space-y-2">
@@ -48,7 +50,7 @@ export function CLISection({ open }: { open: boolean }) {
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
               <p className="text-sm text-green-700 dark:text-green-300">
-                Authenticated as <strong>{cliAuth.email}</strong>
+                {t("cli.authenticatedAs")} <strong>{cliAuth.email}</strong>
                 {cliAuth.subscription_type && (
                   <span className="ml-1 text-xs opacity-75">({cliAuth.subscription_type})</span>
                 )}
@@ -65,11 +67,11 @@ export function CLISection({ open }: { open: boolean }) {
             </Button>
           </div>
           <details className="text-xs text-muted-foreground">
-            <summary className="cursor-pointer hover:text-foreground">Switch account?</summary>
+            <summary className="cursor-pointer hover:text-foreground">{t("cli.switchAccount")}</summary>
             <div className="mt-1.5 space-y-1 rounded-md border bg-muted/50 px-3 py-2">
-              <p>Run on the server terminal:</p>
+              <p>{t("cli.switchAccountInstructions")}</p>
               <code className="block rounded bg-muted px-2 py-1 font-mono">claude auth logout && claude auth login</code>
-              <p>Then click <RefreshCw className="inline h-3 w-3" /> to re-check.</p>
+              <p>{t("cli.switchAccountRecheck")} <RefreshCw className="inline h-3 w-3" /> {t("cli.switchAccountRecheckSuffix")}</p>
             </div>
           </details>
         </div>
@@ -78,7 +80,7 @@ export function CLISection({ open }: { open: boolean }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Not authenticated</p>
+              <p className="text-sm font-medium text-amber-700 dark:text-amber-300">{t("cli.notAuthenticated")}</p>
             </div>
             <Button
               type="button"
@@ -88,11 +90,11 @@ export function CLISection({ open }: { open: boolean }) {
               onClick={checkAuth}
             >
               <RefreshCw className="h-3.5 w-3.5 mr-1" />
-              <span className="text-xs">Re-check</span>
+              <span className="text-xs">{t("cli.recheckButton")}</span>
             </Button>
           </div>
           <p className="mt-1 text-sm text-amber-600 dark:text-amber-400">
-            Run on the server terminal:
+            {t("cli.runOnServer")}
           </p>
           <code className="mt-1 block rounded bg-amber-100 px-2 py-1 text-xs font-mono dark:bg-amber-900 dark:text-amber-300">
             claude auth login

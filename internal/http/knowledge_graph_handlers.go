@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
 
@@ -53,13 +54,14 @@ func (h *KnowledgeGraphHandler) handleListEntities(w http.ResponseWriter, r *htt
 }
 
 func (h *KnowledgeGraphHandler) handleGetEntity(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	agentID := r.PathValue("agentID")
 	entityID := r.PathValue("entityID")
 	userID := r.URL.Query().Get("user_id")
 
 	entity, err := h.store.GetEntity(r.Context(), agentID, userID, entityID)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "entity not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "entity", entityID)})
 		return
 	}
 
@@ -78,17 +80,18 @@ func (h *KnowledgeGraphHandler) handleGetEntity(w http.ResponseWriter, r *http.R
 }
 
 func (h *KnowledgeGraphHandler) handleUpsertEntity(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	agentID := r.PathValue("agentID")
 
 	var entity store.Entity
 	if err := json.NewDecoder(r.Body).Decode(&entity); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 	entity.AgentID = agentID
 
 	if entity.ExternalID == "" || entity.Name == "" || entity.EntityType == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "external_id, name, and entity_type are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgEntityFieldsRequired)})
 		return
 	}
 	if entity.Confidence <= 0 {
@@ -117,6 +120,7 @@ func (h *KnowledgeGraphHandler) handleDeleteEntity(w http.ResponseWriter, r *htt
 }
 
 func (h *KnowledgeGraphHandler) handleTraverse(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	agentID := r.PathValue("agentID")
 
 	var body struct {
@@ -125,11 +129,11 @@ func (h *KnowledgeGraphHandler) handleTraverse(w http.ResponseWriter, r *http.Re
 		MaxDepth int    `json:"max_depth"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 	if body.EntityID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "entity_id is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgEntityIDRequired)})
 		return
 	}
 	if body.MaxDepth <= 0 {
@@ -152,6 +156,7 @@ func (h *KnowledgeGraphHandler) handleTraverse(w http.ResponseWriter, r *http.Re
 }
 
 func (h *KnowledgeGraphHandler) handleExtract(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	agentID := r.PathValue("agentID")
 
 	var body struct {
@@ -162,21 +167,21 @@ func (h *KnowledgeGraphHandler) handleExtract(w http.ResponseWriter, r *http.Req
 		MinConf  float64 `json:"min_confidence"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 	if body.Text == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "text is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgTextRequired)})
 		return
 	}
 	if body.Provider == "" || body.Model == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "provider and model are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgProviderModelRequired)})
 		return
 	}
 
 	extractor := h.NewExtractor(body.Provider, body.Model, body.MinConf)
 	if extractor == nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid provider or model"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidProviderOrModel)})
 		return
 	}
 

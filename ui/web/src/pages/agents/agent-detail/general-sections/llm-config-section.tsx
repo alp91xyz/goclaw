@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProviderModelSelect } from "@/components/shared/provider-model-select";
@@ -30,9 +31,10 @@ export function LlmConfigSection({
   savedModel,
   onSaveBlockedChange,
 }: LlmConfigSectionProps) {
+  const { t } = useTranslation("agents");
   return (
     <section className="space-y-4">
-      <h3 className="text-sm font-medium text-muted-foreground">LLM Configuration</h3>
+      <h3 className="text-sm font-medium text-muted-foreground">{t("llmConfig.title")}</h3>
       <div className="space-y-4 rounded-lg border p-4">
         <ProviderModelSelect
           provider={provider}
@@ -47,7 +49,7 @@ export function LlmConfigSection({
         />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="contextWindow">Context Window</Label>
+            <Label htmlFor="contextWindow">{t("llmConfig.contextWindow")}</Label>
             <Input
               id="contextWindow"
               type="number"
@@ -55,10 +57,10 @@ export function LlmConfigSection({
               onChange={(e) => onContextWindowChange(Number(e.target.value) || 0)}
               placeholder="200000"
             />
-            <p className="text-xs text-muted-foreground">Token limit for the model context.</p>
+            <p className="text-xs text-muted-foreground">{t("llmConfig.contextWindowHint")}</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="maxToolIterations">Max Tool Iterations</Label>
+            <Label htmlFor="maxToolIterations">{t("llmConfig.maxToolIterations")}</Label>
             <Input
               id="maxToolIterations"
               type="number"
@@ -66,7 +68,7 @@ export function LlmConfigSection({
               onChange={(e) => onMaxToolIterationsChange(Number(e.target.value) || 0)}
               placeholder="25"
             />
-            <p className="text-xs text-muted-foreground">Max tool calls per request.</p>
+            <p className="text-xs text-muted-foreground">{t("llmConfig.maxToolIterationsHint")}</p>
           </div>
         </div>
       </div>

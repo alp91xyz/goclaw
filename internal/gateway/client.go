@@ -26,6 +26,8 @@ type Client struct {
 	connectedAt time.Time // when the client connected
 	remoteAddr  string    // peer IP (extracted from proxy headers or RemoteAddr)
 
+	locale string // user's preferred locale (e.g. "en", "vi", "zh")
+
 	// Browser pairing state
 	pairingCode     string // 8-char code if pending approval
 	pairingPending  bool   // true while waiting for admin approval

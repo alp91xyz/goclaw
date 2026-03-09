@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { TableSkeleton } from "@/components/shared/loading-skeleton";
@@ -25,6 +26,7 @@ const visibilityVariant = (v: string) => {
 };
 
 export function AgentSkillsTab({ agentId }: AgentSkillsTabProps) {
+  const { t } = useTranslation("agents");
   const { skills, loading, grantSkill, revokeSkill } = useAgentSkills(agentId);
   const [search, setSearch] = useState("");
   const [toggling, setToggling] = useState<string | null>(null);
@@ -57,8 +59,8 @@ export function AgentSkillsTab({ agentId }: AgentSkillsTabProps) {
     return (
       <EmptyState
         icon={Zap}
-        title="No skills available"
-        description="Upload skills in the Skills page to grant them to agents."
+        title={t("skills.noSkillsAvailable")}
+        description={t("skills.noSkillsDesc")}
       />
     );
   }
@@ -67,9 +69,17 @@ export function AgentSkillsTab({ agentId }: AgentSkillsTabProps) {
     <div className="max-w-4xl space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {skills.filter((s) => s.granted).length} of {skills.length} skills granted
+          {t("skills.skillsGranted", {
+            granted: skills.filter((s) => s.granted).length,
+            total: skills.length,
+          })}
         </p>
-        <SearchInput value={search} onChange={setSearch} placeholder="Filter skills..." className="w-full sm:w-64" />
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder={t("skills.filterSkills")}
+          className="w-full sm:w-64"
+        />
       </div>
 
       <div className="divide-y rounded-lg border">
@@ -95,7 +105,7 @@ export function AgentSkillsTab({ agentId }: AgentSkillsTabProps) {
         ))}
         {filtered.length === 0 && (
           <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-            No skills match your search.
+            {t("skills.noSkillsMatch")}
           </div>
         )}
       </div>

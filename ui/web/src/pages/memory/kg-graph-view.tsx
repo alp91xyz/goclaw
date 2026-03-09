@@ -13,6 +13,7 @@ import {
 } from "@xyflow/react";
 import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, forceX, forceY, type SimulationNodeDatum } from "d3-force";
 import "@xyflow/react/dist/style.css";
+import { useTranslation } from "react-i18next";
 import type { KGEntity, KGRelation } from "@/types/knowledge-graph";
 
 // Color mapping for entity types
@@ -125,6 +126,7 @@ interface KGGraphViewProps {
 }
 
 export function KGGraphView({ entities, relations, onEntityClick }: KGGraphViewProps) {
+  const { t } = useTranslation("memory");
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
     () => buildGraph(entities, relations),
     [entities, relations],
@@ -154,7 +156,7 @@ export function KGGraphView({ entities, relations, onEntityClick }: KGGraphViewP
   if (entities.length === 0) {
     return (
       <div className="flex items-center justify-center h-[400px] text-sm text-muted-foreground">
-        No entities to visualize
+        {t("kg.graphView.empty")}
       </div>
     );
   }

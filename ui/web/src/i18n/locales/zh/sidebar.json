@@ -1,0 +1,34 @@
+{
+  "groups": {
+    "core": "核心",
+    "management": "管理",
+    "monitoring": "监控",
+    "system": "系统"
+  },
+  "nav": {
+    "agentTeams": "Agent Team",
+    "agents": "Agent",
+    "approvals": "审批",
+    "builtinTools": "内置工具",
+    "channels": "Channel",
+    "chat": "对话",
+    "config": "配置",
+    "cron": "定时任务",
+    "customTools": "自定义工具",
+    "delegations": "委托",
+    "logs": "日志",
+    "mcpServers": "MCP 服务器",
+    "memory": "记忆",
+    "nodes": "节点",
+    "overview": "概览",
+    "pendingMessages": "待处理消息",
+    "providers": "Provider",
+    "realtimeEvents": "实时事件",
+    "sessions": "Session",
+    "skills": "Skill",
+    "storage": "存储",
+    "traces": "追踪",
+    "tts": "语音合成",
+    "usage": "用量"
+  }
+}

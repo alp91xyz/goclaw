@@ -1,4 +1,5 @@
 import { Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ClientInfo } from "./types";
@@ -11,11 +12,12 @@ export function ConnectedClientsCard({
   clients: ClientInfo[];
   currentId?: string;
 }) {
+  const { t } = useTranslation("overview");
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <Users className="h-4 w-4" /> Connected Clients
+          <Users className="h-4 w-4" /> {t("connectedClients.title")}
           {clients.length > 0 && (
             <Badge variant="secondary" className="ml-1">
               {clients.length}
@@ -26,17 +28,17 @@ export function ConnectedClientsCard({
       <CardContent>
         {clients.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            No clients connected
+            {t("connectedClients.noClients")}
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="pb-2 pr-3 font-medium">IP</th>
-                  <th className="pb-2 px-3 font-medium">User</th>
-                  <th className="pb-2 px-3 font-medium">Role</th>
-                  <th className="pb-2 pl-3 font-medium">Connected</th>
+                  <th className="pb-2 pr-3 font-medium">{t("connectedClients.columns.ip")}</th>
+                  <th className="pb-2 px-3 font-medium">{t("connectedClients.columns.user")}</th>
+                  <th className="pb-2 px-3 font-medium">{t("connectedClients.columns.role")}</th>
+                  <th className="pb-2 pl-3 font-medium">{t("connectedClients.columns.connected")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -54,7 +56,7 @@ export function ConnectedClientsCard({
                             variant="info"
                             className="ml-1.5 text-[10px] px-1 py-0"
                           >
-                            you
+                            {t("connectedClients.you")}
                           </Badge>
                         )}
                       </td>

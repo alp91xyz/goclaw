@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export function ToolsSection({ data, onSave, saving }: Props) {
+  const { t } = useTranslation("config");
   const [draft, setDraft] = useState<ToolsData>(data ?? DEFAULT);
   const [dirty, setDirty] = useState(false);
 
@@ -56,17 +58,17 @@ export function ToolsSection({ data, onSave, saving }: Props) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Tools</CardTitle>
-        <CardDescription>Tool policies, exec approval, web search, browser</CardDescription>
+        <CardTitle className="text-base">{t("tools.title")}</CardTitle>
+        <CardDescription>{t("tools.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Profile & Lists */}
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-1.5">
-            <InfoLabel tip="Tool profile preset. Minimal = basic tools, Coding = filesystem + exec, Messaging = channels, Full = all tools enabled.">Profile</InfoLabel>
+            <InfoLabel tip={t("tools.profileTip")}>{t("tools.profile")}</InfoLabel>
             <Select value={draft.profile ?? ""} onValueChange={(v) => update({ profile: v })}>
               <SelectTrigger>
-                <SelectValue placeholder="Select profile" />
+                <SelectValue placeholder={t("tools.profilePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="minimal">Minimal</SelectItem>
@@ -77,7 +79,7 @@ export function ToolsSection({ data, onSave, saving }: Props) {
             </Select>
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Maximum tool executions per hour across all tools. 0 = no limit.">Rate Limit (per hour)</InfoLabel>
+            <InfoLabel tip={t("tools.rateLimitPerHourTip")}>{t("tools.rateLimitPerHour")}</InfoLabel>
             <Input
               type="number"
               value={draft.rate_limit_per_hour ?? ""}
@@ -90,34 +92,34 @@ export function ToolsSection({ data, onSave, saving }: Props) {
 
         <div className="space-y-4">
           <div className="grid gap-1.5">
-            <InfoLabel tip="Explicit whitelist of tool names. Only these tools will be available (overrides profile).">Allow</InfoLabel>
+            <InfoLabel tip={t("tools.allowTip")}>{t("tools.allow")}</InfoLabel>
             <ToolNameSelect
               value={draft.allow ?? []}
               onChange={(v) => { update({ allow: v }); }}
-              placeholder="Select tools to allow..."
+              placeholder={t("tools.allowPlaceholder")}
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Blacklist of tool names. These tools are disabled regardless of profile or allow list.">Deny</InfoLabel>
+            <InfoLabel tip={t("tools.denyTip")}>{t("tools.deny")}</InfoLabel>
             <ToolNameSelect
               value={draft.deny ?? []}
               onChange={(v) => { update({ deny: v }); }}
-              placeholder="Select tools to deny..."
+              placeholder={t("tools.denyPlaceholder")}
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Additional tools to enable on top of the profile. Additive to the profile's default set.">Also Allow</InfoLabel>
+            <InfoLabel tip={t("tools.alsoAllowTip")}>{t("tools.alsoAllow")}</InfoLabel>
             <ToolNameSelect
               value={draft.alsoAllow ?? []}
               onChange={(v) => { update({ alsoAllow: v }); }}
-              placeholder="Select additional tools..."
+              placeholder={t("tools.alsoAllowPlaceholder")}
             />
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <div>
-            <InfoLabel tip="Automatically redact API keys, tokens, and other credentials from tool output before sending to the LLM.">Scrub Credentials</InfoLabel>
+            <InfoLabel tip={t("tools.scrubCredentialsTip")}>{t("tools.scrubCredentials")}</InfoLabel>
           </div>
           <Switch
             checked={draft.scrub_credentials !== false}
@@ -129,10 +131,10 @@ export function ToolsSection({ data, onSave, saving }: Props) {
 
         {/* Exec Approval */}
         <div>
-          <h4 className="mb-3 text-sm font-medium">Exec Approval</h4>
+          <h4 className="mb-3 text-sm font-medium">{t("tools.execApproval")}</h4>
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-1.5">
-              <InfoLabel tip="Security level for shell command execution. Deny = no exec, Allowlist = only matching patterns, Full = allow all commands.">Security</InfoLabel>
+              <InfoLabel tip={t("tools.execSecurityTip")}>{t("tools.execSecurity")}</InfoLabel>
               <Select value={exec.security ?? "full"} onValueChange={(v) => updateNested("execApproval", { security: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -145,7 +147,7 @@ export function ToolsSection({ data, onSave, saving }: Props) {
               </Select>
             </div>
             <div className="grid gap-1.5">
-              <InfoLabel tip="When to ask the user for approval before executing a command. Off = never ask, On Miss = ask if not in allowlist, Always = always ask.">Ask Mode</InfoLabel>
+              <InfoLabel tip={t("tools.execAskModeTip")}>{t("tools.execAskMode")}</InfoLabel>
               <Select value={exec.ask ?? "off"} onValueChange={(v) => updateNested("execApproval", { ask: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -160,7 +162,7 @@ export function ToolsSection({ data, onSave, saving }: Props) {
           </div>
           {exec.security === "allowlist" && (
             <div className="mt-3 grid gap-1.5">
-              <Label>Allowlist (glob patterns)</Label>
+              <Label>{t("tools.execAllowlistLabel")}</Label>
               <Textarea
                 value={(exec.allowlist ?? []).join("\n")}
                 onChange={(e) =>
@@ -179,7 +181,7 @@ export function ToolsSection({ data, onSave, saving }: Props) {
 
         {/* Web Search */}
         <div>
-          <h4 className="mb-3 text-sm font-medium">Web Search</h4>
+          <h4 className="mb-3 text-sm font-medium">{t("tools.webSearch")}</h4>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -190,7 +192,7 @@ export function ToolsSection({ data, onSave, saving }: Props) {
                 />
               </div>
               <div className="grid gap-1.5">
-                <Label className="text-xs text-muted-foreground">Max Results</Label>
+                <Label className="text-xs text-muted-foreground">{t("tools.maxResults")}</Label>
                 <Input
                   type="number"
                   value={ddg.max_results ?? ""}
@@ -209,7 +211,7 @@ export function ToolsSection({ data, onSave, saving }: Props) {
                 />
               </div>
               <div className="grid gap-1.5">
-                <Label className="text-xs text-muted-foreground">Max Results</Label>
+                <Label className="text-xs text-muted-foreground">{t("tools.maxResults")}</Label>
                 <Input
                   type="number"
                   value={brave.max_results ?? ""}
@@ -226,10 +228,10 @@ export function ToolsSection({ data, onSave, saving }: Props) {
 
         {/* Web Fetch */}
         <div>
-          <h4 className="mb-3 text-sm font-medium">Web Fetch</h4>
+          <h4 className="mb-3 text-sm font-medium">{t("tools.webFetch")}</h4>
           <div className="grid gap-3">
             <div className="grid gap-1.5 max-w-xs">
-              <InfoLabel tip="Domain policy for URL fetching. Allow All = fetch any domain. Allowlist = only fetch from specified domains.">Policy</InfoLabel>
+              <InfoLabel tip={t("tools.webFetchPolicyTip")}>{t("tools.webFetchPolicy")}</InfoLabel>
               <Select
                 value={webFetch.policy ?? "allow_all"}
                 onValueChange={(v) => updateNested("web_fetch", { ...webFetch, policy: v })}
@@ -245,7 +247,7 @@ export function ToolsSection({ data, onSave, saving }: Props) {
             </div>
             {webFetch.policy === "allowlist" && (
               <div className="grid gap-1.5">
-                <Label>Allowed Domains (one per line, supports *.example.com)</Label>
+                <Label>{t("tools.allowedDomains")}</Label>
                 <Textarea
                   value={(webFetch.allowed_domains ?? []).join("\n")}
                   onChange={(e) =>
@@ -260,7 +262,7 @@ export function ToolsSection({ data, onSave, saving }: Props) {
               </div>
             )}
             <div className="grid gap-1.5">
-              <InfoLabel tip="Domains that are always blocked regardless of policy mode. Useful for preventing info-leak sites (IP lookup, etc.).">Blocked Domains (one per line, supports *.example.com)</InfoLabel>
+              <InfoLabel tip={t("tools.blockedDomainsTip")}>{t("tools.blockedDomains")}</InfoLabel>
               <Textarea
                 value={(webFetch.blocked_domains ?? []).join("\n")}
                 onChange={(e) =>
@@ -280,17 +282,17 @@ export function ToolsSection({ data, onSave, saving }: Props) {
 
         {/* Browser */}
         <div>
-          <h4 className="mb-3 text-sm font-medium">Browser</h4>
+          <h4 className="mb-3 text-sm font-medium">{t("tools.browser")}</h4>
           <div className="flex gap-6">
             <div className="flex items-center gap-2">
-              <Label>Enabled</Label>
+              <Label>{t("tools.browserEnabled")}</Label>
               <Switch
                 checked={browser.enabled !== false}
                 onCheckedChange={(v) => updateNested("browser", { enabled: v })}
               />
             </div>
             <div className="flex items-center gap-2">
-              <Label>Headless</Label>
+              <Label>{t("tools.browserHeadless")}</Label>
               <Switch
                 checked={browser.headless !== false}
                 onCheckedChange={(v) => updateNested("browser", { headless: v })}
@@ -302,7 +304,7 @@ export function ToolsSection({ data, onSave, saving }: Props) {
         {dirty && (
           <div className="flex justify-end pt-2">
             <Button size="sm" onClick={() => onSave(draft)} disabled={saving} className="gap-1.5">
-              <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save"}
+              <Save className="h-3.5 w-3.5" /> {saving ? t("saving") : t("save")}
             </Button>
           </div>
         )}

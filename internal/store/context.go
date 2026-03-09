@@ -21,6 +21,8 @@ const (
 	SenderIDKey contextKey = "goclaw_sender_id"
 	// SelfEvolveKey indicates whether a predefined agent can update its SOUL.md.
 	SelfEvolveKey contextKey = "goclaw_self_evolve"
+	// LocaleKey is the context key for the user's preferred locale (e.g. "en", "vi", "zh").
+	LocaleKey contextKey = "goclaw_locale"
 )
 
 // WithUserID returns a new context with the given user ID.
@@ -86,4 +88,17 @@ func SelfEvolveFromContext(ctx context.Context) bool {
 		return v
 	}
 	return false
+}
+
+// WithLocale returns a new context with the given locale.
+func WithLocale(ctx context.Context, locale string) context.Context {
+	return context.WithValue(ctx, LocaleKey, locale)
+}
+
+// LocaleFromContext extracts the locale from context. Returns "en" if not set.
+func LocaleFromContext(ctx context.Context) string {
+	if v, ok := ctx.Value(LocaleKey).(string); ok && v != "" {
+		return v
+	}
+	return "en"
 }

@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Save, Check, AlertCircle, Sparkles, Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
@@ -13,6 +14,8 @@ interface AgentGeneralTabProps {
 }
 
 export function AgentGeneralTab({ agent, onUpdate }: AgentGeneralTabProps) {
+  const { t } = useTranslation("agents");
+
   // Identity
   const [displayName, setDisplayName] = useState(agent.display_name ?? "");
   const [frontmatter, setFrontmatter] = useState(agent.frontmatter ?? "");
@@ -47,7 +50,6 @@ export function AgentGeneralTab({ agent, onUpdate }: AgentGeneralTabProps) {
     setSaveError(null);
     setSaved(false);
     try {
-      // Merge self_evolve into other_config without losing other keys
       const updatedOtherConfig = { ...otherCfg, self_evolve: selfEvolve };
       await onUpdate({
         display_name: displayName,
@@ -64,7 +66,7 @@ export function AgentGeneralTab({ agent, onUpdate }: AgentGeneralTabProps) {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save");
+      setSaveError(err instanceof Error ? err.message : t("general.failedToSave"));
     } finally {
       setSaving(false);
     }
@@ -115,15 +117,15 @@ export function AgentGeneralTab({ agent, onUpdate }: AgentGeneralTabProps) {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <Sparkles className="h-4 w-4 text-violet-500" />
-              <h3 className="text-sm font-medium">Self-Evolution</h3>
+              <h3 className="text-sm font-medium">{t("general.selfEvolution")}</h3>
             </div>
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1">
                 <Label htmlFor="self-evolve" className="text-sm font-normal">
-                  Allow agent to evolve its communication style
+                  {t("general.selfEvolutionLabel")}
                 </Label>
                 <p className="text-xs text-muted-foreground">
-                  When enabled, the agent can update its SOUL.md to refine tone, vocabulary, and response style based on interactions. Identity, name, and operating instructions remain locked.
+                  {t("general.selfEvolutionHint")}
                 </p>
               </div>
               <Switch
@@ -135,7 +137,7 @@ export function AgentGeneralTab({ agent, onUpdate }: AgentGeneralTabProps) {
             {selfEvolve && (
               <div className="flex items-start gap-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2 text-xs text-violet-700 dark:border-violet-800 dark:bg-violet-950/30 dark:text-violet-300">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>Agent will evolve its style over time through SOUL.md updates. Only style and tone are affected — identity and workflow rules stay fixed.</span>
+                <span>{t("general.selfEvolutionInfo")}</span>
               </div>
             )}
           </div>
@@ -152,12 +154,12 @@ export function AgentGeneralTab({ agent, onUpdate }: AgentGeneralTabProps) {
       <div className="flex items-center justify-end gap-2">
         {saved && (
           <span className="flex items-center gap-1 text-sm text-success">
-            <Check className="h-3.5 w-3.5" /> Saved
+            <Check className="h-3.5 w-3.5" /> {t("general.saved")}
           </span>
         )}
         <Button onClick={handleSave} disabled={saving || llmSaveBlocked}>
           {!saving && <Save className="h-4 w-4" />}
-          {saving ? "Saving..." : "Save Changes"}
+          {saving ? t("general.saving") : t("general.saveChanges")}
         </Button>
       </div>
     </div>

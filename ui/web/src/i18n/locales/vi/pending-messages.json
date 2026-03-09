@@ -1,0 +1,31 @@
+{
+  "title": "Tin nhắn đang chờ",
+  "description": "Tin nhắn channel đã được lưu đệm đang chờ xử lý từ agent",
+  "emptyTitle": "Không có tin nhắn đang chờ",
+  "emptyDescription": "Không tìm thấy nhóm tin nhắn đệm. Tin nhắn xuất hiện ở đây khi channel lưu đệm tin nhắn đến trước khi agent xử lý.",
+  "columns": {
+    "channel": "Channel",
+    "group": "Nhóm",
+    "messages": "Tin nhắn",
+    "status": "Trạng thái",
+    "lastActivity": "Hoạt động gần nhất",
+    "actions": "Thao tác"
+  },
+  "status": {
+    "compacted": "Đã nén",
+    "raw": "Thô"
+  },
+  "compact": "Nén",
+  "clear": "Xóa",
+  "confirmClear": {
+    "title": "Xóa tin nhắn?",
+    "description": "Thao tác này sẽ xóa vĩnh viễn tất cả tin nhắn trong {{channel}} / {{key}}. Không thể hoàn tác.",
+    "cancel": "Hủy",
+    "confirm": "Xóa"
+  },
+  "dialog": {
+    "title": "Tin nhắn — {{name}}",
+    "noMessages": "Không tìm thấy tin nhắn.",
+    "summary": "Tóm tắt"
+  }
+}

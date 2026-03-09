@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Save, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ChannelInstanceData } from "@/types/channel";
@@ -11,6 +12,7 @@ interface ChannelConfigTabProps {
 }
 
 export function ChannelConfigTab({ instance, onUpdate }: ChannelConfigTabProps) {
+  const { t } = useTranslation("channels");
   const config = instance.config ?? {};
   // Filter out "groups" from config — managed in separate Groups tab
   const { groups: _groups, ...restConfig } = config as Record<string, unknown> & { groups?: unknown };
@@ -54,7 +56,7 @@ export function ChannelConfigTab({ instance, onUpdate }: ChannelConfigTabProps) 
     return (
       <div className="max-w-2xl">
         <p className="text-sm text-muted-foreground">
-          No configuration schema for this channel type.
+          {t("detail.config.noSchema")}
         </p>
       </div>
     );
@@ -78,12 +80,12 @@ export function ChannelConfigTab({ instance, onUpdate }: ChannelConfigTabProps) 
       <div className="flex items-center justify-end gap-2">
         {saved && (
           <span className="flex items-center gap-1 text-sm text-success">
-            <Check className="h-3.5 w-3.5" /> Saved
+            <Check className="h-3.5 w-3.5" /> {t("detail.config.saved")}
           </span>
         )}
         <Button onClick={handleSave} disabled={saving}>
           {!saving && <Save className="h-4 w-4" />}
-          {saving ? "Saving..." : "Save Config"}
+          {saving ? t("detail.config.saving") : t("detail.config.saveConfig")}
         </Button>
       </div>
     </div>

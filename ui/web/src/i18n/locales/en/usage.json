@@ -1,0 +1,21 @@
+{
+  "title": "Usage",
+  "description": "Token usage and costs by agent",
+  "emptyTitle": "No usage data",
+  "emptyDescription": "Usage data will appear here after agents process requests.",
+  "summary": {
+    "sessions": "{{count}} sessions",
+    "inputTokens": "Input tokens",
+    "outputTokens": "Output tokens",
+    "total": "Total"
+  },
+  "recentRecords": "Recent Records",
+  "columns": {
+    "agent": "Agent",
+    "model": "Model",
+    "provider": "Provider",
+    "input": "Input",
+    "output": "Output",
+    "total": "Total"
+  }
+}

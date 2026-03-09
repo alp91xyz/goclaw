@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +16,7 @@ import { FileBrowser } from "@/components/shared/file-browser";
 import { useStorage } from "./hooks/use-storage";
 
 export function StoragePage() {
+  const { t } = useTranslation("storage");
   const { files, totalSize, baseDir, loading, listFiles, readFile, deleteFile } = useStorage();
 
   const [activePath, setActivePath] = useState<string | null>(null);
@@ -66,12 +68,12 @@ export function StoragePage() {
   return (
     <div className="flex flex-col h-full p-4 sm:p-6">
       <PageHeader
-        title="Storage"
-        description={baseDir ? `${baseDir} — ${formatSize(totalSize)}` : "Workspace file browser"}
+        title={t("title")}
+        description={baseDir ? t("descriptionWithPath", { path: baseDir, size: formatSize(totalSize) }) : t("description")}
         actions={
           <Button variant="outline" size="sm" onClick={listFiles} disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-            Refresh
+            {t("common:refresh", "Refresh")}
           </Button>
         }
       />
@@ -93,19 +95,19 @@ export function StoragePage() {
       <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete {deleteTarget?.isDir ? "folder" : "file"}</DialogTitle>
+            <DialogTitle>{deleteTarget?.isDir ? t("delete.folderTitle") : t("delete.fileTitle")}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete <span className="font-semibold text-foreground">{deleteName}</span>?
-              {deleteTarget?.isDir && " All contents will be removed recursively."}
-              {" "}This action cannot be undone.
+              {t("delete.description", { name: deleteName })}
+              {deleteTarget?.isDir && t("delete.folderWarning")}
+              {t("delete.undone")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
-              Cancel
+              {t("common:cancel", "Cancel")}
             </Button>
             <Button variant="destructive" onClick={handleDeleteConfirm} disabled={deleting}>
-              {deleting ? "Deleting..." : "Delete"}
+              {deleting ? t("delete.deleting") : t("delete.confirmLabel")}
             </Button>
           </DialogFooter>
         </DialogContent>

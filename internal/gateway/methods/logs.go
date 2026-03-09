@@ -6,6 +6,8 @@ import (
 	"log/slog"
 
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
+	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
 
@@ -22,7 +24,8 @@ func (m *LogsMethods) Register(router *gateway.MethodRouter) {
 	router.Register(protocol.MethodLogsTail, m.handleTail)
 }
 
-func (m *LogsMethods) handleTail(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *LogsMethods) handleTail(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		Action string `json:"action"`
 		Level  string `json:"level"` // "debug", "info", "warn", "error" (default: "info")
@@ -48,7 +51,7 @@ func (m *LogsMethods) handleTail(_ context.Context, client *gateway.Client, req 
 		client.SendResponse(protocol.NewErrorResponse(
 			req.ID,
 			protocol.ErrInvalidRequest,
-			"action must be 'start' or 'stop'",
+			i18n.T(locale, i18n.MsgInvalidLogAction),
 		))
 	}
 }

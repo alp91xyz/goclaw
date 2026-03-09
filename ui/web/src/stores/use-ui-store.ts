@@ -1,14 +1,17 @@
 import { create } from "zustand";
-import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
+import i18n from "@/i18n";
+import { LOCAL_STORAGE_KEYS, type Language } from "@/lib/constants";
 
 export type Theme = "light" | "dark" | "system";
 
 interface UiState {
   theme: Theme;
+  language: Language;
   sidebarCollapsed: boolean;
   mobileSidebarOpen: boolean;
 
   setTheme: (theme: Theme) => void;
+  setLanguage: (language: Language) => void;
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   setMobileSidebarOpen: (open: boolean) => void;
@@ -16,6 +19,7 @@ interface UiState {
 
 export const useUiStore = create<UiState>((set) => ({
   theme: (localStorage.getItem(LOCAL_STORAGE_KEYS.THEME) as Theme) ?? "dark",
+  language: (i18n.language as Language) ?? "en",
   sidebarCollapsed:
     localStorage.getItem(LOCAL_STORAGE_KEYS.SIDEBAR_COLLAPSED) === "true",
   mobileSidebarOpen: false,
@@ -23,6 +27,11 @@ export const useUiStore = create<UiState>((set) => ({
   setTheme: (theme) => {
     localStorage.setItem(LOCAL_STORAGE_KEYS.THEME, theme);
     set({ theme });
+  },
+
+  setLanguage: (language) => {
+    i18n.changeLanguage(language);
+    set({ language });
   },
 
   toggleSidebar: () =>

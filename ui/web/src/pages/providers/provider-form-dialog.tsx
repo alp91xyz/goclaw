@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
@@ -34,6 +35,7 @@ interface ProviderFormDialogProps {
 }
 
 export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, existingProviders = [] }: ProviderFormDialogProps) {
+  const { t } = useTranslation("providers");
   const isEdit = !!provider;
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
@@ -92,7 +94,7 @@ export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, exi
       await onSubmit(data);
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save provider");
+      setError(err instanceof Error ? err.message : t("form.saving"));
     } finally {
       setLoading(false);
     }
@@ -102,8 +104,8 @@ export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, exi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Provider" : "Add Provider"}</DialogTitle>
-          <DialogDescription>Configure an LLM provider connection.</DialogDescription>
+          <DialogTitle>{isEdit ? t("form.editTitle") : t("form.createTitle")}</DialogTitle>
+          <DialogDescription>{t("form.configure")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4 px-0.5 -mx-0.5 overflow-y-auto min-h-0">
           {/* Provider type selector — always shown in create mode */}
@@ -111,9 +113,11 @@ export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, exi
             <ProviderTypeSelect
               value={providerType}
               hasClaudeCLI={hasClaudeCLI}
+              alreadyAddedLabel={t("form.alreadyAdded")}
+              providerTypeLabel={t("form.providerType")}
               onChange={(v) => {
                 setProviderType(v);
-                const preset = PROVIDER_TYPES.find((t) => t.value === v);
+                const preset = PROVIDER_TYPES.find((pt) => pt.value === v);
                 setApiBase(preset?.apiBase || "");
                 if (v === "chatgpt_oauth") {
                   setName("openai-codex");
@@ -130,11 +134,11 @@ export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, exi
             <>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Name</Label>
+                  <Label>{t("form.nameFixed")}</Label>
                   <Input value="openai-codex" disabled />
                 </div>
                 <div className="space-y-2">
-                  <Label>Display Name</Label>
+                  <Label>{t("form.displayName")}</Label>
                   <Input value="ChatGPT (OAuth)" disabled />
                 </div>
               </div>
@@ -144,38 +148,38 @@ export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, exi
             <>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name *</Label>
+                  <Label htmlFor="name">{t("form.name")}</Label>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(slugify(e.target.value))}
-                    placeholder="e.g. openrouter"
+                    placeholder={t("form.namePlaceholder")}
                     disabled={isEdit}
                   />
-                  <p className="text-xs text-muted-foreground">Lowercase, numbers, hyphens</p>
+                  <p className="text-xs text-muted-foreground">{t("form.nameHint")}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="displayName">Display Name</Label>
+                  <Label htmlFor="displayName">{t("form.displayName")}</Label>
                   <Input
                     id="displayName"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="OpenRouter"
+                    placeholder={t("form.displayNamePlaceholder")}
                   />
                 </div>
               </div>
 
               {isEdit && (
                 <div className="space-y-2">
-                  <Label>Provider Type *</Label>
+                  <Label>{t("form.providerType")}</Label>
                   <Select value={providerType} onValueChange={setProviderType}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {PROVIDER_TYPES.filter((t) => t.value !== "chatgpt_oauth").map((t) => (
-                        <SelectItem key={t.value} value={t.value}>
-                          {t.label}
+                      {PROVIDER_TYPES.filter((pt) => pt.value !== "chatgpt_oauth").map((pt) => (
+                        <SelectItem key={pt.value} value={pt.value}>
+                          {pt.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -190,27 +194,27 @@ export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, exi
               {!isCLI && (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="apiBase">API Base URL</Label>
+                    <Label htmlFor="apiBase">{t("form.apiBase")}</Label>
                     <Input
                       id="apiBase"
                       value={apiBase}
                       onChange={(e) => setApiBase(e.target.value)}
-                      placeholder={PROVIDER_TYPES.find((t) => t.value === providerType)?.placeholder || PROVIDER_TYPES.find((t) => t.value === providerType)?.apiBase || "https://api.example.com/v1"}
+                      placeholder={PROVIDER_TYPES.find((pt) => pt.value === providerType)?.placeholder || PROVIDER_TYPES.find((pt) => pt.value === providerType)?.apiBase || "https://api.example.com/v1"}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="apiKey">API Key</Label>
+                    <Label htmlFor="apiKey">{t("form.apiKey")}</Label>
                     <Input
                       id="apiKey"
                       type="password"
                       value={apiKey}
                       onChange={(e) => setApiKey(e.target.value)}
-                      placeholder={isEdit ? "Leave as-is or enter new key" : "sk-..."}
+                      placeholder={isEdit ? t("form.apiKeyEditPlaceholder") : t("form.apiKeyPlaceholder")}
                     />
                     {isEdit && apiKey === "***" && (
                       <p className="text-xs text-muted-foreground">
-                        API key is set. Clear and type a new value to change it.
+                        {t("form.apiKeySetHint")}
                       </p>
                     )}
                   </div>
@@ -218,7 +222,7 @@ export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, exi
               )}
 
               <div className="flex items-center justify-between">
-                <Label htmlFor="enabled">Enabled</Label>
+                <Label htmlFor="enabled">{t("form.enabled")}</Label>
                 <Switch id="enabled" checked={enabled} onCheckedChange={setEnabled} />
               </div>
               {error && (
@@ -229,14 +233,16 @@ export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, exi
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            {isOAuth ? "Close" : "Cancel"}
+            {isOAuth ? t("form.close") : t("form.cancel")}
           </Button>
           {!isOAuth && (
             <Button
               onClick={handleSubmit}
               disabled={!name.trim() || !isValidSlug(name) || !providerType || loading}
             >
-              {loading ? (isEdit ? "Saving..." : "Creating...") : isEdit ? "Save" : "Create"}
+              {loading
+                ? (isEdit ? t("form.saving") : t("form.creating"))
+                : isEdit ? t("form.save") : t("form.create")}
             </Button>
           )}
         </DialogFooter>
@@ -247,28 +253,30 @@ export function ProviderFormDialog({ open, onOpenChange, provider, onSubmit, exi
 
 // --- Provider type select dropdown ---
 
-function ProviderTypeSelect({ value, hasClaudeCLI, onChange }: {
+function ProviderTypeSelect({ value, hasClaudeCLI, alreadyAddedLabel, providerTypeLabel, onChange }: {
   value: string;
   hasClaudeCLI: boolean;
+  alreadyAddedLabel: string;
+  providerTypeLabel: string;
   onChange: (value: string) => void;
 }) {
   return (
     <div className="space-y-2">
-      <Label>Provider Type *</Label>
+      <Label>{providerTypeLabel}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {PROVIDER_TYPES.map((t) => (
+          {PROVIDER_TYPES.map((pt) => (
             <SelectItem
-              key={t.value}
-              value={t.value}
-              disabled={t.value === "claude_cli" && hasClaudeCLI}
+              key={pt.value}
+              value={pt.value}
+              disabled={pt.value === "claude_cli" && hasClaudeCLI}
             >
-              {t.label}
-              {t.value === "claude_cli" && hasClaudeCLI && (
-                <span className="ml-1 text-xs opacity-60">(already added)</span>
+              {pt.label}
+              {pt.value === "claude_cli" && hasClaudeCLI && (
+                <span className="ml-1 text-xs opacity-60">{alreadyAddedLabel}</span>
               )}
             </SelectItem>
           ))}

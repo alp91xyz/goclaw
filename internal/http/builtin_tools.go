@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
@@ -34,7 +35,8 @@ func (h *BuiltinToolsHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if h.token != "" {
 			if extractBearerToken(r) != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
@@ -56,22 +58,24 @@ func (h *BuiltinToolsHandler) handleList(w http.ResponseWriter, r *http.Request)
 	result, err := h.store.List(r.Context())
 	if err != nil {
 		slog.Error("builtin_tools.list", "error", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list tools"})
+		locale := extractLocale(r)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToList, "tools")})
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]interface{}{"tools": result})
 }
 
 func (h *BuiltinToolsHandler) handleGet(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	name := r.PathValue("name")
 	if name == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "name is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "name")})
 		return
 	}
 
 	def, err := h.store.Get(r.Context(), name)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "tool not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "tool", name)})
 		return
 	}
 
@@ -79,15 +83,16 @@ func (h *BuiltinToolsHandler) handleGet(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *BuiltinToolsHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	name := r.PathValue("name")
 	if name == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "name is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "name")})
 		return
 	}
 
 	var updates map[string]interface{}
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&updates); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 
@@ -101,7 +106,7 @@ func (h *BuiltinToolsHandler) handleUpdate(w http.ResponseWriter, r *http.Reques
 	}
 
 	if len(allowed) == 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "no valid fields to update (only enabled and settings are editable)"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidUpdates)})
 		return
 	}
 

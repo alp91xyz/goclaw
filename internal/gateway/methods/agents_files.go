@@ -9,6 +9,7 @@ import (
 	"github.com/nextlevelbuilder/goclaw/internal/bootstrap"
 	"github.com/nextlevelbuilder/goclaw/internal/config"
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
@@ -23,7 +24,8 @@ var allowedAgentFiles = []string{
 // --- agents.files.list ---
 // Matching TS src/gateway/server-methods/agents.ts:399-422
 
-func (m *AgentsMethods) handleFilesList(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *AgentsMethods) handleFilesList(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params agentParams
 	if req.Params != nil {
 		json.Unmarshal(req.Params, &params)
@@ -37,13 +39,13 @@ func (m *AgentsMethods) handleFilesList(_ context.Context, client *gateway.Clien
 		ctx := context.Background()
 		ag, err := m.agentStore.GetByKey(ctx, params.AgentID)
 		if err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, "agent not found: "+params.AgentID))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, i18n.T(locale, i18n.MsgAgentNotFound, params.AgentID)))
 			return
 		}
 
 		dbFiles, err := m.agentStore.GetAgentContextFiles(ctx, ag.ID)
 		if err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to list files: "+err.Error()))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToList, "files")))
 			return
 		}
 
@@ -110,7 +112,8 @@ func (m *AgentsMethods) handleFilesList(_ context.Context, client *gateway.Clien
 // --- agents.files.get ---
 // Matching TS src/gateway/server-methods/agents.ts:423-473
 
-func (m *AgentsMethods) handleFilesGet(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *AgentsMethods) handleFilesGet(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		AgentID string `json:"agentId"`
 		Name    string `json:"name"`
@@ -122,11 +125,11 @@ func (m *AgentsMethods) handleFilesGet(_ context.Context, client *gateway.Client
 		params.AgentID = "default"
 	}
 	if params.Name == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "name is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "name")))
 		return
 	}
 	if !isAllowedFile(params.Name) {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "file not allowed: "+params.Name))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidRequest, "file not allowed: "+params.Name)))
 		return
 	}
 
@@ -135,13 +138,13 @@ func (m *AgentsMethods) handleFilesGet(_ context.Context, client *gateway.Client
 		ctx := context.Background()
 		ag, err := m.agentStore.GetByKey(ctx, params.AgentID)
 		if err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, "agent not found: "+params.AgentID))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, i18n.T(locale, i18n.MsgAgentNotFound, params.AgentID)))
 			return
 		}
 
 		dbFiles, err := m.agentStore.GetAgentContextFiles(ctx, ag.ID)
 		if err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to get files: "+err.Error()))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToList, "files")))
 			return
 		}
 
@@ -207,7 +210,8 @@ func (m *AgentsMethods) handleFilesGet(_ context.Context, client *gateway.Client
 // --- agents.files.set ---
 // Matching TS src/gateway/server-methods/agents.ts:474-515
 
-func (m *AgentsMethods) handleFilesSet(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *AgentsMethods) handleFilesSet(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		AgentID string `json:"agentId"`
 		Name    string `json:"name"`
@@ -220,11 +224,11 @@ func (m *AgentsMethods) handleFilesSet(_ context.Context, client *gateway.Client
 		params.AgentID = "default"
 	}
 	if params.Name == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "name is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "name")))
 		return
 	}
 	if !isAllowedFile(params.Name) {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "file not allowed: "+params.Name))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidRequest, "file not allowed: "+params.Name)))
 		return
 	}
 
@@ -233,12 +237,12 @@ func (m *AgentsMethods) handleFilesSet(_ context.Context, client *gateway.Client
 		ctx := context.Background()
 		ag, err := m.agentStore.GetByKey(ctx, params.AgentID)
 		if err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, "agent not found: "+params.AgentID))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, i18n.T(locale, i18n.MsgAgentNotFound, params.AgentID)))
 			return
 		}
 
 		if err := m.agentStore.SetAgentContextFile(ctx, ag.ID, params.Name, params.Content); err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to write file: "+err.Error()))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToSave, "file", err.Error())))
 			return
 		}
 
@@ -267,7 +271,7 @@ func (m *AgentsMethods) handleFilesSet(_ context.Context, client *gateway.Client
 	p := filepath.Join(ws, params.Name)
 
 	if err := os.WriteFile(p, []byte(params.Content), 0644); err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to write file: "+err.Error()))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToSave, "file", err.Error())))
 		return
 	}
 

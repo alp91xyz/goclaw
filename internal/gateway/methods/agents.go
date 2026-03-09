@@ -8,6 +8,7 @@ import (
 	"github.com/nextlevelbuilder/goclaw/internal/agent"
 	"github.com/nextlevelbuilder/goclaw/internal/config"
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/internal/tools"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
@@ -103,9 +104,10 @@ func (m *AgentsMethods) handleAgentWait(_ context.Context, client *gateway.Clien
 
 func (m *AgentsMethods) handleList(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
 	if m.agentStore != nil {
+		locale := store.LocaleFromContext(ctx)
 		userID := client.UserID()
 		if userID == "" {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "user context required"))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgUserCtxRequired)))
 			return
 		}
 
@@ -118,7 +120,7 @@ func (m *AgentsMethods) handleList(ctx context.Context, client *gateway.Client, 
 		}
 		if err != nil {
 			slog.Warn("agents.list: store query failed", "error", err)
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to list agents"))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToList, "agents")))
 			return
 		}
 

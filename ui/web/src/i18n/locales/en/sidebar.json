@@ -1,0 +1,34 @@
+{
+  "groups": {
+    "core": "Core",
+    "management": "Management",
+    "monitoring": "Monitoring",
+    "system": "System"
+  },
+  "nav": {
+    "overview": "Overview",
+    "chat": "Chat",
+    "agents": "Agents",
+    "agentTeams": "Agent Teams",
+    "sessions": "Sessions",
+    "pendingMessages": "Pending Messages",
+    "channels": "Channels",
+    "skills": "Skills",
+    "cron": "Cron",
+    "customTools": "Custom Tools",
+    "builtinTools": "Built-in Tools",
+    "mcpServers": "MCP Servers",
+    "memory": "Memory",
+    "traces": "Traces",
+    "realtimeEvents": "Realtime Events",
+    "delegations": "Delegations",
+    "usage": "Usage",
+    "logs": "Logs",
+    "storage": "Storage",
+    "providers": "Providers",
+    "config": "Config",
+    "approvals": "Approvals",
+    "nodes": "Nodes",
+    "tts": "TTS"
+  }
+}

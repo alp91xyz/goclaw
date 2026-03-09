@@ -1,0 +1,31 @@
+{
+  "title": "Pending Messages",
+  "description": "Buffered channel messages awaiting agent processing",
+  "emptyTitle": "No pending messages",
+  "emptyDescription": "No buffered message groups found. Messages appear here when channels buffer incoming messages before agent processing.",
+  "columns": {
+    "channel": "Channel",
+    "group": "Group",
+    "messages": "Messages",
+    "status": "Status",
+    "lastActivity": "Last Activity",
+    "actions": "Actions"
+  },
+  "status": {
+    "compacted": "Compacted",
+    "raw": "Raw"
+  },
+  "compact": "Compact",
+  "clear": "Clear",
+  "confirmClear": {
+    "title": "Clear messages?",
+    "description": "This will permanently delete all messages in {{channel}} / {{key}}. This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Clear"
+  },
+  "dialog": {
+    "title": "Messages — {{name}}",
+    "noMessages": "No messages found.",
+    "summary": "Summary"
+  }
+}

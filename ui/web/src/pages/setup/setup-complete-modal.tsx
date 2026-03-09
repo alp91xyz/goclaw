@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -13,11 +14,12 @@ interface SetupCompleteModalProps {
 }
 
 export function SetupCompleteModal({ open, onGoToDashboard }: SetupCompleteModalProps) {
+  const { t } = useTranslation("setup");
   return (
     <Dialog open={open} onOpenChange={() => {/* blocked */}}>
       <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle className="text-center">Setup Complete!</DialogTitle>
+          <DialogTitle className="text-center">{t("complete.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-6 py-6">
@@ -39,15 +41,15 @@ export function SetupCompleteModal({ open, onGoToDashboard }: SetupCompleteModal
 
           <div className="space-y-2 text-center">
             <p className="text-sm font-medium text-foreground">
-              Your system is ready to go!
+              {t("complete.ready")}
             </p>
             <p className="text-xs text-muted-foreground">
-              Provider, agent, and channel have been configured. You can manage them anytime from the dashboard.
+              {t("complete.description")}
             </p>
           </div>
 
           <Button onClick={onGoToDashboard} className="w-full sm:w-auto px-8">
-            Go to Dashboard
+            {t("complete.goToDashboard")}
           </Button>
         </div>
       </DialogContent>

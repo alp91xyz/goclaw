@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Wrench, Check, AlertTriangle, Loader2, ChevronDown, ChevronRight, Zap } from "lucide-react";
 import type { ToolStreamEntry } from "@/types/chat";
 
@@ -18,6 +19,7 @@ interface ToolCallCardProps {
 }
 
 export function ToolCallCard({ entry }: ToolCallCardProps) {
+  const { t } = useTranslation("common");
   const hasDetails = entry.arguments || entry.result;
   const hasError = entry.phase === "error" && !!entry.errorContent;
   const canExpand = hasDetails || hasError;
@@ -57,7 +59,7 @@ export function ToolCallCard({ entry }: ToolCallCardProps) {
           )}
           {entry.arguments && Object.keys(entry.arguments).length > 0 && (
             <div>
-              <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">Arguments</div>
+              <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">{t("toolArguments")}</div>
               <pre className="whitespace-pre-wrap text-xs font-mono bg-background rounded p-2 max-h-48 overflow-y-auto">
                 {JSON.stringify(entry.arguments, null, 2)}
               </pre>
@@ -65,7 +67,7 @@ export function ToolCallCard({ entry }: ToolCallCardProps) {
           )}
           {entry.result && (
             <div>
-              <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">Result</div>
+              <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">{t("toolResult")}</div>
               <pre className="whitespace-pre-wrap text-xs font-mono bg-background rounded p-2 max-h-48 overflow-y-auto">
                 {entry.result}
               </pre>
@@ -103,9 +105,10 @@ function ToolIcon({ phase, isSkill }: { phase: ToolStreamEntry["phase"]; isSkill
 }
 
 function PhaseLabel({ phase, isSkill }: { phase: ToolStreamEntry["phase"]; isSkill?: boolean }) {
+  const { t } = useTranslation("common");
   const labels: Record<string, string> = isSkill
-    ? { calling: "Activating...", completed: "Activated", error: "Failed" }
-    : { calling: "Running...", completed: "Done", error: "Failed" };
+    ? { calling: t("skillActivating"), completed: t("skillActivated"), error: t("toolFailed") }
+    : { calling: t("toolRunning"), completed: t("toolDone"), error: t("toolFailed") };
   const colors: Record<string, string> = {
     calling: "text-blue-500",
     completed: "text-green-500",

@@ -1,0 +1,23 @@
+{
+  "title": "Phê duyệt",
+  "description": "Phê duyệt thực thi đang chờ",
+  "pending": "{{count}} đang chờ",
+  "emptyTitle": "Không có phê duyệt đang chờ",
+  "emptyDescription": "Tất cả yêu cầu thực thi đã được giải quyết. Yêu cầu mới sẽ xuất hiện ở đây theo thời gian thực.",
+  "allowOnce": "Cho phép một lần",
+  "allowAlways": "Luôn cho phép",
+  "deny": "Từ chối",
+  "confirmAllowOnce": {
+    "title": "Cho phép một lần",
+    "description": "Cho phép thực thi \"{{command}}\" từ agent \"{{agentId}}\"?"
+  },
+  "confirmAllowAlways": {
+    "title": "Luôn cho phép",
+    "description": "Luôn cho phép \"{{command}}\" cho agent \"{{agentId}}\"? Lệnh này sẽ được tự động phê duyệt trong tương lai."
+  },
+  "confirmDeny": {
+    "title": "Từ chối thực thi",
+    "description": "Từ chối yêu cầu thực thi \"{{command}}\" từ agent \"{{agentId}}\"?",
+    "confirmLabel": "Từ chối"
+  }
+}

@@ -2,6 +2,7 @@
 // Registered in channel-wizard-registry.tsx.
 
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { useZaloQrLogin } from "./use-zalo-qr-login";
@@ -10,6 +11,7 @@ import type { WizardAuthStepProps, WizardConfigStepProps, WizardEditConfigProps 
 
 /** QR code authentication step for Zalo Personal */
 export function ZaloAuthStep({ instanceId, onComplete, onSkip }: WizardAuthStepProps) {
+  const { t } = useTranslation("channels");
   const { qrPng, status, errorMsg, loading, start, retry, reset } = useZaloQrLogin(instanceId);
 
   // Auto-start QR on mount
@@ -26,15 +28,15 @@ export function ZaloAuthStep({ instanceId, onComplete, onSkip }: WizardAuthStepP
   return (
     <>
       <div className="flex flex-col items-center gap-4 py-4 min-h-0">
-        {status === "done" && <p className="text-sm text-green-600 font-medium">Login successful! Loading contacts...</p>}
+        {status === "done" && <p className="text-sm text-green-600 font-medium">{t("zalo.loginSuccessLoading")}</p>}
         {status === "error" && <p className="text-sm text-destructive">{errorMsg}</p>}
         {qrPng && status === "waiting" && <img src={`data:image/png;base64,${qrPng}`} alt="Zalo QR Code" className="w-48 h-48 border rounded" />}
-        {status === "waiting" && !qrPng && <p className="text-sm text-muted-foreground">Generating QR code...</p>}
-        {status === "waiting" && qrPng && <p className="text-xs text-muted-foreground">Scan with your Zalo app (expires in ~100s)</p>}
+        {status === "waiting" && !qrPng && <p className="text-sm text-muted-foreground">{t("zalo.generatingQr")}</p>}
+        {status === "waiting" && qrPng && <p className="text-xs text-muted-foreground">{t("zalo.scanHint")}</p>}
       </div>
       <DialogFooter>
-        <Button variant="outline" onClick={onSkip} disabled={loading}>Skip</Button>
-        {status === "error" && <Button onClick={retry} disabled={loading}>Retry</Button>}
+        <Button variant="outline" onClick={onSkip} disabled={loading}>{t("zalo.skip")}</Button>
+        {status === "error" && <Button onClick={retry} disabled={loading}>{t("zalo.retry")}</Button>}
       </DialogFooter>
     </>
   );

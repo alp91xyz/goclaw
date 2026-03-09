@@ -1,0 +1,55 @@
+{
+  "title": "Skills",
+  "description": "Manage agent skills and capabilities",
+  "searchPlaceholder": "Search skills...",
+  "emptyTitle": "No skills",
+  "emptyDescription": "No skills have been registered yet.",
+  "noMatchTitle": "No matching skills",
+  "noMatchDescription": "Try a different search term.",
+  "columns": {
+    "name": "Name",
+    "description": "Description",
+    "source": "Source",
+    "visibility": "Visibility",
+    "actions": "Actions"
+  },
+  "noDescription": "No description",
+  "delete": {
+    "title": "Delete Skill",
+    "description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "confirmLabel": "Delete"
+  },
+  "upload": {
+    "title": "Upload Skill",
+    "description": "Upload a ZIP file containing a SKILL.md at the root with YAML frontmatter (name, description, slug).",
+    "button": "Upload",
+    "uploading": "Uploading...",
+    "dropOrClick": "Click or drag & drop a .zip file",
+    "dropHere": "Drop .zip file here",
+    "onlyZip": "Only .zip files are accepted",
+    "cancel": "Cancel"
+  },
+  "edit": {
+    "title": "Edit Skill",
+    "name": "Name",
+    "description": "Description",
+    "visibility": "Visibility",
+    "tags": "Tags",
+    "addTag": "Add tag...",
+    "add": "Add",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "privateOption": "Private (owner only)",
+    "internalOption": "Internal (granted agents/users)",
+    "publicOption": "Public (all agents)"
+  },
+  "detail": {
+    "title": "Skill Detail",
+    "content": "Content",
+    "files": "Files",
+    "version": "Version:",
+    "current": "(current)",
+    "noContent": "No content available."
+  }
+}

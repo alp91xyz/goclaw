@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
 
@@ -30,10 +31,14 @@ func (h *TracesHandler) authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if h.token != "" {
 			if extractBearerToken(r) != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
+		locale := extractLocale(r)
+		ctx := store.WithLocale(r.Context(), locale)
+		r = r.WithContext(ctx)
 		next(w, r)
 	}
 }
@@ -87,16 +92,17 @@ func (h *TracesHandler) handleList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TracesHandler) handleGet(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	traceIDStr := r.PathValue("traceID")
 	traceID, err := uuid.Parse(traceIDStr)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid trace ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "trace")})
 		return
 	}
 
 	trace, err := h.tracing.GetTrace(r.Context(), traceID)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "trace not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "trace", traceIDStr)})
 		return
 	}
 

@@ -197,6 +197,7 @@ export class WsClient {
         token: this.getToken(),
         user_id: this.getUserId(),
         sender_id: this.getSenderID(),
+        locale: localStorage.getItem("goclaw:language") || "en",
         protocolVersion: PROTOCOL_VERSION,
       });
       if (this.connectGeneration !== generation) return;

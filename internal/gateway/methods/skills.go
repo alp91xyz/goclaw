@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
@@ -55,7 +56,8 @@ func (m *SkillsMethods) handleList(_ context.Context, client *gateway.Client, re
 	}))
 }
 
-func (m *SkillsMethods) handleGet(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *SkillsMethods) handleGet(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		Name string `json:"name"`
 	}
@@ -63,13 +65,13 @@ func (m *SkillsMethods) handleGet(_ context.Context, client *gateway.Client, req
 		json.Unmarshal(req.Params, &params)
 	}
 	if params.Name == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "name is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "name")))
 		return
 	}
 
 	info, ok := m.store.GetSkill(params.Name)
 	if !ok {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, "skill not found: "+params.Name))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, i18n.T(locale, i18n.MsgNotFound, "skill", params.Name)))
 		return
 	}
 
@@ -100,7 +102,8 @@ type skillUpdater interface {
 	UpdateSkill(id uuid.UUID, updates map[string]interface{}) error
 }
 
-func (m *SkillsMethods) handleUpdate(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *SkillsMethods) handleUpdate(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		Name    string                 `json:"name"`
 		ID      string                 `json:"id"`
@@ -110,14 +113,14 @@ func (m *SkillsMethods) handleUpdate(_ context.Context, client *gateway.Client, 
 		json.Unmarshal(req.Params, &params)
 	}
 	if params.Name == "" && params.ID == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "name or id is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "name or id")))
 		return
 	}
 
 	// Check if the store supports updates (PGSkillStore does, FileSkillStore doesn't)
 	updater, ok := m.store.(skillUpdater)
 	if !ok {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, "skills.update not supported for file-based skills"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, i18n.T(locale, i18n.MsgSkillsUpdateNotSupported)))
 		return
 	}
 
@@ -126,7 +129,7 @@ func (m *SkillsMethods) handleUpdate(_ context.Context, client *gateway.Client, 
 	if params.ID != "" {
 		parsed, err := uuid.Parse(params.ID)
 		if err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid skill ID"))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidID, "skill")))
 			return
 		}
 		skillID = parsed
@@ -135,20 +138,20 @@ func (m *SkillsMethods) handleUpdate(_ context.Context, client *gateway.Client, 
 		// For PGSkillStore, the name is the slug
 		info, exists := m.store.GetSkill(params.Name)
 		if !exists {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, "skill not found: "+params.Name))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, i18n.T(locale, i18n.MsgNotFound, "skill", params.Name)))
 			return
 		}
 		// Try to parse Path as UUID (PGSkillStore stores DB ID in Path field for managed skills)
 		parsed, err := uuid.Parse(info.Path)
 		if err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "cannot resolve skill ID for file-based skill"))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgCannotResolveSkillID)))
 			return
 		}
 		skillID = parsed
 	}
 
 	if params.Updates == nil || len(params.Updates) == 0 {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "updates is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "updates")))
 		return
 	}
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { createPortal } from "react-dom";
 import { Trash2, Plus, X, ChevronDownIcon, Pencil } from "lucide-react";
 import {
@@ -40,6 +41,7 @@ export function MCPGrantsDialog({
   onLoadGrants,
   onLoadTools,
 }: MCPGrantsDialogProps) {
+  const { t } = useTranslation("mcp");
   const { agents } = useAgents();
   const portalRef = useRef<HTMLDivElement>(null);
   const [agentId, setAgentId] = useState("");
@@ -98,7 +100,7 @@ export function MCPGrantsDialog({
 
   const handleGrant = async () => {
     if (!agentId) {
-      setError("Agent is required");
+      setError(t("grants.agentRequired"));
       return;
     }
 
@@ -136,7 +138,7 @@ export function MCPGrantsDialog({
       }
       clearForm();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to grant");
+      setError(err instanceof Error ? err.message : t("grants.failedGrant"));
     } finally {
       setLoading(false);
     }
@@ -148,7 +150,7 @@ export function MCPGrantsDialog({
       await onRevoke(grant.agent_id);
       setGrants((prev) => prev.filter((g) => g.agent_id !== grant.agent_id));
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to revoke");
+      setError(err instanceof Error ? err.message : t("grants.failedRevoke"));
     } finally {
       setLoading(false);
     }
@@ -158,14 +160,14 @@ export function MCPGrantsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] flex flex-col sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Agent Grants - {server.display_name || server.name}</DialogTitle>
+          <DialogTitle>{t("grants.title", { name: server.display_name || server.name })}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 px-0.5 -mx-0.5 overflow-y-auto min-h-0">
           {/* Existing grants */}
           {grants.length > 0 && (
             <div className="space-y-2">
-              <Label>Current Grants</Label>
+              <Label>{t("grants.currentGrants")}</Label>
               <div className="grid gap-2">
                 {grants.map((grant) => {
                   const hasAllow = Array.isArray(grant.tool_allow) && grant.tool_allow.length > 0;
@@ -209,7 +211,7 @@ export function MCPGrantsDialog({
                             </div>
                           )}
                           {!hasAllow && !hasDeny && (
-                            <p className="text-xs text-muted-foreground mt-0.5">All tools allowed</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{t("grants.allToolsAllowed")}</p>
                           )}
                         </div>
                         <Button
@@ -233,18 +235,18 @@ export function MCPGrantsDialog({
           <div className="space-y-3 rounded-md border p-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">
-                {isEditing ? "Edit Grant" : "Add Agent Grant"}
+                {isEditing ? t("grants.editGrant") : t("grants.addGrant")}
               </Label>
               {isEditing && (
                 <Button variant="ghost" size="sm" onClick={clearForm} className="h-6 px-2 text-xs text-muted-foreground">
-                  Cancel
+                  {t("grants.cancel")}
                 </Button>
               )}
             </div>
             <div className="grid gap-2">
               <Select value={agentId} onValueChange={setAgentId} disabled={isEditing}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select agent..." />
+                  <SelectValue placeholder={t("grants.selectAgent")} />
                 </SelectTrigger>
                 <SelectContent>
                   {agents.map((a) => (
@@ -257,32 +259,32 @@ export function MCPGrantsDialog({
               </Select>
 
               <div className="grid gap-1">
-                <Label className="text-xs text-muted-foreground">Tool allow list (optional)</Label>
+                <Label className="text-xs text-muted-foreground">{t("grants.toolAllowList")}</Label>
                 <ToolMultiSelect
                   value={toolAllow}
                   onChange={setToolAllow}
                   options={serverTools}
-                  placeholder="Select tools to allow..."
+                  placeholder={t("grants.allowPlaceholder")}
                   portalContainer={portalRef}
                 />
               </div>
 
               <div className="grid gap-1">
-                <Label className="text-xs text-muted-foreground">Tool deny list (optional)</Label>
+                <Label className="text-xs text-muted-foreground">{t("grants.toolDenyList")}</Label>
                 <ToolMultiSelect
                   value={toolDeny}
                   onChange={setToolDeny}
                   options={serverTools}
-                  placeholder="Select tools to deny..."
+                  placeholder={t("grants.denyPlaceholder")}
                   portalContainer={portalRef}
                 />
               </div>
             </div>
             <Button size="sm" onClick={handleGrant} disabled={loading || !agentId} className="gap-1">
               {isEditing ? (
-                <><Pencil className="h-3.5 w-3.5" /> Update</>
+                <><Pencil className="h-3.5 w-3.5" /> {t("grants.update")}</>
               ) : (
-                <><Plus className="h-3.5 w-3.5" /> Grant</>
+                <><Plus className="h-3.5 w-3.5" /> {t("grants.grant")}</>
               )}
             </Button>
           </div>

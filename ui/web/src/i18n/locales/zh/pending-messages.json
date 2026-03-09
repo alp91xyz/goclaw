@@ -1,0 +1,31 @@
+{
+  "title": "待处理消息",
+  "description": "已缓冲的Channel消息，等待Agent处理",
+  "emptyTitle": "暂无待处理消息",
+  "emptyDescription": "未找到缓冲消息组。当Channel在Agent处理前缓冲传入消息时，消息将显示在此处。",
+  "columns": {
+    "channel": "Channel",
+    "group": "组",
+    "messages": "消息",
+    "status": "状态",
+    "lastActivity": "最近活动",
+    "actions": "操作"
+  },
+  "status": {
+    "compacted": "已压缩",
+    "raw": "原始"
+  },
+  "compact": "压缩",
+  "clear": "清除",
+  "confirmClear": {
+    "title": "清除消息？",
+    "description": "这将永久删除 {{channel}} / {{key}} 中的所有消息。此操作无法撤销。",
+    "cancel": "取消",
+    "confirm": "清除"
+  },
+  "dialog": {
+    "title": "消息 — {{name}}",
+    "noMessages": "未找到消息。",
+    "summary": "摘要"
+  }
+}

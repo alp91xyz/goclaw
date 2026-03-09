@@ -1,4 +1,5 @@
 import { Bot, Star, RotateCcw, Trash2, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -14,8 +15,9 @@ interface AgentCardProps {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function AgentCard({ agent, onClick, onResummon, onDelete }: AgentCardProps) {
+  const { t } = useTranslation("agents");
   const displayName = agent.display_name
-    || (UUID_RE.test(agent.agent_key) ? "Unnamed Agent" : agent.agent_key);
+    || (UUID_RE.test(agent.agent_key) ? t("card.unnamedAgent") : agent.agent_key);
   const selfEvolve = agent.agent_type === "predefined" && Boolean((agent.other_config as Record<string, unknown> | null)?.self_evolve);
 
   // Show agent_key as subtitle only if there's a display_name and agent_key is meaningful
@@ -45,11 +47,11 @@ export function AgentCard({ agent, onClick, onResummon, onDelete }: AgentCardPro
         </div>
         {agent.status === "summoning" ? (
           <Badge variant="outline" className="shrink-0 animate-pulse border-violet-400 text-violet-600 dark:text-violet-400">
-            Summoning...
+            {t("card.summoning")}
           </Badge>
         ) : agent.status === "summon_failed" ? (
           <Badge variant="destructive" className="shrink-0">
-            Failed
+            {t("card.summonFailed")}
           </Badge>
         ) : (
           <Badge variant={agent.status === "active" ? "success" : "secondary"} className="shrink-0">
@@ -80,8 +82,8 @@ export function AgentCard({ agent, onClick, onResummon, onDelete }: AgentCardPro
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-[260px] text-xs">
             {agent.agent_type === "predefined"
-              ? "Shared context files (SOUL.md, IDENTITY.md, AGENTS.md) with per-user USER.md instances."
-              : "Each user gets their own full set of context files."}
+              ? t("card.predefinedTooltip")
+              : t("card.openTooltip")}
           </TooltipContent>
         </Tooltip>
         {agent.agent_type === "predefined" && (
@@ -92,13 +94,13 @@ export function AgentCard({ agent, onClick, onResummon, onDelete }: AgentCardPro
                 className={`text-[11px] ${selfEvolve ? "bg-violet-100 text-violet-700 hover:bg-violet-100 dark:bg-violet-900/30 dark:text-violet-300" : "text-muted-foreground"}`}
               >
                 <Sparkles className="mr-0.5 h-3 w-3" />
-                {selfEvolve ? "Evolving" : "Static"}
+                {selfEvolve ? t("card.evolving") : t("card.static")}
               </Badge>
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-[240px] text-xs">
               {selfEvolve
-                ? "Agent can self-evolve its communication style (SOUL.md). Identity and workflow stay fixed."
-                : "Agent style is static. Enable Self-Evolution in settings to allow style adaptation."}
+                ? t("card.evolvingTooltip")
+                : t("card.staticTooltip")}
             </TooltipContent>
           </Tooltip>
         )}
@@ -118,7 +120,7 @@ export function AgentCard({ agent, onClick, onResummon, onDelete }: AgentCardPro
             }}
           >
             <RotateCcw className="h-3 w-3" />
-            Resummon
+            {t("card.resummon")}
           </Button>
         )}
         {onDelete && (
@@ -132,7 +134,7 @@ export function AgentCard({ agent, onClick, onResummon, onDelete }: AgentCardPro
             }}
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Delete
+            {t("card.delete")}
           </Button>
         )}
       </div>

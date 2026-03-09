@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Trash2, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ function roleBadgeVariant(role: string) {
 }
 
 export function AgentSharesTab({ agentId }: AgentSharesTabProps) {
+  const { t } = useTranslation("agents");
   const { shares, loading, addShare, revokeShare } = useAgentShares(agentId);
   const [newUserId, setNewUserId] = useState("");
   const [newRole, setNewRole] = useState("user");
@@ -52,22 +54,22 @@ export function AgentSharesTab({ agentId }: AgentSharesTabProps) {
     <div className="max-w-2xl space-y-6">
       {/* Add share form */}
       <div className="rounded-lg border p-4">
-        <h3 className="mb-3 text-sm font-medium">Grant Access</h3>
+        <h3 className="mb-3 text-sm font-medium">{t("shares.grantAccess")}</h3>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-1.5">
-            <Label htmlFor="shareUserId">User ID</Label>
+            <Label htmlFor="shareUserId">{t("shares.userId")}</Label>
             <Input
               id="shareUserId"
               value={newUserId}
               onChange={(e) => setNewUserId(e.target.value)}
-              placeholder="Enter user ID..."
+              placeholder={t("shares.userIdPlaceholder")}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && newUserId.trim()) handleAddShare();
               }}
             />
           </div>
           <div className="w-full space-y-1.5 sm:w-36">
-            <Label>Role</Label>
+            <Label>{t("shares.role")}</Label>
             <Select value={newRole} onValueChange={setNewRole}>
               <SelectTrigger>
                 <SelectValue />
@@ -83,27 +85,27 @@ export function AgentSharesTab({ agentId }: AgentSharesTabProps) {
           </div>
           <Button onClick={handleAddShare} disabled={!newUserId.trim()} className="gap-1.5">
             <Plus className="h-4 w-4" />
-            Share
+            {t("shares.share")}
           </Button>
         </div>
       </div>
 
       {/* Share list */}
       {loading && shares.length === 0 ? (
-        <div className="py-8 text-center text-sm text-muted-foreground">Loading shares...</div>
+        <div className="py-8 text-center text-sm text-muted-foreground">{t("shares.loadingShares")}</div>
       ) : shares.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-8 text-center">
           <Users className="h-8 w-8 text-muted-foreground/50" />
-          <p className="text-sm text-muted-foreground">No shares yet</p>
+          <p className="text-sm text-muted-foreground">{t("shares.noShares")}</p>
           <p className="text-xs text-muted-foreground">
-            Share this agent with other users by entering their User ID above.
+            {t("shares.noSharesDesc")}
           </p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg border">
           <div className="grid min-w-[300px] grid-cols-[1fr_100px_48px] items-center gap-2 border-b bg-muted/50 px-4 py-2.5 text-xs font-medium text-muted-foreground">
-            <span>User</span>
-            <span>Role</span>
+            <span>{t("shares.user")}</span>
+            <span>{t("shares.role")}</span>
             <span />
           </div>
           {shares.map((share) => (
@@ -136,9 +138,9 @@ export function AgentSharesTab({ agentId }: AgentSharesTabProps) {
       <ConfirmDialog
         open={!!revokeTarget}
         onOpenChange={() => setRevokeTarget(null)}
-        title="Revoke Share"
-        description={`Revoke access for user "${revokeTarget}"? They will no longer be able to use this agent.`}
-        confirmLabel="Revoke"
+        title={t("shares.revokeTitle")}
+        description={t("shares.revokeDesc", { userId: revokeTarget })}
+        confirmLabel={t("shares.revoke")}
         variant="destructive"
         onConfirm={async () => {
           if (revokeTarget) {

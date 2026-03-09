@@ -1,0 +1,34 @@
+{
+  "title": "Sự kiện thời gian thực",
+  "description": "Sự kiện WebSocket trực tiếp trên tất cả nhóm và agent",
+  "live": "Trực tiếp",
+  "paused": "Tạm dừng",
+  "resume": "Tiếp tục",
+  "pause": "Tạm dừng",
+  "clear": "Xóa",
+  "scrollToBottom": "Cuộn xuống dưới",
+  "eventCount": "{{count}} sự kiện",
+  "eventCountPlural": "{{count}} sự kiện",
+  "categories": {
+    "all": "Tất cả",
+    "delegation": "Ủy quyền",
+    "task": "Nhiệm vụ",
+    "message": "Tin nhắn",
+    "agent": "Agent",
+    "teamCrud": "CRUD Nhóm",
+    "agentLink": "Liên kết agent"
+  },
+  "filters": {
+    "allTeams": "Tất cả nhóm",
+    "allUsers": "Tất cả người dùng",
+    "allChats": "Tất cả cuộc trò chuyện"
+  },
+  "global": "Toàn cục",
+  "emptyTitle": "Chưa có sự kiện nào",
+  "emptyPaused": "Chụp sự kiện đang tạm dừng. Tiếp tục để xem sự kiện mới.",
+  "emptyWaiting": "Đang chờ sự kiện thời gian thực... Sự kiện sẽ xuất hiện khi agent hoạt động.",
+  "detail": {
+    "copy": "Sao chép",
+    "copied": "Đã sao chép"
+  }
+}

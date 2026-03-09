@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { QuotaUsage, QuotaUsageResult } from "./types";
 
 function QuotaBar({ used, limit }: { used: number; limit: number }) {
+  const { t } = useTranslation("overview");
   if (limit === 0) {
-    return <span className="text-xs text-muted-foreground">no limit</span>;
+    return <span className="text-xs text-muted-foreground">{t("quotaUsage.noLimit")}</span>;
   }
   const pct = Math.min((used / limit) * 100, 100);
   const color =
@@ -37,21 +39,22 @@ function QuotaCell({ usage }: { usage: QuotaUsage }) {
 }
 
 export function QuotaUsageCard({ quota }: { quota: QuotaUsageResult }) {
+  const { t } = useTranslation("overview");
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="text-base">Quota Usage</CardTitle>
-        <StatusBadge status="success" label="Enabled" />
+        <CardTitle className="text-base">{t("quotaUsage.title")}</CardTitle>
+        <StatusBadge status="success" label={t("common:enabled", "Enabled")} />
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left text-muted-foreground">
-                <th className="pb-2 pr-4 font-medium">User / Group</th>
-                <th className="pb-2 px-4 font-medium w-36">Hour</th>
-                <th className="pb-2 px-4 font-medium w-36">Day</th>
-                <th className="pb-2 pl-4 font-medium w-36">Week</th>
+                <th className="pb-2 pr-4 font-medium">{t("quotaUsage.columns.userGroup")}</th>
+                <th className="pb-2 px-4 font-medium w-36">{t("quotaUsage.columns.hour")}</th>
+                <th className="pb-2 px-4 font-medium w-36">{t("quotaUsage.columns.day")}</th>
+                <th className="pb-2 pl-4 font-medium w-36">{t("quotaUsage.columns.week")}</th>
               </tr>
             </thead>
             <tbody>

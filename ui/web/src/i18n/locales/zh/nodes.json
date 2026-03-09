@@ -1,0 +1,35 @@
+{
+  "title": "节点",
+  "description": "管理已配对设备和待处理配对请求",
+  "emptyTitle": "没有设备",
+  "emptyDescription": "没有已配对设备或待处理配对请求。",
+  "pendingRequests": "待处理请求 ({{count}})",
+  "pairedDevices": "已配对设备 ({{count}})",
+  "sender": "发送者：",
+  "chat": "聊天：",
+  "columns": {
+    "channel": "Channel",
+    "senderId": "发送者 ID",
+    "paired": "配对时间",
+    "by": "操作人",
+    "actions": "操作"
+  },
+  "approve": "批准",
+  "deny": "拒绝",
+  "revoke": "撤销",
+  "confirmApprove": {
+    "title": "批准配对",
+    "description": "批准来自 {{channel}}:{{senderId}} 的配对请求（代码：{{code}}）？该设备将能与Agent交互。",
+    "confirmLabel": "批准"
+  },
+  "confirmDeny": {
+    "title": "拒绝配对",
+    "description": "拒绝来自 {{channel}}:{{senderId}} 的配对请求（代码：{{code}}）？该请求将被移除。",
+    "confirmLabel": "拒绝"
+  },
+  "confirmRevoke": {
+    "title": "撤销设备",
+    "description": "撤销 {{channel}}:{{senderId}} 的配对？该设备将需要重新配对。",
+    "confirmLabel": "撤销"
+  }
+}

@@ -9,6 +9,7 @@ import (
 	"github.com/nextlevelbuilder/goclaw/internal/agent"
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
@@ -39,20 +40,21 @@ type linksListParams struct {
 	Direction string `json:"direction"` // "from" (default), "to", "all"
 }
 
-func (m *AgentLinksMethods) handleList(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *AgentLinksMethods) handleList(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	if m.linkStore == nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "agent links not configured"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgLinksNotConfigured)))
 		return
 	}
 
 	var params linksListParams
 	if err := json.Unmarshal(req.Params, &params); err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid params"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidJSON)))
 		return
 	}
 
 	if params.AgentID == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "agentId is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "agentId")))
 		return
 	}
 
@@ -62,7 +64,6 @@ func (m *AgentLinksMethods) handleList(_ context.Context, client *gateway.Client
 		return
 	}
 
-	ctx := context.Background()
 	var links []store.AgentLinkData
 
 	switch params.Direction {
@@ -104,20 +105,21 @@ type linksCreateParams struct {
 	Settings      json.RawMessage `json:"settings"`
 }
 
-func (m *AgentLinksMethods) handleCreate(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *AgentLinksMethods) handleCreate(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	if m.linkStore == nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "agent links not configured"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgLinksNotConfigured)))
 		return
 	}
 
 	var params linksCreateParams
 	if err := json.Unmarshal(req.Params, &params); err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid params"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidJSON)))
 		return
 	}
 
 	if params.SourceAgent == "" || params.TargetAgent == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "sourceAgent and targetAgent are required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "sourceAgent and targetAgent")))
 		return
 	}
 
@@ -126,7 +128,7 @@ func (m *AgentLinksMethods) handleCreate(_ context.Context, client *gateway.Clie
 		direction = store.LinkDirectionOutbound
 	}
 	if direction != store.LinkDirectionOutbound && direction != store.LinkDirectionInbound && direction != store.LinkDirectionBidirectional {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "direction must be outbound, inbound, or bidirectional"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidDirection)))
 		return
 	}
 
@@ -142,13 +144,13 @@ func (m *AgentLinksMethods) handleCreate(_ context.Context, client *gateway.Clie
 	}
 
 	if sourceAgent.ID == targetAgent.ID {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "source and target must be different agents"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgSourceTargetSame)))
 		return
 	}
 
 	// Delegation targets must be predefined agents (open agents have no agent-level context files)
 	if targetAgent.AgentType == store.AgentTypeOpen {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "cannot delegate to open agents — only predefined agents can be delegation targets"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgCannotDelegateOpen)))
 		return
 	}
 
@@ -168,9 +170,8 @@ func (m *AgentLinksMethods) handleCreate(_ context.Context, client *gateway.Clie
 		CreatedBy:     client.UserID(),
 	}
 
-	ctx := context.Background()
 	if err := m.linkStore.CreateLink(ctx, link); err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to create link: "+err.Error()))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToCreate, "link", err.Error())))
 		return
 	}
 
@@ -217,33 +218,34 @@ type linksUpdateParams struct {
 	Status        string          `json:"status"`
 }
 
-func (m *AgentLinksMethods) handleUpdate(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *AgentLinksMethods) handleUpdate(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	if m.linkStore == nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "agent links not configured"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgLinksNotConfigured)))
 		return
 	}
 
 	var params linksUpdateParams
 	if err := json.Unmarshal(req.Params, &params); err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid params"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidJSON)))
 		return
 	}
 
 	if params.LinkID == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "linkId is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "linkId")))
 		return
 	}
 
 	linkID, err := uuid.Parse(params.LinkID)
 	if err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid linkId"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidID, "linkId")))
 		return
 	}
 
 	updates := map[string]any{}
 	if params.Direction != "" {
 		if params.Direction != store.LinkDirectionOutbound && params.Direction != store.LinkDirectionInbound && params.Direction != store.LinkDirectionBidirectional {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "direction must be outbound, inbound, or bidirectional"))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidDirection)))
 			return
 		}
 		updates["direction"] = params.Direction
@@ -259,20 +261,19 @@ func (m *AgentLinksMethods) handleUpdate(_ context.Context, client *gateway.Clie
 	}
 	if params.Status != "" {
 		if params.Status != store.LinkStatusActive && params.Status != store.LinkStatusDisabled {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "status must be active or disabled"))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidLinkStatus)))
 			return
 		}
 		updates["status"] = params.Status
 	}
 
 	if len(updates) == 0 {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "no updates provided"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgNoUpdatesProvided)))
 		return
 	}
 
-	ctx := context.Background()
 	if err := m.linkStore.UpdateLink(ctx, linkID, updates); err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to update link: "+err.Error()))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToUpdate, "link", err.Error())))
 		return
 	}
 
@@ -311,36 +312,35 @@ type linksDeleteParams struct {
 	LinkID string `json:"linkId"`
 }
 
-func (m *AgentLinksMethods) handleDelete(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *AgentLinksMethods) handleDelete(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	if m.linkStore == nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "agent links not configured"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgLinksNotConfigured)))
 		return
 	}
 
 	var params linksDeleteParams
 	if err := json.Unmarshal(req.Params, &params); err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid params"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidJSON)))
 		return
 	}
 
 	if params.LinkID == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "linkId is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "linkId")))
 		return
 	}
 
 	linkID, err := uuid.Parse(params.LinkID)
 	if err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid linkId"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidID, "linkId")))
 		return
 	}
-
-	ctx := context.Background()
 
 	// Fetch link before deleting to get agent IDs for cache invalidation
 	link, _ := m.linkStore.GetLink(ctx, linkID)
 
 	if err := m.linkStore.DeleteLink(ctx, linkID); err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to delete link: "+err.Error()))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToDelete, "link", err.Error())))
 		return
 	}
 

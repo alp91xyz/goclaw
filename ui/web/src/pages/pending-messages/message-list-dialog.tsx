@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ export function MessageListDialog({
   onClose,
   onLoad,
 }: MessageListDialogProps) {
+  const { t } = useTranslation("pending-messages");
   useEffect(() => {
     onLoad(group.channel_name, group.history_key);
   }, [group.channel_name, group.history_key, onLoad]);
@@ -33,7 +35,7 @@ export function MessageListDialog({
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 truncate">
-            Messages — {group.group_title || group.history_key}
+            {t("dialog.title", { name: group.group_title || group.history_key })}
             <Badge variant="outline" className="text-xs">{group.channel_name}</Badge>
           </DialogTitle>
         </DialogHeader>
@@ -43,7 +45,7 @@ export function MessageListDialog({
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
           </div>
         ) : messages.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">No messages found.</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">{t("dialog.noMessages")}</p>
         ) : (
           <div className="space-y-3">
             {messages.map((msg) => (
@@ -58,7 +60,7 @@ export function MessageListDialog({
                   <span className="font-medium">{msg.sender}</span>
                   <span className="text-xs text-muted-foreground">({msg.sender_id})</span>
                   {msg.is_summary && (
-                    <Badge variant="warning" className="text-xs">Summary</Badge>
+                    <Badge variant="warning" className="text-xs">{t("dialog.summary")}</Badge>
                   )}
                   <span className="ml-auto text-xs text-muted-foreground">
                     {formatDate(msg.created_at)}

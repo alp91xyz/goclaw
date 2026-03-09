@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { formatSize, type TreeNode } from "@/lib/file-helpers";
 import { FileTreePanel } from "@/components/shared/file-tree";
 import { FileContentPanel } from "@/components/shared/file-viewers";
@@ -33,6 +34,7 @@ export function FileBrowser({
   showSize?: boolean;
 }) {
   const isMobile = useIsMobile();
+  const { t } = useTranslation("common");
   const containerRef = useRef<HTMLDivElement>(null);
   const [treeWidth, setTreeWidth] = useState(220);
   const [mobileShowTree, setMobileShowTree] = useState(true);
@@ -82,7 +84,7 @@ export function FileBrowser({
                 onClick={() => setMobileShowTree(true)}
                 className="text-primary hover:underline cursor-pointer shrink-0"
               >
-                &larr; Files
+                &larr; {t("filesBack")}
               </button>
               {fileContent && (
                 <>

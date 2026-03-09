@@ -1,0 +1,15 @@
+{
+  "title": "Nhật ký",
+  "description": "Xem nhật ký trực tiếp",
+  "descriptionLive": "Đang xem trực tiếp ở mức {{level}}",
+  "live": "Trực tiếp",
+  "start": "Bắt đầu",
+  "stop": "Dừng",
+  "clear": "Xóa",
+  "filterPlaceholder": "Lọc nhật ký...",
+  "logLevelTitle": "Mức nhật ký",
+  "emptyWaiting": "Đang chờ nhật ký...",
+  "emptyFilter": "Không có nhật ký nào khớp bộ lọc.",
+  "emptyStart": "Nhấn \"Bắt đầu\" để xem nhật ký trực tiếp.",
+  "count": "{{filtered}}/{{total}}"
+}

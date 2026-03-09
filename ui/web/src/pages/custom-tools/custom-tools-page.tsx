@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Wrench, Plus, RefreshCw, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,8 @@ import { useRef } from "react";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 
 export function CustomToolsPage() {
+  const { t } = useTranslation("tools");
+  const { t: tc } = useTranslation("common");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -69,15 +72,15 @@ export function CustomToolsPage() {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Custom Tools"
-        description="Manage custom shell-based tools for agents"
+        title={t("custom.title")}
+        description={t("custom.description")}
         actions={
           <div className="flex gap-2">
             <Button size="sm" onClick={() => { setEditTool(null); setFormOpen(true); }} className="gap-1">
-              <Plus className="h-3.5 w-3.5" /> Create Tool
+              <Plus className="h-3.5 w-3.5" /> {t("custom.createTool")}
             </Button>
             <Button variant="outline" size="sm" onClick={refresh} disabled={spinning} className="gap-1">
-              <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> Refresh
+              <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> {tc("refresh")}
             </Button>
           </div>
         }
@@ -87,7 +90,7 @@ export function CustomToolsPage() {
         <SearchInput
           value={search}
           onChange={handleSearchChange}
-          placeholder="Search tools..."
+          placeholder={t("custom.searchPlaceholder")}
           className="max-w-sm"
         />
       </div>
@@ -98,20 +101,20 @@ export function CustomToolsPage() {
         ) : tools.length === 0 ? (
           <EmptyState
             icon={Wrench}
-            title={debouncedSearch ? "No matching tools" : "No custom tools"}
-            description={debouncedSearch ? "Try a different search term." : "Create your first custom tool to get started."}
+            title={debouncedSearch ? t("custom.noMatchTitle") : t("custom.emptyTitle")}
+            description={debouncedSearch ? t("custom.noMatchDescription") : t("custom.emptyDescription")}
           />
         ) : (
           <div className="rounded-md border">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-3 text-left font-medium">Name</th>
-                  <th className="px-4 py-3 text-left font-medium">Description</th>
-                  <th className="px-4 py-3 text-left font-medium">Scope</th>
-                  <th className="px-4 py-3 text-left font-medium">Enabled</th>
-                  <th className="px-4 py-3 text-left font-medium">Timeout</th>
-                  <th className="px-4 py-3 text-right font-medium">Actions</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("custom.columns.name")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("custom.columns.description")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("custom.columns.scope")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("custom.columns.enabled")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("custom.columns.timeout")}</th>
+                  <th className="px-4 py-3 text-right font-medium">{t("custom.columns.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,16 +127,16 @@ export function CustomToolsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
-                      {tool.description || "No description"}
+                      {tool.description || t("custom.noDescription")}
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant={tool.agent_id ? "secondary" : "outline"}>
-                        {tool.agent_id ? "Agent" : "Global"}
+                        {tool.agent_id ? t("custom.scope.agent") : t("custom.scope.global")}
                       </Badge>
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant={tool.enabled ? "default" : "secondary"}>
-                        {tool.enabled ? "Yes" : "No"}
+                        {tool.enabled ? tc("yes") : tc("no")}
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{tool.timeout_seconds}s</td>
@@ -145,7 +148,7 @@ export function CustomToolsPage() {
                           onClick={() => { setEditTool(tool); setFormOpen(true); }}
                           className="gap-1"
                         >
-                          <Pencil className="h-3.5 w-3.5" /> Edit
+                          <Pencil className="h-3.5 w-3.5" /> {tc("edit")}
                         </Button>
                         <Button
                           variant="ghost"
@@ -183,9 +186,9 @@ export function CustomToolsPage() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete Custom Tool"
-        description={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t("custom.delete.title")}
+        description={t("custom.delete.description", { name: deleteTarget?.name })}
+        confirmLabel={t("custom.delete.confirmLabel")}
         variant="destructive"
         onConfirm={handleDelete}
         loading={deleteLoading}

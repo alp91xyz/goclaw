@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import type { MemoryConfig } from "@/types/agent";
@@ -12,10 +13,12 @@ interface MemorySectionProps {
 }
 
 export function MemorySection({ enabled, value, onToggle, onChange }: MemorySectionProps) {
+  const { t } = useTranslation("agents");
+  const s = "configSections.memory";
   return (
     <ConfigSection
-      title="Memory"
-      description="Semantic memory search and embedding configuration"
+      title={t(`${s}.title`)}
+      description={t(`${s}.description`)}
       enabled={enabled}
       onToggle={onToggle}
     >
@@ -24,15 +27,15 @@ export function MemorySection({ enabled, value, onToggle, onChange }: MemorySect
           checked={value.enabled ?? true}
           onCheckedChange={(v) => onChange({ ...value, enabled: v })}
         />
-        <InfoLabel tip="Enable or disable the memory system for this agent. When enabled, the agent can store and recall information across sessions.">Enabled</InfoLabel>
+        <InfoLabel tip="Enable or disable the memory system for this agent. When enabled, the agent can store and recall information across sessions.">{t("configSections.contextPruning.enabled")}</InfoLabel>
       </div>
       <ProviderModelSelect
         provider={value.embedding_provider ?? ""}
         onProviderChange={(v) => onChange({ ...value, embedding_provider: v || undefined })}
         model={value.embedding_model ?? ""}
         onModelChange={(v) => onChange({ ...value, embedding_model: v || undefined })}
-        providerLabel="Embedding Provider"
-        modelLabel="Embedding Model"
+        providerLabel={t(`${s}.embeddingProvider`)}
+        modelLabel={t(`${s}.embeddingModel`)}
         providerTip="LLM provider used for generating text embeddings. Leave empty to auto-detect from the agent's main provider."
         modelTip="Embedding model name (e.g. text-embedding-3-small). Must be supported by the provider."
         providerPlaceholder="(auto)"
@@ -40,7 +43,7 @@ export function MemorySection({ enabled, value, onToggle, onChange }: MemorySect
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <InfoLabel tip="Maximum number of memory entries returned per search query.">Max Results</InfoLabel>
+          <InfoLabel tip="Maximum number of memory entries returned per search query.">{t(`${s}.maxResults`)}</InfoLabel>
           <Input
             type="number"
             placeholder="6"
@@ -49,7 +52,7 @@ export function MemorySection({ enabled, value, onToggle, onChange }: MemorySect
           />
         </div>
         <div className="space-y-2">
-          <InfoLabel tip="Maximum character length for each memory chunk. Longer content is split into smaller chunks before storing.">Max Chunk Length</InfoLabel>
+          <InfoLabel tip="Maximum character length for each memory chunk. Longer content is split into smaller chunks before storing.">{t(`${s}.maxChunkLen`)}</InfoLabel>
           <Input
             type="number"
             placeholder="1000"
@@ -60,7 +63,7 @@ export function MemorySection({ enabled, value, onToggle, onChange }: MemorySect
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <InfoLabel tip="Weight for vector (semantic) similarity in hybrid search scoring. Higher values prioritize meaning over keywords.">Vector Weight</InfoLabel>
+          <InfoLabel tip="Weight for vector (semantic) similarity in hybrid search scoring. Higher values prioritize meaning over keywords.">{t(`${s}.vectorWeight`)}</InfoLabel>
           <Input
             type="number"
             step="0.1"
@@ -70,7 +73,7 @@ export function MemorySection({ enabled, value, onToggle, onChange }: MemorySect
           />
         </div>
         <div className="space-y-2">
-          <InfoLabel tip="Weight for text (keyword/BM25) similarity in hybrid search scoring. Higher values prioritize exact keyword matches.">Text Weight</InfoLabel>
+          <InfoLabel tip="Weight for text (keyword/BM25) similarity in hybrid search scoring. Higher values prioritize exact keyword matches.">{t(`${s}.textWeight`)}</InfoLabel>
           <Input
             type="number"
             step="0.1"

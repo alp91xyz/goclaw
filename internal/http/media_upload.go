@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/nextlevelbuilder/goclaw/internal/channels/media"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 )
 
 const (
@@ -37,7 +38,8 @@ func (h *MediaUploadHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 		if h.token != "" {
 			provided := extractBearerToken(r)
 			if provided != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
@@ -46,16 +48,17 @@ func (h *MediaUploadHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func (h *MediaUploadHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 
 	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "file too large or invalid multipart form"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgFileTooLarge)})
 		return
 	}
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "missing 'file' field"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgMissingFileField)})
 		return
 	}
 	defer file.Close()
@@ -63,7 +66,7 @@ func (h *MediaUploadHandler) handleUpload(w http.ResponseWriter, r *http.Request
 	// Sanitize filename: strip path, prevent traversal.
 	origName := filepath.Base(header.Filename)
 	if origName == "." || origName == "/" || strings.Contains(origName, "..") {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid filename"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidFilename)})
 		return
 	}
 
@@ -78,14 +81,14 @@ func (h *MediaUploadHandler) handleUpload(w http.ResponseWriter, r *http.Request
 
 	out, err := os.Create(tmpPath)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to create temp file"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgInternalError, "failed to create temp file")})
 		return
 	}
 	defer out.Close()
 
 	if _, err := io.Copy(out, file); err != nil {
 		os.Remove(tmpPath)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to save file"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgInternalError, "failed to save file")})
 		return
 	}
 

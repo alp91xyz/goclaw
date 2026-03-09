@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus, Trash2, RefreshCw, Users, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ export function ChannelWritersTab({
   addWriter,
   removeWriter,
 }: ChannelWritersTabProps) {
+  const { t } = useTranslation("channels");
   const [groups, setGroups] = useState<GroupWriterGroupInfo[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
 
@@ -97,7 +99,7 @@ export function ChannelWritersTab({
     const gid = targetGroupId || addGroupId.trim();
     const uid = addUserId.trim();
     if (!gid || !uid) {
-      setError("Group ID and User ID are required");
+      setError(t("detail.writers.addForm.errors.groupUserRequired"));
       return;
     }
     setAdding(true);
@@ -118,7 +120,7 @@ export function ChannelWritersTab({
         setExpanded((prev) => ({ ...prev, [gid]: true }));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add writer");
+      setError(err instanceof Error ? err.message : t("detail.writers.addForm.errors.failedAdd"));
     } finally {
       setAdding(false);
     }
@@ -127,14 +129,14 @@ export function ChannelWritersTab({
   return (
     <div className="max-w-3xl space-y-5">
       <p className="text-sm text-muted-foreground">
-        Manage which users are allowed to write/edit files in group chats.
+        {t("detail.writers.description")}
       </p>
 
       {/* Groups accordion */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium">
-            Groups
+            {t("detail.writers.groups")}
             {groups.length > 0 && (
               <span className="ml-1.5 text-muted-foreground font-normal">({groups.length})</span>
             )}
@@ -147,8 +149,8 @@ export function ChannelWritersTab({
         {groups.length === 0 && !loadingGroups ? (
           <EmptyState
             icon={Users}
-            title="No writer groups"
-            description="Use the form below to add writers to a group."
+            title={t("detail.writers.noWriterGroups")}
+            description={t("detail.writers.noWriterGroupsHint")}
           />
         ) : (
           <div className="rounded-md border divide-y">
@@ -174,7 +176,9 @@ export function ChannelWritersTab({
                       <span className="ml-2 text-xs text-muted-foreground">{g.group_id}</span>
                     </div>
                     <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-medium tabular-nums">
-                      {g.writer_count} {g.writer_count === 1 ? "writer" : "writers"}
+                      {g.writer_count === 1
+                        ? t("detail.writers.writersCount", { count: g.writer_count })
+                        : t("detail.writers.writersCountPlural", { count: g.writer_count })}
                     </span>
                   </button>
 
@@ -182,17 +186,17 @@ export function ChannelWritersTab({
                   {isOpen && (
                     <div className="border-t bg-muted/10 px-4 py-3 space-y-3">
                       {isLoading ? (
-                        <p className="text-sm text-muted-foreground py-2">Loading writers...</p>
+                        <p className="text-sm text-muted-foreground py-2">{t("detail.writers.loadingWriters")}</p>
                       ) : groupWriters.length === 0 ? (
-                        <p className="text-sm text-muted-foreground py-2">No writers in this group.</p>
+                        <p className="text-sm text-muted-foreground py-2">{t("detail.writers.noWriters")}</p>
                       ) : (
                         <div className="rounded-md border bg-background">
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="border-b bg-muted/50">
-                                <th className="px-3 py-2 text-left font-medium text-xs uppercase tracking-wide text-muted-foreground">User ID</th>
-                                <th className="px-3 py-2 text-left font-medium text-xs uppercase tracking-wide text-muted-foreground">Name</th>
-                                <th className="px-3 py-2 text-left font-medium text-xs uppercase tracking-wide text-muted-foreground">Username</th>
+                                <th className="px-3 py-2 text-left font-medium text-xs uppercase tracking-wide text-muted-foreground">{t("detail.writers.columns.userId")}</th>
+                                <th className="px-3 py-2 text-left font-medium text-xs uppercase tracking-wide text-muted-foreground">{t("detail.writers.columns.name")}</th>
+                                <th className="px-3 py-2 text-left font-medium text-xs uppercase tracking-wide text-muted-foreground">{t("detail.writers.columns.username")}</th>
                                 <th className="px-3 py-2 w-10" />
                               </tr>
                             </thead>
@@ -222,30 +226,30 @@ export function ChannelWritersTab({
                       {/* Inline add form for this group */}
                       <div className="flex items-end gap-2">
                         <div className="grid gap-1 flex-1">
-                          <Label className="text-xs text-muted-foreground">User ID</Label>
+                          <Label className="text-xs text-muted-foreground">{t("detail.writers.addForm.userId")}</Label>
                           <Input
                             value={addUserId}
                             onChange={(e) => setAddUserId(e.target.value)}
-                            placeholder="e.g. 12345678"
+                            placeholder={t("detail.writers.addForm.userIdPlaceholder")}
                             className="h-8 text-sm"
                             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddWriter(g.group_id))}
                           />
                         </div>
                         <div className="grid gap-1 flex-1">
-                          <Label className="text-xs text-muted-foreground">Display Name</Label>
+                          <Label className="text-xs text-muted-foreground">{t("detail.writers.addForm.displayName")}</Label>
                           <Input
                             value={addDisplayName}
                             onChange={(e) => setAddDisplayName(e.target.value)}
-                            placeholder="Optional"
+                            placeholder={t("detail.writers.addForm.optional")}
                             className="h-8 text-sm"
                           />
                         </div>
                         <div className="grid gap-1 flex-1">
-                          <Label className="text-xs text-muted-foreground">Username</Label>
+                          <Label className="text-xs text-muted-foreground">{t("detail.writers.addForm.username")}</Label>
                           <Input
                             value={addUsername}
                             onChange={(e) => setAddUsername(e.target.value)}
-                            placeholder="Optional"
+                            placeholder={t("detail.writers.addForm.optional")}
                             className="h-8 text-sm"
                           />
                         </div>
@@ -256,7 +260,7 @@ export function ChannelWritersTab({
                           disabled={adding || !addUserId.trim()}
                         >
                           <Plus className="h-3.5 w-3.5" />
-                          Add
+                          {t("detail.writers.addForm.add")}
                         </Button>
                       </div>
                     </div>
@@ -270,48 +274,46 @@ export function ChannelWritersTab({
 
       {/* Add to new group */}
       <fieldset className="rounded-md border p-4 space-y-3">
-        <legend className="px-1 text-sm font-medium">Add Writer to New Group</legend>
-        <p className="text-xs text-muted-foreground">
-          Add a writer to a group that doesn&apos;t appear in the list above.
-        </p>
+        <legend className="px-1 text-sm font-medium">{t("detail.writers.addForm.title")}</legend>
+        <p className="text-xs text-muted-foreground">{t("detail.writers.addForm.hint")}</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="grid gap-1.5">
-            <Label htmlFor="aw-group" className="text-xs">Group ID *</Label>
+            <Label htmlFor="aw-group" className="text-xs">{t("detail.writers.addForm.groupId")}</Label>
             <Input
               id="aw-group"
               value={addGroupId}
               onChange={(e) => setAddGroupId(e.target.value)}
-              placeholder="e.g. group:telegram:-100123456"
+              placeholder={t("detail.writers.addForm.groupIdPlaceholder")}
               className="text-sm"
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="aw-user" className="text-xs">User ID *</Label>
+            <Label htmlFor="aw-user" className="text-xs">{t("detail.writers.addForm.userId")}</Label>
             <Input
               id="aw-user"
               value={addUserId}
               onChange={(e) => setAddUserId(e.target.value)}
-              placeholder="e.g. 12345678"
+              placeholder={t("detail.writers.addForm.userIdPlaceholder")}
               className="text-sm"
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="aw-display" className="text-xs">Display Name</Label>
+            <Label htmlFor="aw-display" className="text-xs">{t("detail.writers.addForm.displayName")}</Label>
             <Input
               id="aw-display"
               value={addDisplayName}
               onChange={(e) => setAddDisplayName(e.target.value)}
-              placeholder="Optional"
+              placeholder={t("detail.writers.addForm.optional")}
               className="text-sm"
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="aw-username" className="text-xs">Username</Label>
+            <Label htmlFor="aw-username" className="text-xs">{t("detail.writers.addForm.username")}</Label>
             <Input
               id="aw-username"
               value={addUsername}
               onChange={(e) => setAddUsername(e.target.value)}
-              placeholder="Optional (without @)"
+              placeholder={t("detail.writers.addForm.usernameWithout")}
               className="text-sm"
             />
           </div>
@@ -325,7 +327,7 @@ export function ChannelWritersTab({
             className="gap-1"
           >
             <Plus className="h-3.5 w-3.5" />
-            {adding ? "Adding..." : "Add Writer"}
+            {adding ? t("detail.writers.addForm.adding") : t("detail.writers.addForm.addWriter")}
           </Button>
         </div>
       </fieldset>

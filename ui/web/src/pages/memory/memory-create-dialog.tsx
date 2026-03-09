@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,8 @@ interface MemoryCreateDialogProps {
 }
 
 export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId, knownUserIds = [] }: MemoryCreateDialogProps) {
+  const { t } = useTranslation("memory");
+  const { t: tc } = useTranslation("common");
   const { agents } = useAgents();
   const [selectedAgentId, setSelectedAgentId] = useState("");
   const [path, setPath] = useState("");
@@ -63,15 +66,15 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
 
   const handleSubmit = async () => {
     if (!effectiveAgentId) {
-      setError("Please select an agent");
+      setError(t("createDialog.agentRequired") ?? "Please select an agent");
       return;
     }
     if (!path.trim()) {
-      setError("Path is required");
+      setError(t("createDialog.pathRequired") ?? "Path is required");
       return;
     }
     if (!content.trim()) {
-      setError("Content is required");
+      setError(t("createDialog.contentRequired") ?? "Content is required");
       return;
     }
 
@@ -85,7 +88,7 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
       }
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create");
+      setError(err instanceof Error ? err.message : t("toast.failedCreate"));
     } finally {
       setLoading(false);
     }
@@ -95,20 +98,20 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
     <Dialog open={open} onOpenChange={(v) => !loading && onOpenChange(v)}>
       <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Create Memory Document</DialogTitle>
+          <DialogTitle>{t("createDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-2 px-1 -mx-1 overflow-y-auto min-h-0">
           {/* Agent selector */}
           <div className="grid gap-1.5">
-            <Label htmlFor="mc-agent">Agent *</Label>
+            <Label htmlFor="mc-agent">{t("createDialog.agentId")}</Label>
             <select
               id="mc-agent"
               value={selectedAgentId || parentAgentId || ""}
               onChange={(e) => setSelectedAgentId(e.target.value)}
               className="h-9 rounded-md border bg-background px-3 text-sm"
             >
-              <option value="">Select agent...</option>
+              <option value="">{t("createDialog.agentIdPlaceholder")}</option>
               {agents.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.display_name || a.agent_key}
@@ -122,7 +125,7 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
 
           {/* Scope selector */}
           <div className="grid gap-1.5">
-            <Label>Scope</Label>
+            <Label>{t("createDialog.scope")}</Label>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -130,7 +133,7 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
                 size="sm"
                 onClick={() => setScopeMode("global")}
               >
-                Global
+                {t("scopeLabel.global")}
               </Button>
               {knownUserIds.length > 0 && (
                 <Button
@@ -139,7 +142,7 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
                   size="sm"
                   onClick={() => setScopeMode("existing")}
                 >
-                  Existing scope
+                  {t("createDialog.existingScope")}
                 </Button>
               )}
               <Button
@@ -148,7 +151,7 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
                 size="sm"
                 onClick={() => setScopeMode("custom")}
               >
-                Custom
+                {t("createDialog.customScope")}
               </Button>
             </div>
             {scopeMode === "existing" && knownUserIds.length > 0 && (
@@ -157,7 +160,7 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
                 onChange={(e) => setSelectedUserId(e.target.value)}
                 className="h-9 rounded-md border bg-background px-3 text-sm"
               >
-                <option value="">Select group/user...</option>
+                <option value="">{t("createDialog.selectGroupUser")}</option>
                 {knownUserIds.map((uid) => (
                   <option key={uid} value={uid}>
                     {formatScopeLabel(uid)}
@@ -174,30 +177,30 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
               />
             )}
             <p className="text-xs text-muted-foreground">
-              Global = shared across all users. Personal = scoped to a specific user or group chat.
+              {t("createDialog.scopeHint")}
             </p>
           </div>
 
           {/* Path */}
           <div className="grid gap-1.5">
-            <Label htmlFor="mc-path">Path *</Label>
+            <Label htmlFor="mc-path">{t("createDialog.path")}</Label>
             <Input
               id="mc-path"
               value={path}
               onChange={(e) => setPath(e.target.value)}
-              placeholder="e.g. notes/project-overview.md"
+              placeholder={t("createDialog.pathPlaceholder")}
               className="font-mono text-sm"
             />
           </div>
 
           {/* Content */}
           <div className="grid gap-1.5">
-            <Label htmlFor="mc-content">Content *</Label>
+            <Label htmlFor="mc-content">{t("createDialog.content")}</Label>
             <Textarea
               id="mc-content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Document content..."
+              placeholder={t("createDialog.contentPlaceholder")}
               className="font-mono text-xs min-h-[200px]"
               rows={10}
             />
@@ -205,7 +208,7 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
 
           <div className="flex items-center gap-2">
             <Switch id="mc-index" checked={autoIndex} onCheckedChange={setAutoIndex} />
-            <Label htmlFor="mc-index">Auto-index after creation</Label>
+            <Label htmlFor="mc-index">{t("createDialog.autoIndex")}</Label>
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
@@ -213,10 +216,10 @@ export function MemoryCreateDialog({ open, onOpenChange, agentId: parentAgentId,
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancel
+            {tc("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Creating..." : "Create"}
+            {loading ? t("createDialog.creating") : t("createDialog.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

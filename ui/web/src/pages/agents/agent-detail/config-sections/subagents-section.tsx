@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Combobox } from "@/components/ui/combobox";
 import {
@@ -21,25 +22,23 @@ interface SubagentsSectionProps {
 }
 
 export function SubagentsSection({ enabled, value, onToggle, onChange }: SubagentsSectionProps) {
+  const { t } = useTranslation("agents");
+  const s = "configSections.subagents";
   const { providers } = useProviders();
   const enabledProviders = providers.filter((p) => p.enabled);
-  // Use the first enabled provider for model list suggestions
-  const defaultProvider = useMemo(
-    () => enabledProviders[0],
-    [enabledProviders],
-  );
+  const defaultProvider = useMemo(() => enabledProviders[0], [enabledProviders]);
   const { models, loading: modelsLoading } = useProviderModels(defaultProvider?.id, defaultProvider?.provider_type);
 
   return (
     <ConfigSection
-      title="Subagents"
-      description="Controls sub-agent spawning limits and behavior"
+      title={t(`${s}.title`)}
+      description={t(`${s}.description`)}
       enabled={enabled}
       onToggle={onToggle}
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <InfoLabel tip="Maximum number of sub-agents that can run simultaneously for this agent.">Max Concurrent</InfoLabel>
+          <InfoLabel tip="Maximum number of sub-agents that can run simultaneously for this agent.">{t(`${s}.maxConcurrent`)}</InfoLabel>
           <Input
             type="number"
             placeholder="8"
@@ -48,7 +47,7 @@ export function SubagentsSection({ enabled, value, onToggle, onChange }: Subagen
           />
         </div>
         <div className="space-y-2">
-          <InfoLabel tip="How many levels deep sub-agents can spawn other sub-agents. Depth 1 means only the parent can spawn.">Max Spawn Depth</InfoLabel>
+          <InfoLabel tip="How many levels deep sub-agents can spawn other sub-agents. Depth 1 means only the parent can spawn.">{t(`${s}.maxSpawnDepth`)}</InfoLabel>
           <Select
             value={String(value.maxSpawnDepth ?? "")}
             onValueChange={(v) => onChange({ ...value, maxSpawnDepth: Number(v) })}
@@ -64,7 +63,7 @@ export function SubagentsSection({ enabled, value, onToggle, onChange }: Subagen
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <InfoLabel tip="Maximum number of sub-agents a single parent agent can spawn in one session.">Max Children Per Agent</InfoLabel>
+          <InfoLabel tip="Maximum number of sub-agents a single parent agent can spawn in one session.">{t(`${s}.maxChildrenPerAgent`)}</InfoLabel>
           <Input
             type="number"
             placeholder="5"
@@ -73,7 +72,7 @@ export function SubagentsSection({ enabled, value, onToggle, onChange }: Subagen
           />
         </div>
         <div className="space-y-2">
-          <InfoLabel tip="Idle time in minutes before a sub-agent session is automatically archived and cleaned up.">Archive After (minutes)</InfoLabel>
+          <InfoLabel tip="Idle time in minutes before a sub-agent session is automatically archived and cleaned up.">{t(`${s}.archiveAfter`)}</InfoLabel>
           <Input
             type="number"
             placeholder="60"
@@ -83,12 +82,12 @@ export function SubagentsSection({ enabled, value, onToggle, onChange }: Subagen
         </div>
       </div>
       <div className="space-y-2">
-        <InfoLabel tip="LLM model for sub-agents. Leave empty to inherit the parent agent's model.">Model Override</InfoLabel>
+        <InfoLabel tip="LLM model for sub-agents. Leave empty to inherit the parent agent's model.">{t(`${s}.modelOverride`)}</InfoLabel>
         <Combobox
           value={value.model ?? ""}
           onChange={(v) => onChange({ ...value, model: v || undefined })}
           options={models.map((m) => ({ value: m.id, label: m.name }))}
-          placeholder={modelsLoading ? "Loading models..." : "(inherit from agent)"}
+          placeholder={modelsLoading ? "Loading models..." : t(`${s}.inheritFromAgent`)}
         />
       </div>
     </ConfigSection>

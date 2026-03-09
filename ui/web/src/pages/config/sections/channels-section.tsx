@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, ChevronDown, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,7 @@ interface Props {
 }
 
 export function ChannelsSection({ data, onSave, saving }: Props) {
+  const { t } = useTranslation("config");
   const [draft, setDraft] = useState<ChannelsData>(data ?? {});
   const [dirty, setDirty] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -85,12 +87,12 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Channel Defaults</CardTitle>
-        <CardDescription>Config-level channel defaults. Manage channel instances on the Channels page.</CardDescription>
+        <CardTitle className="text-base">{t("channels.title")}</CardTitle>
+        <CardDescription>{t("channels.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         {activeChannels.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No channels configured.</p>
+          <p className="text-sm text-muted-foreground">{t("channels.noChannels")}</p>
         ) : (
           activeChannels.map((ch) => {
             const meta = CHANNEL_META[ch]!;
@@ -107,13 +109,13 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
                   {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
                   <span className="font-medium">{meta.label}</span>
                   <Badge variant={chData.enabled ? "default" : "secondary"} className="ml-auto text-xs">
-                    {chData.enabled ? "Enabled" : "Disabled"}
+                    {chData.enabled ? t("common:enabled", "Enabled") : t("common:disabled", "Disabled")}
                   </Badge>
                 </button>
                 {isOpen && (
                   <div className="space-y-3 border-t px-3 py-3">
                     <div className="flex items-center justify-between">
-                      <Label>Enabled</Label>
+                      <Label>{t("channels.enabled")}</Label>
                       <Switch
                         checked={chData.enabled ?? false}
                         onCheckedChange={(v) => updateChannel(ch, { enabled: v })}
@@ -123,7 +125,7 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
                     {/* Secret token */}
                     {meta.secretField && chData[meta.secretField] !== undefined && (
                       <div className="grid gap-1.5">
-                        <Label>Token</Label>
+                        <Label>{t("channels.token")}</Label>
                         <Input
                           type="password"
                           value={chData[meta.secretField] ?? ""}
@@ -132,7 +134,7 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
                           onChange={(e) => updateChannel(ch, { [meta.secretField]: e.target.value })}
                         />
                         {isSecret(chData[meta.secretField]) && meta.secretEnv && (
-                          <p className="text-xs text-muted-foreground">Managed via {meta.secretEnv}</p>
+                          <p className="text-xs text-muted-foreground">{t("channels.managedVia", { envKey: meta.secretEnv })}</p>
                         )}
                       </div>
                     )}
@@ -141,7 +143,7 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
                     <div className="grid grid-cols-2 gap-4">
                       {chData.dm_policy !== undefined && (
                         <div className="grid gap-1.5">
-                          <Label>DM Policy</Label>
+                          <Label>{t("channels.dmPolicy")}</Label>
                           <Select value={chData.dm_policy ?? "pairing"} onValueChange={(v) => updateChannel(ch, { dm_policy: v })}>
                             <SelectTrigger>
                               <SelectValue />
@@ -156,7 +158,7 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
                       )}
                       {chData.group_policy !== undefined && (
                         <div className="grid gap-1.5">
-                          <Label>Group Policy</Label>
+                          <Label>{t("channels.groupPolicy")}</Label>
                           <Select value={chData.group_policy ?? "open"} onValueChange={(v) => updateChannel(ch, { group_policy: v })}>
                             <SelectTrigger>
                               <SelectValue />
@@ -174,7 +176,7 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
                     {/* Allow from */}
                     {chData.allow_from !== undefined && (
                       <div className="grid gap-1.5">
-                        <Label>Allow From</Label>
+                        <Label>{t("channels.allowFrom")}</Label>
                         <Input
                           value={(chData.allow_from ?? []).join(", ")}
                           onChange={(e) =>
@@ -182,7 +184,7 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
                               allow_from: e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean),
                             })
                           }
-                          placeholder="Comma-separated user IDs (empty = all)"
+                          placeholder={t("channels.allowFromPlaceholder")}
                         />
                       </div>
                     )}
@@ -193,16 +195,16 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
                         <div className="flex items-center gap-4">
                           <label className="flex items-center gap-2 text-sm">
                             <input type="checkbox" checked={!!chData.dm_stream} onChange={(e) => updateChannel(ch, { dm_stream: e.target.checked })} />
-                            DM Streaming
+                            {t("channels.dmStreaming")}
                           </label>
                           <label className="flex items-center gap-2 text-sm">
                             <input type="checkbox" checked={!!chData.group_stream} onChange={(e) => updateChannel(ch, { group_stream: e.target.checked })} />
-                            Group Streaming
+                            {t("channels.groupStreaming")}
                           </label>
                         </div>
                         {chData.reaction_level !== undefined && (
                           <div className="grid gap-1.5">
-                            <Label>Reaction Level</Label>
+                            <Label>{t("channels.reactionLevel")}</Label>
                             <Select value={chData.reaction_level ?? "off"} onValueChange={(v) => updateChannel(ch, { reaction_level: v })}>
                               <SelectTrigger><SelectValue /></SelectTrigger>
                               <SelectContent>
@@ -219,7 +221,7 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
                     {/* Feishu-specific */}
                     {ch === "feishu" && chData.connection_mode !== undefined && (
                       <div className="grid gap-1.5">
-                        <Label>Connection Mode</Label>
+                        <Label>{t("channels.connectionMode")}</Label>
                         <Select value={chData.connection_mode ?? "websocket"} onValueChange={(v) => updateChannel(ch, { connection_mode: v })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -239,7 +241,7 @@ export function ChannelsSection({ data, onSave, saving }: Props) {
         {dirty && (
           <div className="flex justify-end pt-2">
             <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5">
-              <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save"}
+              <Save className="h-3.5 w-3.5" /> {saving ? t("saving") : t("save")}
             </Button>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ interface LinkCreateFormProps {
 }
 
 export function LinkCreateForm({ agentOptions, onSubmit }: LinkCreateFormProps) {
+  const { t } = useTranslation("agents");
   const [targetAgent, setTargetAgent] = useState("");
   const [direction, setDirection] = useState("outbound");
   const [description, setDescription] = useState("");
@@ -64,20 +66,20 @@ export function LinkCreateForm({ agentOptions, onSubmit }: LinkCreateFormProps) 
 
   return (
     <div className="rounded-lg border p-4">
-      <h3 className="mb-3 text-sm font-medium">Create Link</h3>
+      <h3 className="mb-3 text-sm font-medium">{t("links.createLink")}</h3>
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-1.5">
-            <Label>Target Agent</Label>
+            <Label>{t("links.targetAgent")}</Label>
             <Combobox
               value={targetAgent}
               onChange={setTargetAgent}
               options={agentOptions}
-              placeholder="Select or search agent..."
+              placeholder={t("links.selectAgent")}
             />
           </div>
           <div className="w-full space-y-1.5 sm:w-44">
-            <Label>Direction</Label>
+            <Label>{t("links.direction")}</Label>
             <Select value={direction} onValueChange={setDirection}>
               <SelectTrigger>
                 <SelectValue />
@@ -99,15 +101,15 @@ export function LinkCreateForm({ agentOptions, onSubmit }: LinkCreateFormProps) 
         </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-1.5">
-            <Label>Description</Label>
+            <Label>{t("links.description")}</Label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description of the link..."
+              placeholder={t("links.descriptionPlaceholder")}
             />
           </div>
           <div className="w-full space-y-1.5 sm:w-32">
-            <Label>Max Concurrent</Label>
+            <Label>{t("links.maxConcurrent")}</Label>
             <Input
               type="number"
               min={1}
@@ -128,30 +130,30 @@ export function LinkCreateForm({ agentOptions, onSubmit }: LinkCreateFormProps) 
           ) : (
             <ChevronRight className="h-3.5 w-3.5" />
           )}
-          Advanced Settings
+          {t("links.advancedSettings")}
         </button>
         {showAdvanced && (
           <div className="space-y-3 rounded-md border border-dashed p-3">
             <div className="space-y-1.5">
-              <Label>Allowed Users</Label>
+              <Label>{t("links.allowedUsers")}</Label>
               <Input
                 value={userAllow}
                 onChange={(e) => setUserAllow(e.target.value)}
-                placeholder="user1, user2, ..."
+                placeholder={t("links.allowedUsersPlaceholder")}
               />
               <p className="text-xs text-muted-foreground">
-                If set, only these users can trigger this delegation. Comma-separated.
+                {t("links.allowedUsersHint")}
               </p>
             </div>
             <div className="space-y-1.5">
-              <Label>Denied Users</Label>
+              <Label>{t("links.deniedUsers")}</Label>
               <Input
                 value={userDeny}
                 onChange={(e) => setUserDeny(e.target.value)}
-                placeholder="user3, user4, ..."
+                placeholder={t("links.deniedUsersPlaceholder")}
               />
               <p className="text-xs text-muted-foreground">
-                These users are blocked from triggering this delegation. Comma-separated.
+                {t("links.deniedUsersHint")}
               </p>
             </div>
           </div>
@@ -164,7 +166,7 @@ export function LinkCreateForm({ agentOptions, onSubmit }: LinkCreateFormProps) 
             className="gap-1.5"
           >
             <Plus className="h-4 w-4" />
-            {creating ? "Creating..." : "Create Link"}
+            {creating ? t("links.creating") : t("links.createLink")}
           </Button>
         </div>
       </div>

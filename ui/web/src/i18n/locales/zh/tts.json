@@ -1,0 +1,71 @@
+{
+  "autoModes": {
+    "always": "始终",
+    "alwaysDesc": "所有回复均生成音频",
+    "inbound": "入站",
+    "inboundDesc": "仅当用户发送语音/音频时",
+    "off": "关闭",
+    "offDesc": "Agent可手动使用 TTS 工具",
+    "tagged": "标记",
+    "taggedDesc": "仅当回复包含 [[tts]] 标签时"
+  },
+  "description": "配置 TTS Provider和自动应用设置",
+  "edge": {
+    "hint": "Edge TTS 免费且无需 API Key。安装方式：pip install edge-tts",
+    "speechRate": "语速",
+    "voice": "语音"
+  },
+  "elevenlabs": {
+    "apiKey": "API Key",
+    "baseUrl": "Base URL",
+    "modelId": "Model ID",
+    "voiceId": "Voice ID"
+  },
+  "general": {
+    "autoApplyMode": "自动应用模式",
+    "maxTextLength": "最大文本长度",
+    "primaryProvider": "主要Provider",
+    "replyMode": "回复模式",
+    "timeout": "超时（毫秒）",
+    "title": "常规设置"
+  },
+  "minimax": {
+    "apiBase": "API Base",
+    "apiKey": "API Key",
+    "groupId": "Group ID",
+    "groupIdPlaceholder": "MiniMax 必填",
+    "model": "模型",
+    "voiceId": "Voice ID"
+  },
+  "openai": {
+    "apiBase": "API Base URL",
+    "apiKey": "API Key",
+    "model": "模型",
+    "voice": "语音"
+  },
+  "providerSettings": "{{provider}} 设置",
+  "providers": {
+    "edge": "Edge（免费）",
+    "elevenlabs": "ElevenLabs",
+    "minimax": "MiniMax",
+    "none": "无（已禁用）",
+    "openai": "OpenAI"
+  },
+  "replyModes": {
+    "all": "全部",
+    "allDesc": "包括工具/块在内的所有回复",
+    "final": "仅最终回复",
+    "finalDesc": "仅最终回复"
+  },
+  "save": "保存",
+  "saveChanges": "保存更改",
+  "saving": "保存中...",
+  "status": {
+    "activeProvider": "主要Provider：{{provider}}，自动：{{auto}}",
+    "configured": "已配置",
+    "disabled": "已禁用",
+    "noProvider": "未配置 TTS Provider",
+    "title": "状态"
+  },
+  "title": "语音合成"
+}

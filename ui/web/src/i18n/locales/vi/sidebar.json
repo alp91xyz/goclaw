@@ -1,0 +1,34 @@
+{
+  "groups": {
+    "core": "Chính",
+    "management": "Quản lý",
+    "monitoring": "Giám sát",
+    "system": "Hệ thống"
+  },
+  "nav": {
+    "overview": "Tổng quan",
+    "chat": "Trò chuyện",
+    "agents": "Agent",
+    "agentTeams": "Agent Team",
+    "sessions": "Session",
+    "pendingMessages": "Tin nhắn chờ",
+    "channels": "Channel",
+    "skills": "Skill",
+    "cron": "Tác vụ định kỳ",
+    "customTools": "Công cụ tùy chỉnh",
+    "builtinTools": "Công cụ tích hợp",
+    "mcpServers": "Máy chủ MCP",
+    "memory": "Bộ nhớ",
+    "traces": "Theo dõi",
+    "realtimeEvents": "Sự kiện thời gian thực",
+    "delegations": "Ủy quyền",
+    "usage": "Sử dụng",
+    "logs": "Nhật ký",
+    "storage": "Lưu trữ",
+    "providers": "Provider",
+    "config": "Cấu hình",
+    "approvals": "Phê duyệt",
+    "nodes": "Nút",
+    "tts": "Chuyển văn bản thành giọng nói"
+  }
+}

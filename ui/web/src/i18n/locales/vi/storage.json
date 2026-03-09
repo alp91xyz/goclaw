@@ -1,0 +1,14 @@
+{
+  "title": "Lưu trữ",
+  "description": "Trình duyệt tệp workspace",
+  "descriptionWithPath": "{{path}} — {{size}}",
+  "delete": {
+    "fileTitle": "Xóa tệp",
+    "folderTitle": "Xóa thư mục",
+    "description": "Bạn có chắc muốn xóa {{name}}?",
+    "folderWarning": " Tất cả nội dung sẽ bị xóa đệ quy.",
+    "undone": " Hành động này không thể hoàn tác.",
+    "deleting": "Đang xóa...",
+    "confirmLabel": "Xóa"
+  }
+}

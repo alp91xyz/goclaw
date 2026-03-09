@@ -1,0 +1,156 @@
+{
+  "custom": {
+    "title": "Công cụ tùy chỉnh",
+    "description": "Quản lý các công cụ shell tùy chỉnh cho agent",
+    "createTool": "Tạo công cụ",
+    "searchPlaceholder": "Tìm kiếm công cụ...",
+    "emptyTitle": "Không có công cụ tùy chỉnh",
+    "emptyDescription": "Tạo công cụ tùy chỉnh đầu tiên để bắt đầu.",
+    "noMatchTitle": "Không tìm thấy công cụ phù hợp",
+    "noMatchDescription": "Thử từ khóa tìm kiếm khác.",
+    "noDescription": "Không có mô tả",
+    "columns": {
+      "name": "Tên",
+      "description": "Mô tả",
+      "scope": "Phạm vi",
+      "enabled": "Bật",
+      "timeout": "Thời gian chờ",
+      "actions": "Thao tác"
+    },
+    "scope": {
+      "agent": "Agent",
+      "global": "Toàn cục"
+    },
+    "delete": {
+      "title": "Xóa công cụ tùy chỉnh",
+      "description": "Bạn có chắc muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác.",
+      "confirmLabel": "Xóa"
+    },
+    "form": {
+      "createTitle": "Tạo công cụ tùy chỉnh",
+      "editTitle": "Chỉnh sửa công cụ",
+      "name": "Tên *",
+      "namePlaceholder": "my-tool",
+      "nameHint": "Chỉ chữ thường, số và dấu gạch ngang",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Công cụ này làm gì...",
+      "command": "Lệnh *",
+      "commandHint": "Mẫu shell. Dùng {{.key}} cho các placeholder tham số.",
+      "parameters": "Tham số (JSON Schema)",
+      "workingDir": "Thư mục làm việc",
+      "workingDirPlaceholder": "/path/to/dir",
+      "timeout": "Thời gian chờ (giây)",
+      "agentId": "Agent ID (tùy chọn)",
+      "agentIdPlaceholder": "Để trống cho phạm vi toàn cục",
+      "enabled": "Bật",
+      "cancel": "Hủy",
+      "create": "Tạo",
+      "update": "Cập nhật",
+      "saving": "Đang lưu...",
+      "errors": {
+        "nameRequired": "Tên và lệnh là bắt buộc",
+        "nameSlug": "Tên phải là slug hợp lệ (chữ thường, số, dấu gạch ngang)",
+        "invalidJson": "Tham số phải là JSON hợp lệ"
+      }
+    },
+    "toast": {
+      "created": "Đã tạo công cụ",
+      "createdDesc": "{{name}} đã được thêm",
+      "updated": "Đã cập nhật công cụ",
+      "deleted": "Đã xóa công cụ",
+      "failedCreate": "Không thể tạo công cụ",
+      "failedUpdate": "Không thể cập nhật công cụ",
+      "failedDelete": "Không thể xóa công cụ"
+    }
+  },
+  "builtin": {
+    "title": "Công cụ tích hợp",
+    "description": "Quản lý các công cụ tích hợp sẵn. Bật/tắt hoặc cấu hình cài đặt toàn cục.",
+    "searchPlaceholder": "Tìm kiếm công cụ...",
+    "emptyTitle": "Không có công cụ tích hợp",
+    "emptyDescription": "Chưa có công cụ tích hợp nào được khởi tạo.",
+    "noMatchTitle": "Không tìm thấy công cụ phù hợp",
+    "noMatchDescription": "Thử từ khóa tìm kiếm khác.",
+    "toolCount": "{{count}} công cụ",
+    "toolCountPlural": "{{count}} công cụ",
+    "categoryCount": "{{count}} danh mục",
+    "requires": "yêu cầu",
+    "requiresTooltip": "Yêu cầu: {{list}}",
+    "settings": "Cài đặt",
+    "configuredVia": "Cấu hình qua trang Config",
+    "categories": {
+      "filesystem": "Hệ thống tệp",
+      "runtime": "Thời gian chạy",
+      "web": "Web",
+      "memory": "Bộ nhớ",
+      "media": "Phương tiện",
+      "browser": "Trình duyệt",
+      "sessions": "Session",
+      "messaging": "Nhắn tin",
+      "scheduling": "Lập lịch",
+      "subagents": "Agent",
+      "skills": "Skill",
+      "delegation": "Ủy quyền",
+      "teams": "Nhóm"
+    },
+    "settingsDialog": {
+      "title": "Cài đặt — {{name}}",
+      "cancel": "Hủy",
+      "save": "Lưu",
+      "saving": "Đang lưu...",
+      "noFields": "Không có cài đặt có thể cấu hình cho công cụ này.",
+      "toast": {
+        "saved": "Đã lưu cài đặt",
+        "failed": "Không thể lưu cài đặt"
+      }
+    },
+    "jsonDialog": {
+      "title": "Cài đặt: {{name}}",
+      "description": "Chỉnh sửa cài đặt công cụ dưới dạng JSON. Thay đổi có hiệu lực ngay sau khi lưu.",
+      "formatJson": "Định dạng JSON",
+      "invalidJsonSyntax": "Cú pháp JSON không hợp lệ",
+      "invalidJson": "JSON không hợp lệ",
+      "cannotFormat": "Không thể định dạng: JSON không hợp lệ",
+      "cancel": "Hủy",
+      "save": "Lưu",
+      "saving": "Đang lưu..."
+    },
+    "kgSettings": {
+      "title": "Cài đặt đồ thị tri thức",
+      "description": "Cấu hình trích xuất thực thể từ lần ghi bộ nhớ. Yêu cầu provider/mô hình hỗ trợ đầu ra JSON có cấu trúc.",
+      "extractionProvider": "Provider trích xuất",
+      "extractionModel": "Mô hình trích xuất",
+      "providerTip": "Provider LLM dùng để trích xuất thực thể và quan hệ từ văn bản.",
+      "modelTip": "ID mô hình để trích xuất. Nên hỗ trợ đầu ra JSON có cấu trúc.",
+      "minConfidence": "Độ tin cậy tối thiểu",
+      "minConfidenceHint": "Các thực thể dưới điểm tin cậy này sẽ bị loại bỏ (0,0–1,0).",
+      "autoExtract": "Tự động trích xuất khi ghi bộ nhớ",
+      "autoExtractHint": "Tự động trích xuất thực thể khi agent ghi vào tệp bộ nhớ.",
+      "cancel": "Hủy",
+      "save": "Lưu",
+      "saving": "Đang lưu..."
+    },
+    "mediaChain": {
+      "providerChainSuffix": "— Chuỗi provider",
+      "description": "Cấu hình và sắp xếp các provider dự phòng. Kéo để sắp xếp lại — provider đầu tiên được thử trước.",
+      "newProvider": "Provider mới",
+      "provider": "Provider",
+      "model": "Mô hình",
+      "selectProvider": "Chọn provider",
+      "loadingModels": "Đang tải...",
+      "selectModel": "Chọn mô hình",
+      "timeout": "Thời gian chờ",
+      "retries": "Số lần thử lại",
+      "settings": "Cài đặt",
+      "noProviders": "Chưa có provider nào. Thêm bên dưới.",
+      "addProvider": "Thêm provider",
+      "cancel": "Hủy",
+      "save": "Lưu",
+      "saving": "Đang lưu..."
+    },
+    "toast": {
+      "toggled": "Đã cập nhật công cụ",
+      "failedToggle": "Không thể cập nhật công cụ"
+    }
+  }
+}

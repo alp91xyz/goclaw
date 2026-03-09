@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function CronSection({ data, onSave, saving }: Props) {
+  const { t } = useTranslation("config");
   const [draft, setDraft] = useState<CronData>(data ?? DEFAULT);
   const [dirty, setDirty] = useState(false);
 
@@ -38,13 +40,13 @@ export function CronSection({ data, onSave, saving }: Props) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Cron</CardTitle>
-        <CardDescription>Cron job retry settings</CardDescription>
+        <CardTitle className="text-base">{t("cron.title")}</CardTitle>
+        <CardDescription>{t("cron.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-4">
           <div className="grid gap-1.5">
-            <InfoLabel tip="Maximum number of retry attempts for failed cron jobs before giving up.">Max Retries</InfoLabel>
+            <InfoLabel tip={t("cron.maxRetriesTip")}>{t("cron.maxRetries")}</InfoLabel>
             <Input
               type="number"
               value={draft.max_retries ?? ""}
@@ -54,7 +56,7 @@ export function CronSection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Initial delay between retries with exponential backoff. Go duration format (e.g. 2s, 500ms).">Base Delay</InfoLabel>
+            <InfoLabel tip={t("cron.baseDelayTip")}>{t("cron.baseDelay")}</InfoLabel>
             <Input
               value={draft.retry_base_delay ?? ""}
               onChange={(e) => update({ retry_base_delay: e.target.value })}
@@ -62,7 +64,7 @@ export function CronSection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Maximum delay cap for exponential backoff. Retries won't wait longer than this. Go duration format.">Max Delay</InfoLabel>
+            <InfoLabel tip={t("cron.maxDelayTip")}>{t("cron.maxDelay")}</InfoLabel>
             <Input
               value={draft.retry_max_delay ?? ""}
               onChange={(e) => update({ retry_max_delay: e.target.value })}
@@ -74,7 +76,7 @@ export function CronSection({ data, onSave, saving }: Props) {
         {dirty && (
           <div className="flex justify-end pt-2">
             <Button size="sm" onClick={() => onSave(draft)} disabled={saving} className="gap-1.5">
-              <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save"}
+              <Save className="h-3.5 w-3.5" /> {saving ? t("saving") : t("save")}
             </Button>
           </div>
         )}

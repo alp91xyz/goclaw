@@ -8,6 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 import { useClipboard } from "@/hooks/use-clipboard";
 import type { TeamEventEntry } from "@/stores/use-team-event-store";
 
@@ -17,6 +18,7 @@ interface EventDetailDialogProps {
 }
 
 export function EventDetailDialog({ entry, onClose }: EventDetailDialogProps) {
+  const { t } = useTranslation("events");
   const json = JSON.stringify(entry.payload, null, 2);
   const { copied, copy } = useClipboard();
 
@@ -46,7 +48,7 @@ export function EventDetailDialog({ entry, onClose }: EventDetailDialogProps) {
             ) : (
               <Copy className="h-3 w-3" />
             )}
-            {copied ? "Copied" : "Copy"}
+            {copied ? t("detail.copied") : t("detail.copy")}
           </Button>
           <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-4 text-sm leading-relaxed">
             <code>

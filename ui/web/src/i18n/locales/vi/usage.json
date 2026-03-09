@@ -1,0 +1,21 @@
+{
+  "title": "Sử dụng",
+  "description": "Mức sử dụng token và chi phí theo agent",
+  "emptyTitle": "Không có dữ liệu sử dụng",
+  "emptyDescription": "Dữ liệu sử dụng sẽ xuất hiện ở đây sau khi agent xử lý yêu cầu.",
+  "recentRecords": "Bản ghi gần đây",
+  "summary": {
+    "sessions": "{{count}} phiên",
+    "inputTokens": "Token đầu vào",
+    "outputTokens": "Token đầu ra",
+    "total": "Tổng"
+  },
+  "columns": {
+    "agent": "Agent",
+    "model": "Model",
+    "provider": "Provider",
+    "input": "Đầu vào",
+    "output": "Đầu ra",
+    "total": "Tổng"
+  }
+}

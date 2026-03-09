@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, type KeyboardEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Send, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +11,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onSend, onAbort, isRunning, disabled }: ChatInputProps) {
+  const { t } = useTranslation("common");
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -49,7 +51,7 @@ export function ChatInput({ onSend, onAbort, isRunning, disabled }: ChatInputPro
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onInput={handleInput}
-        placeholder="Send a message... (Shift+Enter for new line)"
+        placeholder={t("sendMessage")}
         disabled={disabled}
         rows={1}
         className="flex-1 resize-none rounded-lg border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
@@ -59,7 +61,7 @@ export function ChatInput({ onSend, onAbort, isRunning, disabled }: ChatInputPro
           variant="destructive"
           size="icon-lg"
           onClick={onAbort}
-          title="Stop generation"
+          title={t("stopGeneration")}
         >
           <Square className="h-4 w-4" />
         </Button>
@@ -68,7 +70,7 @@ export function ChatInput({ onSend, onAbort, isRunning, disabled }: ChatInputPro
           size="icon-lg"
           onClick={handleSend}
           disabled={!value.trim() || disabled}
-          title="Send message"
+          title={t("sendMessageTitle")}
         >
           <Send className="h-4 w-4" />
         </Button>

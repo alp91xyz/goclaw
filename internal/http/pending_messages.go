@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
 
@@ -28,10 +29,14 @@ func (h *PendingMessagesHandler) authMiddleware(next http.HandlerFunc) http.Hand
 	return func(w http.ResponseWriter, r *http.Request) {
 		if h.token != "" {
 			if extractBearerToken(r) != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
+		locale := extractLocale(r)
+		ctx := store.WithLocale(r.Context(), locale)
+		r = r.WithContext(ctx)
 		next(w, r)
 	}
 }
@@ -58,10 +63,11 @@ func (h *PendingMessagesHandler) handleListGroups(w http.ResponseWriter, r *http
 
 // GET /v1/pending-messages/messages?channel=X&key=Y — list messages for a group
 func (h *PendingMessagesHandler) handleListMessages(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	channel := r.URL.Query().Get("channel")
 	key := r.URL.Query().Get("key")
 	if channel == "" || key == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "channel and key are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgChannelKeyReq)})
 		return
 	}
 
@@ -75,10 +81,11 @@ func (h *PendingMessagesHandler) handleListMessages(w http.ResponseWriter, r *ht
 
 // DELETE /v1/pending-messages?channel=X&key=Y — clear a group
 func (h *PendingMessagesHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	channel := r.URL.Query().Get("channel")
 	key := r.URL.Query().Get("key")
 	if channel == "" || key == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "channel and key are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgChannelKeyReq)})
 		return
 	}
 
@@ -96,13 +103,14 @@ type compactRequest struct {
 
 // POST /v1/pending-messages/compact — MVP: clear group and return success
 func (h *PendingMessagesHandler) handleCompact(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	var req compactRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 	if req.ChannelName == "" || req.HistoryKey == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "channel_name and history_key are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "channel_name and history_key")})
 		return
 	}
 

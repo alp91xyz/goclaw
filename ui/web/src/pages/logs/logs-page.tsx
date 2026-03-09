@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { Terminal, Play, Square, Trash2, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/shared/page-header";
@@ -15,6 +16,7 @@ const levelColors: Record<string, string> = {
 const levels: LogLevel[] = ["debug", "info", "warn", "error"];
 
 export function LogsPage() {
+  const { t } = useTranslation("logs");
   const { logs, tailing, level, error, startTail, stopTail, clearLogs } =
     useLogs();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -45,15 +47,15 @@ export function LogsPage() {
   return (
     <div className="flex h-full flex-col p-6">
       <PageHeader
-        title="Logs"
+        title={t("title")}
         description={
           tailing
-            ? `Live tailing at ${level} level`
-            : "Live log tailing"
+            ? t("descriptionLive", { level })
+            : t("description")
         }
         actions={
           <div className="flex items-center gap-2">
-            {tailing && <Badge variant="success">Live</Badge>}
+            {tailing && <Badge variant="success">{t("live")}</Badge>}
             {tailing ? (
               <Button
                 variant="outline"
@@ -61,7 +63,7 @@ export function LogsPage() {
                 onClick={stopTail}
                 className="gap-1"
               >
-                <Square className="h-3.5 w-3.5" /> Stop
+                <Square className="h-3.5 w-3.5" /> {t("stop")}
               </Button>
             ) : (
               <div className="flex items-center gap-1">
@@ -69,7 +71,7 @@ export function LogsPage() {
                   value={level}
                   onChange={(e) => startTail(e.target.value as LogLevel)}
                   className="h-8 cursor-pointer rounded-md border bg-background px-2 text-xs"
-                  title="Log level"
+                  title={t("logLevelTitle")}
                 >
                   {levels.map((l) => (
                     <option key={l} value={l}>
@@ -82,7 +84,7 @@ export function LogsPage() {
                   onClick={() => startTail()}
                   className="gap-1"
                 >
-                  <Play className="h-3.5 w-3.5" /> Start
+                  <Play className="h-3.5 w-3.5" /> {t("start")}
                 </Button>
               </div>
             )}
@@ -93,7 +95,7 @@ export function LogsPage() {
               disabled={logs.length === 0}
               className="gap-1"
             >
-              <Trash2 className="h-3.5 w-3.5" /> Clear
+              <Trash2 className="h-3.5 w-3.5" /> {t("clear")}
             </Button>
           </div>
         }
@@ -107,7 +109,7 @@ export function LogsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Filter logs..."
+            placeholder={t("filterPlaceholder")}
             className="h-7 w-full rounded-md border bg-background pl-8 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
@@ -127,7 +129,7 @@ export function LogsPage() {
           ))}
         </div>
         <span className="text-xs text-muted-foreground">
-          {filtered.length}/{logs.length}
+          {t("count", { filtered: filtered.length, total: logs.length })}
         </span>
       </div>
 
@@ -150,9 +152,9 @@ export function LogsPage() {
               <p>
                 {tailing
                   ? search
-                    ? "No logs match filter."
-                    : "Waiting for logs..."
-                  : 'Click "Start" to begin streaming logs.'}
+                    ? t("emptyFilter")
+                    : t("emptyWaiting")
+                  : t("emptyStart")}
               </p>
             </div>
           </div>

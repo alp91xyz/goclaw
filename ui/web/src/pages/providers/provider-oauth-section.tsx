@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, ExternalLink, CheckCircle, ClipboardPaste } from "lucide-react";
 import { useHttp } from "@/hooks/use-ws";
 import { toast } from "@/stores/use-toast-store";
+import i18next from "i18next";
 
 interface OAuthStatus {
   authenticated: boolean;
@@ -17,6 +19,7 @@ interface StartResponse {
 }
 
 export function OAuthSection({ onSuccess }: { onSuccess: () => void }) {
+  const { t } = useTranslation("providers");
   const http = useHttp();
   const [status, setStatus] = useState<OAuthStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,7 +103,7 @@ export function OAuthSection({ onSuccess }: { onSuccess: () => void }) {
         }, 6 * 60 * 1000);
       }
     } catch (err) {
-      toast.error("OAuth failed", err instanceof Error ? err.message : "Unknown error");
+      toast.error(i18next.t("providers:oauth.oauthFailed"), err instanceof Error ? err.message : "");
     } finally {
       setStarting(false);
     }
@@ -117,7 +120,7 @@ export function OAuthSection({ onSuccess }: { onSuccess: () => void }) {
       await fetchStatus();
       showSuccess();
     } catch (err) {
-      toast.error("Exchange failed", err instanceof Error ? err.message : "Invalid redirect URL");
+      toast.error(i18next.t("providers:oauth.exchangeFailed"), err instanceof Error ? err.message : "");
     } finally {
       setSubmitting(false);
     }
@@ -127,16 +130,16 @@ export function OAuthSection({ onSuccess }: { onSuccess: () => void }) {
     try {
       await http.post("/v1/auth/openai/logout");
       setStatus({ authenticated: false });
-      toast.success("Logged out", "OpenAI OAuth token removed");
+      toast.success(i18next.t("providers:oauth.loggedOut"), i18next.t("providers:oauth.loggedOutDesc"));
     } catch (err) {
-      toast.error("Logout failed", err instanceof Error ? err.message : "Unknown error");
+      toast.error("Logout failed", err instanceof Error ? err.message : "");
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Checking authentication status...
+        <Loader2 className="h-4 w-4 animate-spin" /> {t("oauth.checkingStatus")}
       </div>
     );
   }
@@ -148,10 +151,10 @@ export function OAuthSection({ onSuccess }: { onSuccess: () => void }) {
         <div className="flex items-center gap-2 rounded-md border border-green-500/30 bg-green-500/5 px-4 py-3 text-sm text-green-700 dark:text-green-400">
           <CheckCircle className="h-5 w-5 shrink-0" />
           <div>
-            <p className="font-medium">Authentication successful!</p>
+            <p className="font-medium">{t("oauth.authSuccessful")}</p>
             <p className="text-xs mt-0.5 opacity-80">
-              Provider <code className="rounded bg-muted px-1 font-mono text-xs">openai-codex</code> is
-              now active. Closing in {countdown}s...
+              {t("oauth.activeProvider")} <code className="rounded bg-muted px-1 font-mono text-xs">openai-codex</code>{" "}
+              {t("oauth.closingIn", { count: countdown })}
             </p>
           </div>
         </div>
@@ -166,15 +169,15 @@ export function OAuthSection({ onSuccess }: { onSuccess: () => void }) {
         <div className="flex items-center gap-2 rounded-md border border-green-500/30 bg-green-500/5 px-3 py-2 text-sm text-green-700 dark:text-green-400">
           <CheckCircle className="h-4 w-4 shrink-0" />
           <span>
-            Authenticated — provider <code className="rounded bg-muted px-1 font-mono text-xs">openai-codex</code> active
+            {t("oauth.authenticated")} <code className="rounded bg-muted px-1 font-mono text-xs">openai-codex</code> {t("oauth.active")}
           </span>
         </div>
         <p className="text-xs text-muted-foreground">
-          Use model prefix <code className="rounded bg-muted px-1 font-mono">openai-codex/</code> in
-          agent config (e.g. openai-codex/gpt-4o). Token refreshes automatically.
+          {t("oauth.modelPrefixHint")} <code className="rounded bg-muted px-1 font-mono">openai-codex/</code>{" "}
+          {t("oauth.modelPrefixExample")}
         </p>
         <Button variant="outline" size="sm" onClick={handleLogout} className="gap-1.5">
-          Remove Token
+          {t("oauth.removeToken")}
         </Button>
       </div>
     );
@@ -182,26 +185,21 @@ export function OAuthSection({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">
-        Sign in with your ChatGPT account to use your subscription's models
-        without a separate API key.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("oauth.signInDesc")}</p>
       {waitingCallback ? (
         <div className="space-y-3">
           <div className="flex items-center gap-2 rounded-md border border-blue-500/30 bg-blue-500/5 px-3 py-2 text-sm text-blue-700 dark:text-blue-400">
             <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-            <span>Waiting for authentication... Complete sign-in in the opened window.</span>
+            <span>{t("oauth.waiting")}</span>
           </div>
           <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
             <p className="text-xs text-amber-700 dark:text-amber-400">
-              <strong>Remote/VPS?</strong> After signing in, your browser will try to open{" "}
-              <code className="text-xs">localhost:1455</code> and show a{" "}
-              <strong>&quot;Can&apos;t reach this page&quot;</strong> error.
-              That&apos;s normal — <strong>copy the full URL from the browser address bar</strong> and paste it below.
+              <strong>{t("oauth.remoteVps")}</strong>{" "}{t("oauth.remoteVpsHint")}{" "}
+              <code className="text-xs">localhost:1455</code>{" "}{t("oauth.remoteVpsError")}
             </p>
             <div className="flex gap-2">
               <Input
-                placeholder="http://localhost:1455/auth/callback?code=...&state=..."
+                placeholder={t("oauth.pasteUrlPlaceholder")}
                 value={pasteUrl}
                 onChange={(e) => setPasteUrl(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handlePasteSubmit()}
@@ -214,7 +212,7 @@ export function OAuthSection({ onSuccess }: { onSuccess: () => void }) {
                 className="gap-1.5 shrink-0 h-8"
               >
                 {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ClipboardPaste className="h-3.5 w-3.5" />}
-                Submit
+                {t("oauth.submit")}
               </Button>
             </div>
           </div>
@@ -222,7 +220,7 @@ export function OAuthSection({ onSuccess }: { onSuccess: () => void }) {
       ) : (
         <Button size="sm" onClick={handleStart} disabled={starting} className="gap-1.5">
           {starting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ExternalLink className="h-3.5 w-3.5" />}
-          {starting ? "Starting..." : "Sign in with ChatGPT"}
+          {starting ? t("oauth.starting") : t("oauth.signInWithChatGPT")}
         </Button>
       )}
     </div>

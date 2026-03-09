@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,7 @@ interface CronFormDialogProps {
 type ScheduleKind = "every" | "cron" | "at";
 
 export function CronFormDialog({ open, onOpenChange, onSubmit }: CronFormDialogProps) {
+  const { t } = useTranslation("cron");
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [agentId, setAgentId] = useState("");
@@ -68,22 +70,22 @@ export function CronFormDialog({ open, onOpenChange, onSubmit }: CronFormDialogP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Create Cron Job</DialogTitle>
+          <DialogTitle>{t("create.title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 px-0.5 -mx-0.5 overflow-y-auto min-h-0">
           <div className="space-y-2">
-            <Label>Name</Label>
-            <Input value={name} onChange={(e) => setName(slugify(e.target.value))} placeholder="my-daily-task" />
-            <p className="text-xs text-muted-foreground">Lowercase letters, numbers, and hyphens only</p>
+            <Label>{t("create.name")}</Label>
+            <Input value={name} onChange={(e) => setName(slugify(e.target.value))} placeholder={t("create.namePlaceholder")} />
+            <p className="text-xs text-muted-foreground">{t("create.nameHint")}</p>
           </div>
 
           <div className="space-y-2">
-            <Label>Agent ID (optional)</Label>
-            <Input value={agentId} onChange={(e) => setAgentId(e.target.value)} placeholder="default" />
+            <Label>{t("create.agentId")}</Label>
+            <Input value={agentId} onChange={(e) => setAgentId(e.target.value)} placeholder={t("create.agentIdPlaceholder")} />
           </div>
 
           <div className="space-y-2">
-            <Label>Schedule Type</Label>
+            <Label>{t("create.scheduleType")}</Label>
             <div className="flex gap-2">
               {(["every", "cron", "at"] as const).map((kind) => (
                 <Button
@@ -92,7 +94,7 @@ export function CronFormDialog({ open, onOpenChange, onSubmit }: CronFormDialogP
                   size="sm"
                   onClick={() => setScheduleKind(kind)}
                 >
-                  {kind === "every" ? "Every" : kind === "cron" ? "Cron" : "Once"}
+                  {kind === "every" ? t("create.every") : kind === "cron" ? t("create.cron") : t("create.once")}
                 </Button>
               ))}
             </div>
@@ -100,7 +102,7 @@ export function CronFormDialog({ open, onOpenChange, onSubmit }: CronFormDialogP
 
           {scheduleKind === "every" && (
             <div className="space-y-2">
-              <Label>Interval (seconds)</Label>
+              <Label>{t("create.intervalSeconds")}</Label>
               <Input
                 type="number"
                 min={1}
@@ -113,38 +115,38 @@ export function CronFormDialog({ open, onOpenChange, onSubmit }: CronFormDialogP
 
           {scheduleKind === "cron" && (
             <div className="space-y-2">
-              <Label>Cron Expression</Label>
+              <Label>{t("create.cronExpression")}</Label>
               <Input
                 value={cronExpr}
                 onChange={(e) => setCronExpr(e.target.value)}
                 placeholder="0 * * * *"
               />
-              <p className="text-xs text-muted-foreground">Standard 5-field cron: min hour day month weekday</p>
+              <p className="text-xs text-muted-foreground">{t("create.cronHint")}</p>
             </div>
           )}
 
           {scheduleKind === "at" && (
             <p className="text-sm text-muted-foreground">
-              The job will run once, approximately 1 minute from now.
+              {t("create.onceDesc")}
             </p>
           )}
 
           <div className="space-y-2">
-            <Label>Message</Label>
+            <Label>{t("create.message")}</Label>
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="What should the agent do?"
+              placeholder={t("create.messagePlaceholder")}
               rows={3}
             />
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {t("create.cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={saving || !name.trim() || !isValidSlug(name.trim()) || !message.trim()}>
-            {saving ? "Creating..." : "Create"}
+            {saving ? t("create.creating") : t("create.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

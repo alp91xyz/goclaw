@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/internal/store/pg"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
@@ -62,15 +63,17 @@ func (h *SkillsHandler) authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if h.token != "" {
 			if extractBearerToken(r) != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
 		userID := extractUserID(r)
+		ctx := store.WithLocale(r.Context(), extractLocale(r))
 		if userID != "" {
-			ctx := store.WithUserID(r.Context(), userID)
-			r = r.WithContext(ctx)
+			ctx = store.WithUserID(ctx, userID)
 		}
+		r = r.WithContext(ctx)
 		next(w, r)
 	}
 }
@@ -81,26 +84,28 @@ func (h *SkillsHandler) handleList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SkillsHandler) handleGet(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id := r.PathValue("id")
 	skill, ok := h.skills.GetSkill(id)
 	if !ok {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "skill not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "skill", id)})
 		return
 	}
 	writeJSON(w, http.StatusOK, skill)
 }
 
 func (h *SkillsHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	idStr := r.PathValue("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid skill ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "skill")})
 		return
 	}
 
 	var updates map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 	// Prevent changing sensitive fields
@@ -118,10 +123,11 @@ func (h *SkillsHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *SkillsHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	idStr := r.PathValue("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid skill ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "skill")})
 		return
 	}
 
@@ -133,4 +139,3 @@ func (h *SkillsHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
 	h.skills.BumpVersion()
 	writeJSON(w, http.StatusOK, map[string]string{"ok": "true"})
 }
-

@@ -11,6 +11,7 @@ import (
 
 	"github.com/nextlevelbuilder/goclaw/internal/bootstrap"
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
@@ -68,16 +69,18 @@ func (h *AgentsHandler) authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if h.token != "" {
 			if extractBearerToken(r) != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
-		// Inject user_id into context
+		// Inject user_id and locale into context
 		userID := extractUserID(r)
+		ctx := store.WithLocale(r.Context(), extractLocale(r))
 		if userID != "" {
-			ctx := store.WithUserID(r.Context(), userID)
-			r = r.WithContext(ctx)
+			ctx = store.WithUserID(ctx, userID)
 		}
+		r = r.WithContext(ctx)
 		next(w, r)
 	}
 }
@@ -85,7 +88,8 @@ func (h *AgentsHandler) authMiddleware(next http.HandlerFunc) http.HandlerFunc {
 func (h *AgentsHandler) handleList(w http.ResponseWriter, r *http.Request) {
 	userID := store.UserIDFromContext(r.Context())
 	if userID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "X-GoClaw-User-Id header required"})
+		locale := store.LocaleFromContext(r.Context())
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgUserIDHeader)})
 		return
 	}
 
@@ -106,25 +110,26 @@ func (h *AgentsHandler) handleList(w http.ResponseWriter, r *http.Request) {
 
 func (h *AgentsHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 	userID := store.UserIDFromContext(r.Context())
+	locale := store.LocaleFromContext(r.Context())
 	if userID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "X-GoClaw-User-Id header required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgUserIDHeader)})
 		return
 	}
 
 	var req store.AgentData
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON: " + err.Error()})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidRequest, err.Error())})
 		return
 	}
 
 	if !isValidSlug(req.AgentKey) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "agent_key must be a valid slug (lowercase letters, numbers, hyphens only)"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidSlug, "agent_key")})
 		return
 	}
 
 	// Check for duplicate agent_key before creating
 	if existing, _ := h.agents.GetByKey(r.Context(), req.AgentKey); existing != nil {
-		writeJSON(w, http.StatusConflict, map[string]string{"error": "An agent with key \"" + req.AgentKey + "\" already exists"})
+		writeJSON(w, http.StatusConflict, map[string]string{"error": i18n.T(locale, i18n.MsgAlreadyExists, "agent", req.AgentKey)})
 		return
 	}
 
@@ -161,7 +166,7 @@ func (h *AgentsHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.agents.Create(r.Context(), &req); err != nil {
 		if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "23505") {
-			writeJSON(w, http.StatusConflict, map[string]string{"error": "An agent with this key already exists"})
+			writeJSON(w, http.StatusConflict, map[string]string{"error": i18n.T(locale, i18n.MsgAlreadyExists, "agent", req.AgentKey)})
 		} else {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
@@ -184,6 +189,7 @@ func (h *AgentsHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 
 func (h *AgentsHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 	userID := store.UserIDFromContext(r.Context())
+	locale := store.LocaleFromContext(r.Context())
 	isOwner := h.isOwnerUser(userID)
 
 	id, err := uuid.Parse(r.PathValue("id"))
@@ -191,12 +197,12 @@ func (h *AgentsHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 		// Try by agent_key
 		ag, err2 := h.agents.GetByKey(r.Context(), r.PathValue("id"))
 		if err2 != nil {
-			writeJSON(w, http.StatusNotFound, map[string]string{"error": "agent not found"})
+			writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "agent", r.PathValue("id"))})
 			return
 		}
 		if userID != "" && !isOwner {
 			if ok, _, _ := h.agents.CanAccess(r.Context(), ag.ID, userID); !ok {
-				writeJSON(w, http.StatusForbidden, map[string]string{"error": "no access to this agent"})
+				writeJSON(w, http.StatusForbidden, map[string]string{"error": i18n.T(locale, i18n.MsgNoAccess, "agent")})
 				return
 			}
 		}
@@ -206,13 +212,13 @@ func (h *AgentsHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 
 	ag, err := h.agents.GetByID(r.Context(), id)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "agent not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "agent", id.String())})
 		return
 	}
 
 	if userID != "" && !isOwner {
 		if ok, _, _ := h.agents.CanAccess(r.Context(), id, userID); !ok {
-			writeJSON(w, http.StatusForbidden, map[string]string{"error": "no access to this agent"})
+			writeJSON(w, http.StatusForbidden, map[string]string{"error": i18n.T(locale, i18n.MsgNoAccess, "agent")})
 			return
 		}
 	}
@@ -222,26 +228,27 @@ func (h *AgentsHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 
 func (h *AgentsHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
 	userID := store.UserIDFromContext(r.Context())
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid agent ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "agent")})
 		return
 	}
 
 	// Only owner can update
 	ag, err := h.agents.GetByID(r.Context(), id)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "agent not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "agent", id.String())})
 		return
 	}
 	if userID != "" && ag.OwnerID != userID && !h.isOwnerUser(userID) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "only owner can update agent"})
+		writeJSON(w, http.StatusForbidden, map[string]string{"error": i18n.T(locale, i18n.MsgOwnerOnly, "update agent")})
 		return
 	}
 
 	var updates map[string]any
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON: " + err.Error()})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidRequest, err.Error())})
 		return
 	}
 
@@ -277,20 +284,21 @@ func (h *AgentsHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
 
 func (h *AgentsHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
 	userID := store.UserIDFromContext(r.Context())
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid agent ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "agent")})
 		return
 	}
 
 	// Only owner can delete
 	ag, err := h.agents.GetByID(r.Context(), id)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "agent not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "agent", id.String())})
 		return
 	}
 	if userID != "" && ag.OwnerID != userID && !h.isOwnerUser(userID) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "only owner can delete agent"})
+		writeJSON(w, http.StatusForbidden, map[string]string{"error": i18n.T(locale, i18n.MsgOwnerOnly, "delete agent")})
 		return
 	}
 

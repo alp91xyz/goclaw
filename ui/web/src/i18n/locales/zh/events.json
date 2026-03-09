@@ -1,0 +1,34 @@
+{
+  "title": "实时事件",
+  "description": "所有Team和Agent的实时 WebSocket 事件",
+  "live": "实时",
+  "paused": "已暂停",
+  "resume": "恢复",
+  "pause": "暂停",
+  "clear": "清除",
+  "scrollToBottom": "滚动到底部",
+  "eventCount": "{{count}} 个事件",
+  "eventCountPlural": "{{count}} 个事件",
+  "categories": {
+    "all": "全部",
+    "delegation": "委托",
+    "task": "任务",
+    "message": "消息",
+    "agent": "Agent",
+    "teamCrud": "Team管理",
+    "agentLink": "Agent链接"
+  },
+  "filters": {
+    "allTeams": "所有Team",
+    "allUsers": "所有用户",
+    "allChats": "所有对话"
+  },
+  "global": "全局",
+  "emptyTitle": "暂无事件",
+  "emptyPaused": "事件捕获已暂停。恢复后可查看新事件。",
+  "emptyWaiting": "等待实时事件中... Agent运行时事件将显示在此处。",
+  "detail": {
+    "copy": "复制",
+    "copied": "已复制"
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AlertCircle } from "lucide-react";
 
 interface TokenFormProps {
@@ -6,6 +7,7 @@ interface TokenFormProps {
 }
 
 export function TokenForm({ onSubmit }: TokenFormProps) {
+  const { t } = useTranslation("login");
   const [userId, setUserId] = useState("");
   const [token, setToken] = useState("");
   const [connecting, setConnecting] = useState(false);
@@ -28,18 +30,18 @@ export function TokenForm({ onSubmit }: TokenFormProps) {
       });
 
       if (res.status === 401) {
-        setError("Invalid credentials. Check your token and user ID.");
+        setError(t("token.errorInvalidCredentials"));
         return;
       }
 
       if (!res.ok) {
-        setError(`Server returned ${res.status}. Please try again.`);
+        setError(t("token.errorServer", { status: res.status }));
         return;
       }
 
       onSubmit(userId.trim(), token.trim());
     } catch {
-      setError("Cannot connect to gateway. Check if the server is running.");
+      setError(t("token.errorCannotConnect"));
     } finally {
       setConnecting(false);
     }
@@ -49,14 +51,14 @@ export function TokenForm({ onSubmit }: TokenFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <label htmlFor="userId" className="text-sm font-medium">
-          User ID
+          {t("token.userId")}
         </label>
         <input
           id="userId"
           type="text"
           value={userId}
           onChange={(e) => { setUserId(e.target.value); setError(null); }}
-          placeholder="your-user-id"
+          placeholder={t("token.userIdPlaceholder")}
           className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           autoFocus
           disabled={connecting}
@@ -65,14 +67,14 @@ export function TokenForm({ onSubmit }: TokenFormProps) {
 
       <div className="space-y-2">
         <label htmlFor="token" className="text-sm font-medium">
-          Gateway Token
+          {t("token.gatewayToken")}
         </label>
         <input
           id="token"
           type="password"
           value={token}
           onChange={(e) => { setToken(e.target.value); setError(null); }}
-          placeholder="Bearer token"
+          placeholder={t("token.tokenPlaceholder")}
           className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           disabled={connecting}
         />
@@ -90,7 +92,7 @@ export function TokenForm({ onSubmit }: TokenFormProps) {
         disabled={!token.trim() || !userId.trim() || connecting}
         className="inline-flex h-9 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
       >
-        {connecting ? "Connecting..." : "Connect"}
+        {connecting ? t("token.connecting") : t("token.connect")}
       </button>
     </form>
   );

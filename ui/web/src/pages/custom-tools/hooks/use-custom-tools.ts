@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import i18next from "i18next";
 import { useHttp } from "@/hooks/use-ws";
 import { queryKeys } from "@/lib/query-keys";
 import { toast } from "@/stores/use-toast-store";
@@ -46,10 +47,10 @@ export function useCustomTools(filters: CustomToolFilters = {}) {
       try {
         const res = await http.post<{ id: string }>("/v1/tools/custom", data);
         await invalidate();
-        toast.success("Custom tool created", `${data.name} has been added`);
+        toast.success(i18next.t("tools:custom.toast.created"), i18next.t("tools:custom.toast.createdDesc", { name: data.name }));
         return res;
       } catch (err) {
-        toast.error("Failed to create custom tool", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("tools:custom.toast.failedCreate"), err instanceof Error ? err.message : "");
         throw err;
       }
     },
@@ -61,9 +62,9 @@ export function useCustomTools(filters: CustomToolFilters = {}) {
       try {
         await http.put(`/v1/tools/custom/${id}`, data);
         await invalidate();
-        toast.success("Custom tool updated");
+        toast.success(i18next.t("tools:custom.toast.updated"));
       } catch (err) {
-        toast.error("Failed to update custom tool", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("tools:custom.toast.failedUpdate"), err instanceof Error ? err.message : "");
         throw err;
       }
     },
@@ -75,9 +76,9 @@ export function useCustomTools(filters: CustomToolFilters = {}) {
       try {
         await http.delete(`/v1/tools/custom/${id}`);
         await invalidate();
-        toast.success("Custom tool deleted");
+        toast.success(i18next.t("tools:custom.toast.deleted"));
       } catch (err) {
-        toast.error("Failed to delete custom tool", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("tools:custom.toast.failedDelete"), err instanceof Error ? err.message : "");
         throw err;
       }
     },

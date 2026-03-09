@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ConfigSection } from "./config-section";
@@ -11,6 +12,8 @@ interface OtherConfigSectionProps {
 }
 
 export function OtherConfigSection({ enabled, value, onToggle, onChange }: OtherConfigSectionProps) {
+  const { t } = useTranslation("agents");
+  const s = "configSections.otherConfig";
   const [validJson, setValidJson] = useState(true);
 
   useEffect(() => {
@@ -33,8 +36,8 @@ export function OtherConfigSection({ enabled, value, onToggle, onChange }: Other
 
   return (
     <ConfigSection
-      title="Other Config"
-      description="Additional JSON config for advanced settings not covered by other sections"
+      title={t(`${s}.title`)}
+      description={t(`${s}.description`)}
       enabled={enabled}
       onToggle={onToggle}
     >
@@ -47,9 +50,9 @@ export function OtherConfigSection({ enabled, value, onToggle, onChange }: Other
       />
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" onClick={handleFormat} disabled={!validJson} className="h-7 px-2 text-xs">
-          Format JSON
+          {t(`${s}.formatJson`)}
         </Button>
-        {!validJson && <span className="text-xs text-destructive">Invalid JSON syntax</span>}
+        {!validJson && <span className="text-xs text-destructive">{t(`${s}.invalidJson`)}</span>}
       </div>
     </ConfigSection>
   );

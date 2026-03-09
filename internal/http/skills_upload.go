@@ -11,15 +11,17 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/internal/store/pg"
 )
 
 // handleUpload processes a ZIP file upload containing a skill (must have SKILL.md at root).
 func (h *SkillsHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	userID := store.UserIDFromContext(r.Context())
 	if userID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "X-GoClaw-User-Id header required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgUserIDHeader)})
 		return
 	}
 
@@ -27,7 +29,7 @@ func (h *SkillsHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "file is required: " + err.Error()})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidRequest, "file is required: "+err.Error())})
 		return
 	}
 	defer file.Close()
@@ -35,7 +37,7 @@ func (h *SkillsHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 	// Save to temp file for zip processing
 	tmp, err := os.CreateTemp("", "skill-upload-*.zip")
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to create temp file"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgInternalError, "failed to create temp file")})
 		return
 	}
 	defer os.Remove(tmp.Name())
@@ -44,7 +46,7 @@ func (h *SkillsHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 	hasher := sha256.New()
 	size, err := io.Copy(io.MultiWriter(tmp, hasher), file)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to save upload"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgInternalError, "failed to save upload")})
 		return
 	}
 	fileHash := fmt.Sprintf("%x", hasher.Sum(nil))
@@ -52,7 +54,7 @@ func (h *SkillsHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 	// Open as zip
 	zr, err := zip.OpenReader(tmp.Name())
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid ZIP file"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidRequest, "invalid ZIP file")})
 		return
 	}
 	defer zr.Close()
@@ -77,27 +79,27 @@ func (h *SkillsHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if skillMD == nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "ZIP must contain SKILL.md at root (or inside a single top-level directory)"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidRequest, "ZIP must contain SKILL.md at root (or inside a single top-level directory)")})
 		return
 	}
 
 	// Read and parse SKILL.md frontmatter
 	skillContent, err := readZipFile(skillMD)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "failed to read SKILL.md"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidRequest, "failed to read SKILL.md")})
 		return
 	}
 
 	name, description, slug, frontmatter := parseSkillFrontmatter(skillContent)
 	if name == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "SKILL.md must have a name in frontmatter"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "name in SKILL.md frontmatter")})
 		return
 	}
 	if slug == "" {
 		slug = slugify(name)
 	}
 	if !slugRegexp.MatchString(slug) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "slug must be a valid slug (lowercase letters, numbers, hyphens only)"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidSlug, "slug")})
 		return
 	}
 
@@ -107,7 +109,7 @@ func (h *SkillsHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 	// Extract to filesystem: baseDir/slug/version/
 	destDir := filepath.Join(h.baseDir, slug, fmt.Sprintf("%d", version))
 	if err := os.MkdirAll(destDir, 0755); err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to create skill directory"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgInternalError, "failed to create skill directory")})
 		return
 	}
 
@@ -167,7 +169,7 @@ func (h *SkillsHandler) handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	id, err := h.skills.CreateSkillManaged(r.Context(), skill)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to save skill: " + err.Error()})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToCreate, "skill", err.Error())})
 		return
 	}
 

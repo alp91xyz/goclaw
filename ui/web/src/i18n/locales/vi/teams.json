@@ -1,0 +1,150 @@
+{
+  "title": "Agent Team",
+  "description": "Quản lý các agent team của bạn",
+  "createTeam": "Tạo Team",
+  "searchPlaceholder": "Tìm kiếm Team...",
+  "emptyTitle": "Chưa có Team nào",
+  "emptyDescription": "Tạo Team đầu tiên để bắt đầu.",
+  "noMatchTitle": "Không tìm thấy Team phù hợp",
+  "noMatchDescription": "Thử từ khóa tìm kiếm khác.",
+  "delete": {
+    "title": "Xóa Team",
+    "description": "Bạn có chắc chắn muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác.",
+    "confirmLabel": "Xóa"
+  },
+  "detail": {
+    "lead": "Trưởng nhóm",
+    "memberCount": "{{count}} thành viên",
+    "memberCountPlural": "{{count}} thành viên",
+    "deleteDescription": "Bạn có chắc chắn muốn xóa \"{{name}}\"? Tất cả thành viên, nhiệm vụ và cấu hình sẽ bị xóa vĩnh viễn.",
+    "tabs": {
+      "tasks": "Nhiệm vụ",
+      "members": "Thành viên",
+      "delegations": "Ủy quyền",
+      "settings": "Cài đặt"
+    }
+  },
+  "members": {
+    "title": "Thành viên",
+    "noMembers": "Không có thành viên",
+    "addMember": "Thêm thành viên",
+    "addMemberTooltip": "Chỉ có agent được định nghĩa sẵn mới có thể được thêm vào nhóm. Agent mở là per-user và thiếu ngữ cảnh dùng chung cần thiết cho cộng tác nhóm.",
+    "selectAgent": "Chọn agent để thêm...",
+    "noAvailableAgents": "Không có agent khả dụng",
+    "searchAgents": "Tìm kiếm agent...",
+    "adding": "Đang thêm...",
+    "add": "Thêm",
+    "removeMember": "Xóa thành viên",
+    "columns": {
+      "agent": "Agent",
+      "frontmatter": "Frontmatter",
+      "role": "Vai trò",
+      "addedAt": "Ngày thêm",
+      "actions": "Thao tác"
+    }
+  },
+  "tasks": {
+    "title": "Nhiệm vụ",
+    "loading": "Đang tải nhiệm vụ...",
+    "noTasks": "Chưa có nhiệm vụ",
+    "noTasksDescription": "Nhiệm vụ được tạo bởi agent nhóm trong quá trình cộng tác.",
+    "refresh": "Làm mới",
+    "columns": {
+      "subject": "Tiêu đề",
+      "status": "Trạng thái",
+      "owner": "Người phụ trách",
+      "priority": "Độ ưu tiên",
+      "taskId": "ID nhiệm vụ",
+      "created": "Đã tạo",
+      "actions": "Thao tác"
+    },
+    "detail": {
+      "title": "Chi tiết nhiệm vụ",
+      "subject": "Tiêu đề",
+      "status": "Trạng thái:",
+      "priority": "Độ ưu tiên:",
+      "owner": "Người phụ trách:",
+      "blockedBy": "Bị chặn bởi:",
+      "description": "Mô tả",
+      "result": "Kết quả",
+      "created": "Đã tạo:",
+      "updated": "Đã cập nhật:",
+      "taskId": "ID nhiệm vụ:",
+      "noDescription": "Không có mô tả",
+      "noResult": "Chưa có kết quả"
+    }
+  },
+  "delegations": {
+    "noTitle": "Không có ủy quyền",
+    "noDescription": "Không tìm thấy bản ghi ủy quyền nào cho Team này.",
+    "refresh": "Làm mới",
+    "columns": {
+      "sourceTarget": "Nguồn / Đích",
+      "task": "Nhiệm vụ",
+      "status": "Trạng thái",
+      "duration": "Thời lượng",
+      "time": "Thời gian"
+    }
+  },
+  "settings": {
+    "title": "Cài đặt nhóm",
+    "name": "Tên",
+    "displayName": "Tên hiển thị",
+    "description": "Mô tả",
+    "leadAgent": "Agent trưởng nhóm",
+    "status": "Trạng thái",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "save": "Lưu cài đặt",
+    "saving": "Đang lưu...",
+    "saved": "Đã lưu",
+    "failedSave": "Lưu thất bại",
+    "userAccessControl": "Kiểm soát truy cập người dùng",
+    "allowedUsers": "Người dùng được phép",
+    "allowedUsersHint": "Nếu được đặt, chỉ những người dùng này mới có thể kích hoạt quy trình nhóm. Để trống = tất cả được phép.",
+    "deniedUsers": "Người dùng bị từ chối",
+    "deniedUsersHint": "Luôn bị chặn, ghi đè danh sách cho phép.",
+    "channelRestrictions": "Hạn chế channel",
+    "allowedChannels": "Channel được phép",
+    "allowedChannelsHint": "Nếu được đặt, chỉ những channel này mới có thể kích hoạt quy trình nhóm. Để trống = tất cả được phép.",
+    "deniedChannels": "Channel bị từ chối",
+    "deniedChannelsHint": "Tin nhắn từ các channel này luôn bị chặn.",
+    "notifications": "Thông báo",
+    "progressNotifications": "Thông báo tiến trình",
+    "progressNotificationsHint": "Gửi định kỳ thông báo \"Team của bạn đang xử lý...\" trong quá trình ủy quyền bất đồng bộ.",
+    "searchUsers": "Tìm kiếm người dùng...",
+    "selectChannel": "Chọn channel..."
+  },
+  "create": {
+    "title": "Tạo Team",
+    "name": "Tên *",
+    "namePlaceholder": "vd: Research Team",
+    "nameHint": "Chữ thường, số, dấu gạch ngang",
+    "description": "Mô tả",
+    "descriptionPlaceholder": "Mô tả nhóm tùy chọn...",
+    "leadAgent": "Agent trưởng nhóm *",
+    "selectLeadAgent": "Chọn agent trưởng nhóm...",
+    "loadingAgents": "Đang tải agent...",
+    "noActiveAgents": "Không tìm thấy agent hoạt động. Hãy tạo agent trước.",
+    "members": "Thành viên",
+    "membersTooltip": "Chỉ có agent được định nghĩa sẵn mới có thể được thêm vào nhóm. Agent mở là per-user và thiếu ngữ cảnh dùng chung.",
+    "searchMembers": "Tìm kiếm và thêm thành viên...",
+    "displayName": "Tên hiển thị",
+    "displayNamePlaceholder": "Support Team",
+    "cancel": "Hủy",
+    "create": "Tạo",
+    "creating": "Đang tạo..."
+  },
+  "toast": {
+    "created": "Đã tạo nhóm",
+    "deleted": "Đã xóa nhóm",
+    "updated": "Đã cập nhật nhóm",
+    "memberAdded": "Đã thêm thành viên",
+    "memberRemoved": "Đã xóa thành viên",
+    "failedCreate": "Không thể tạo nhóm",
+    "failedDelete": "Không thể xóa nhóm",
+    "failedUpdate": "Không thể cập nhật nhóm",
+    "failedAddMember": "Không thể thêm thành viên",
+    "failedRemoveMember": "Không thể xóa thành viên"
+  }
+}

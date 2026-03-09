@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +35,7 @@ export function SkillDetailDialog({
   getSkillFiles,
   getSkillFileContent,
 }: SkillDetailDialogProps) {
+  const { t } = useTranslation("skills");
   const hasFiles = !!skill.id;
 
   // Version state
@@ -126,8 +128,8 @@ export function SkillDetailDialog({
 
         <Tabs defaultValue="content" className="flex-1 overflow-hidden flex flex-col" onValueChange={handleTabChange}>
           <TabsList>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            {hasFiles && <TabsTrigger value="files">Files</TabsTrigger>}
+            <TabsTrigger value="content">{t("detail.content")}</TabsTrigger>
+            {hasFiles && <TabsTrigger value="files">{t("detail.files")}</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="content" className="flex-1 overflow-y-auto mt-2">
@@ -136,7 +138,7 @@ export function SkillDetailDialog({
                 <MarkdownRenderer content={skill.content} />
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No content available.</p>
+              <p className="text-sm text-muted-foreground">{t("detail.noContent")}</p>
             )}
           </TabsContent>
 
@@ -144,7 +146,7 @@ export function SkillDetailDialog({
             <TabsContent value="files" className="flex-1 overflow-hidden flex flex-col mt-2 gap-2">
               {versions && versions.versions.length > 1 && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Version:</span>
+                  <span className="text-sm text-muted-foreground">{t("detail.version")}</span>
                   <Select
                     value={String(selectedVersion ?? versions.current)}
                     onValueChange={(v) => setSelectedVersion(Number(v))}
@@ -155,7 +157,7 @@ export function SkillDetailDialog({
                     <SelectContent>
                       {versions.versions.map((v) => (
                         <SelectItem key={v} value={String(v)}>
-                          v{v}{v === versions.current ? " (current)" : ""}
+                          v{v}{v === versions.current ? ` ${t("detail.current")}` : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>

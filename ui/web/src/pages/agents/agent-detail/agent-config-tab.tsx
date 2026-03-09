@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Save, Check, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type {
@@ -30,6 +31,8 @@ interface AgentConfigTabProps {
 }
 
 export function AgentConfigTab({ agent, onUpdate }: AgentConfigTabProps) {
+  const { t } = useTranslation("agents");
+
   const [subEnabled, setSubEnabled] = useState(agent.subagents_config != null);
   const [sub, setSub] = useState<SubagentsConfig>(agent.subagents_config ?? {});
 
@@ -48,7 +51,6 @@ export function AgentConfigTab({ agent, onUpdate }: AgentConfigTabProps) {
   const [memEnabled, setMemEnabled] = useState(agent.memory_config != null);
   const [mem, setMem] = useState<MemoryConfig>(agent.memory_config ?? {});
 
-  // Extract managed keys from other_config, manage separately
   const otherObj = (agent.other_config ?? {}) as Record<string, unknown>;
   const initialGates = (Array.isArray(otherObj.quality_gates) ? otherObj.quality_gates : []) as QualityGateConfig[];
   const initialThinkingLevel = (typeof otherObj.thinking_level === "string" ? otherObj.thinking_level : "off");
@@ -83,7 +85,6 @@ export function AgentConfigTab({ agent, onUpdate }: AgentConfigTabProps) {
         sandbox_config: sbEnabled ? sb : null,
         memory_config: memEnabled ? mem : null,
       };
-      // Merge quality_gates back into other_config
       let otherBase: Record<string, unknown> = {};
       if (otherEnabled) {
         try { otherBase = JSON.parse(otherJson); } catch { /* keep empty */ }
@@ -99,7 +100,7 @@ export function AgentConfigTab({ agent, onUpdate }: AgentConfigTabProps) {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save");
+      setSaveError(err instanceof Error ? err.message : t("config.failedToSave"));
     } finally {
       setSaving(false);
     }
@@ -177,12 +178,12 @@ export function AgentConfigTab({ agent, onUpdate }: AgentConfigTabProps) {
       <div className="flex items-center justify-end gap-2 pt-2">
         {saved && (
           <span className="flex items-center gap-1 text-sm text-success">
-            <Check className="h-3.5 w-3.5" /> Saved
+            <Check className="h-3.5 w-3.5" /> {t("config.saved")}
           </span>
         )}
         <Button onClick={handleSave} disabled={saving}>
           {!saving && <Save className="h-4 w-4" />}
-          {saving ? "Saving..." : "Save Config"}
+          {saving ? t("config.saving") : t("config.saveConfig")}
         </Button>
       </div>
     </div>

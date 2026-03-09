@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/oauth"
 	"github.com/nextlevelbuilder/goclaw/internal/providers"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
@@ -47,7 +48,8 @@ func (h *OAuthHandler) RegisterRoutes(mux *http.ServeMux) {
 func (h *OAuthHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !tokenMatch(extractBearerToken(r), h.token) {
-			writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+			locale := extractLocale(r)
+			writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 			return
 		}
 		next(w, r)
@@ -80,6 +82,7 @@ func (h *OAuthHandler) handleStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *OAuthHandler) handleStart(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -102,7 +105,7 @@ func (h *OAuthHandler) handleStart(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		slog.Error("oauth.start", "error", err)
 		writeJSON(w, http.StatusInternalServerError, map[string]string{
-			"error": "failed to start OAuth flow (is port 1455 available?)",
+			"error": i18n.T(locale, i18n.MsgInternalError, "failed to start OAuth flow (is port 1455 available?)"),
 		})
 		return
 	}
@@ -142,11 +145,12 @@ func (h *OAuthHandler) waitForCallback(pending *oauth.PendingLogin) {
 }
 
 func (h *OAuthHandler) handleManualCallback(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	var body struct {
 		RedirectURL string `json:"redirect_url"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.RedirectURL == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "redirect_url is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "redirect_url")})
 		return
 	}
 
@@ -155,7 +159,7 @@ func (h *OAuthHandler) handleManualCallback(w http.ResponseWriter, r *http.Reque
 	h.mu.Unlock()
 
 	if pending == nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "no pending OAuth flow"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgNoPendingOAuth)})
 		return
 	}
 
@@ -177,7 +181,7 @@ func (h *OAuthHandler) handleManualCallback(w http.ResponseWriter, r *http.Reque
 	providerID, err := h.saveAndRegister(r.Context(), tokenResp)
 	if err != nil {
 		slog.Error("oauth.save_token", "error", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to save token"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToSaveToken)})
 		return
 	}
 

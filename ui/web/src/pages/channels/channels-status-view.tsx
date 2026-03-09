@@ -1,4 +1,5 @@
 import { Radio, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/shared/page-header";
@@ -27,17 +28,18 @@ interface ChannelsStatusViewProps {
 }
 
 export function ChannelsStatusView({ channels, loading, spinning, refresh }: ChannelsStatusViewProps) {
+  const { t } = useTranslation("channels");
   const entries = Object.entries(channels);
   const showSkeleton = useDeferredLoading(loading && entries.length === 0);
 
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Channels"
-        description="Communication channel status"
+        title={t("title")}
+        description={t("statusDescription")}
         actions={
           <Button variant="outline" size="sm" onClick={refresh} disabled={spinning} className="gap-1">
-            <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> Refresh
+            <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> {t("refresh")}
           </Button>
         }
       />
@@ -52,8 +54,8 @@ export function ChannelsStatusView({ channels, loading, spinning, refresh }: Cha
         ) : entries.length === 0 ? (
           <EmptyState
             icon={Radio}
-            title="No channels"
-            description="No communication channels are configured."
+            title={t("emptyTitle")}
+            description={t("emptyStatusDescription")}
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -64,9 +66,9 @@ export function ChannelsStatusView({ channels, loading, spinning, refresh }: Cha
                     {channelTypeLabels[name] || name}
                   </h4>
                   {status.enabled ? (
-                    <Badge variant="success">enabled</Badge>
+                    <Badge variant="success">{t("enabled")}</Badge>
                   ) : (
-                    <Badge variant="secondary">disabled</Badge>
+                    <Badge variant="secondary">{t("disabled")}</Badge>
                   )}
                 </div>
                 <div className="mt-3 flex items-center gap-2 text-sm">
@@ -74,7 +76,7 @@ export function ChannelsStatusView({ channels, loading, spinning, refresh }: Cha
                     className={`h-2 w-2 rounded-full ${status.running ? "bg-green-500" : "bg-muted-foreground"}`}
                   />
                   <span className="text-muted-foreground">
-                    {status.running ? "Running" : "Stopped"}
+                    {status.running ? t("status.running") : t("status.stopped")}
                   </span>
                 </div>
               </div>

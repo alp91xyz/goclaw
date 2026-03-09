@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, Wrench, Search } from "lucide-react";
 import {
   Dialog,
@@ -18,6 +19,7 @@ interface MCPToolsDialogProps {
 }
 
 export function MCPToolsDialog({ open, onOpenChange, server, onLoadTools }: MCPToolsDialogProps) {
+  const { t } = useTranslation("mcp");
   const [tools, setTools] = useState<MCPToolInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,7 +32,7 @@ export function MCPToolsDialog({ open, onOpenChange, server, onLoadTools }: MCPT
     setSearch("");
     onLoadTools(server.id)
       .then(setTools)
-      .catch(() => setError("Failed to load tools"))
+      .catch(() => setError(t("tools.failedLoad")))
       .finally(() => setLoading(false));
   }, [open, server.id, onLoadTools]);
 
@@ -46,17 +48,17 @@ export function MCPToolsDialog({ open, onOpenChange, server, onLoadTools }: MCPT
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Wrench className="h-4 w-4" />
-            Tools — {server.display_name || server.name}
+            {t("tools.title", { name: server.display_name || server.name })}
           </DialogTitle>
           <p className="text-xs text-muted-foreground font-mono mt-1">
-            prefix: {prefix}
+            {t("tools.prefix")} {prefix}
           </p>
         </DialogHeader>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2 text-muted-foreground">
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="text-sm">Discovering tools...</span>
+            <span className="text-sm">{t("tools.discovering")}</span>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2">
@@ -65,8 +67,8 @@ export function MCPToolsDialog({ open, onOpenChange, server, onLoadTools }: MCPT
         ) : tools.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2 text-muted-foreground">
             <Wrench className="h-8 w-8 opacity-40" />
-            <p className="text-sm">No tools discovered</p>
-            <p className="text-xs">The server may be offline or has no tools registered.</p>
+            <p className="text-sm">{t("tools.noToolsTitle")}</p>
+            <p className="text-xs">{t("tools.noToolsDescription")}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3 min-h-0">
@@ -76,7 +78,7 @@ export function MCPToolsDialog({ open, onOpenChange, server, onLoadTools }: MCPT
                 <Input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Filter tools..."
+                  placeholder={t("tools.filterPlaceholder")}
                   className="pl-8 h-8 text-sm"
                 />
               </div>
@@ -87,7 +89,7 @@ export function MCPToolsDialog({ open, onOpenChange, server, onLoadTools }: MCPT
 
             <div className="overflow-y-auto min-h-0 -mx-1 px-1 max-h-[50vh]">
               {filtered.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-6">No matching tools</p>
+                <p className="text-sm text-muted-foreground text-center py-6">{t("tools.noMatch")}</p>
               ) : (
                 <div className="grid gap-1.5">
                   {filtered.map((tool) => (

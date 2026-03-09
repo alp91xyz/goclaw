@@ -11,6 +11,7 @@ import (
 	"github.com/nextlevelbuilder/goclaw/internal/bootstrap"
 	"github.com/nextlevelbuilder/goclaw/internal/config"
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
@@ -18,7 +19,8 @@ import (
 // --- agents.create ---
 // Matching TS src/gateway/server-methods/agents.ts:216-287
 
-func (m *AgentsMethods) handleCreate(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *AgentsMethods) handleCreate(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		Name      string   `json:"name"`
 		Workspace string   `json:"workspace"`
@@ -40,7 +42,7 @@ func (m *AgentsMethods) handleCreate(_ context.Context, client *gateway.Client, 
 	}
 
 	if params.Name == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "name is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "name")))
 		return
 	}
 
@@ -51,7 +53,7 @@ func (m *AgentsMethods) handleCreate(_ context.Context, client *gateway.Client, 
 
 	agentID := config.NormalizeAgentID(params.Name)
 	if agentID == "default" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "cannot create agent with reserved id 'default'"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidRequest, "cannot create agent with reserved id 'default'")))
 		return
 	}
 
@@ -69,7 +71,7 @@ func (m *AgentsMethods) handleCreate(_ context.Context, client *gateway.Client, 
 
 		// Check if agent already exists in DB
 		if existing, _ := m.agentStore.GetByKey(ctx, agentID); existing != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "agent already exists: "+agentID))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgAlreadyExists, "agent", agentID)))
 			return
 		}
 
@@ -98,7 +100,7 @@ func (m *AgentsMethods) handleCreate(_ context.Context, client *gateway.Client, 
 			OtherConfig:      params.OtherConfig,
 		}
 		if err := m.agentStore.Create(ctx, agentData); err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, fmt.Sprintf("failed to create agent: %v", err)))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToCreate, "agent", fmt.Sprintf("%v", err))))
 			return
 		}
 
@@ -120,7 +122,7 @@ func (m *AgentsMethods) handleCreate(_ context.Context, client *gateway.Client, 
 	} else {
 		// --- Fallback: config.json + filesystem ---
 		if _, ok := m.cfg.Agents.List[agentID]; ok {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "agent already exists: "+agentID))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgAlreadyExists, "agent", agentID)))
 			return
 		}
 
@@ -140,7 +142,7 @@ func (m *AgentsMethods) handleCreate(_ context.Context, client *gateway.Client, 
 		m.cfg.Agents.List[agentID] = spec
 
 		if err := config.Save(m.cfgPath, m.cfg); err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to save config: "+err.Error()))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToSave, "config", err.Error())))
 			return
 		}
 

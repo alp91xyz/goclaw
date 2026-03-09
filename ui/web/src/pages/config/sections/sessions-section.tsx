@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function SessionsSection({ data, onSave, saving }: Props) {
+  const { t } = useTranslation("config");
   const [draft, setDraft] = useState<SessionsData>(data ?? DEFAULT);
   const [dirty, setDirty] = useState(false);
 
@@ -39,13 +41,13 @@ export function SessionsSection({ data, onSave, saving }: Props) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Sessions</CardTitle>
-        <CardDescription>Session scoping settings. Sessions are stored in PostgreSQL.</CardDescription>
+        <CardTitle className="text-base">{t("sessions.title")}</CardTitle>
+        <CardDescription>{t("sessions.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="grid gap-1.5">
-            <InfoLabel tip="Session isolation level. Per Sender = each user gets their own session. Global = all users share one session.">Scope</InfoLabel>
+            <InfoLabel tip={t("sessions.scopeTip")}>{t("sessions.scope")}</InfoLabel>
             <Select value={draft.scope ?? "per-sender"} onValueChange={(v) => update({ scope: v })}>
               <SelectTrigger>
                 <SelectValue />
@@ -57,7 +59,7 @@ export function SessionsSection({ data, onSave, saving }: Props) {
             </Select>
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="How DM sessions are scoped. Controls session isolation for direct messages across different channels and accounts.">DM Scope</InfoLabel>
+            <InfoLabel tip={t("sessions.dmScopeTip")}>{t("sessions.dmScope")}</InfoLabel>
             <Select value={draft.dm_scope ?? "per-channel-peer"} onValueChange={(v) => update({ dm_scope: v })}>
               <SelectTrigger>
                 <SelectValue />
@@ -75,7 +77,7 @@ export function SessionsSection({ data, onSave, saving }: Props) {
         {dirty && (
           <div className="flex justify-end pt-2">
             <Button size="sm" onClick={() => onSave(draft)} disabled={saving} className="gap-1.5">
-              <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save"}
+              <Save className="h-3.5 w-3.5" /> {saving ? t("saving") : t("save")}
             </Button>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   DndContext,
   closestCenter,
@@ -121,6 +122,7 @@ interface SortableCardProps {
 }
 
 function SortableProviderCard({ entry, index, toolName, enabledProviders, onUpdate, onRemove, portalRef }: SortableCardProps) {
+  const { t } = useTranslation("tools");
   const [expanded, setExpanded] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: entry.id,
@@ -186,7 +188,7 @@ function SortableProviderCard({ entry, index, toolName, enabledProviders, onUpda
         />
 
         <span className="text-sm font-medium truncate">
-          {selectedProvider?.display_name || entry.provider || "New Provider"}
+          {selectedProvider?.display_name || entry.provider || t("builtin.mediaChain.newProvider")}
         </span>
 
         <Button
@@ -203,10 +205,10 @@ function SortableProviderCard({ entry, index, toolName, enabledProviders, onUpda
       {/* Row 2: provider + model selects */}
       <div className="grid grid-cols-2 gap-2 px-3 py-1.5">
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Provider</Label>
+          <Label className="text-xs text-muted-foreground">{t("builtin.mediaChain.provider")}</Label>
           <Select value={entry.provider} onValueChange={handleProviderChange}>
             <SelectTrigger className="h-8 text-sm">
-              <SelectValue placeholder="Select provider" />
+              <SelectValue placeholder={t("builtin.mediaChain.selectProvider")} />
             </SelectTrigger>
             <SelectContent>
               {enabledProviders.map((p) => (
@@ -218,12 +220,12 @@ function SortableProviderCard({ entry, index, toolName, enabledProviders, onUpda
           </Select>
         </div>
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Model</Label>
+          <Label className="text-xs text-muted-foreground">{t("builtin.mediaChain.model")}</Label>
           <Combobox
             value={entry.model}
             onChange={(v) => onUpdate(entry.id, { model: v })}
             options={models.map((m) => ({ value: m.id, label: m.name ?? m.id }))}
-            placeholder={modelsLoading ? "Loading..." : "Select model"}
+            placeholder={modelsLoading ? t("builtin.mediaChain.loadingModels") : t("builtin.mediaChain.selectModel")}
             className="h-8 text-sm"
             portalContainer={portalRef}
           />
@@ -233,7 +235,7 @@ function SortableProviderCard({ entry, index, toolName, enabledProviders, onUpda
       {/* Row 3: timeout, retries, expand button */}
       <div className="flex items-center gap-3 px-3 pb-3 pt-1">
         <div className="flex items-center gap-1.5">
-          <Label className="text-xs text-muted-foreground whitespace-nowrap">Timeout</Label>
+          <Label className="text-xs text-muted-foreground whitespace-nowrap">{t("builtin.mediaChain.timeout")}</Label>
           <div className="relative">
             <Input
               type="number"
@@ -247,7 +249,7 @@ function SortableProviderCard({ entry, index, toolName, enabledProviders, onUpda
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          <Label className="text-xs text-muted-foreground whitespace-nowrap">Retries</Label>
+          <Label className="text-xs text-muted-foreground whitespace-nowrap">{t("builtin.mediaChain.retries")}</Label>
           <Input
             type="number"
             min={0}
@@ -264,7 +266,7 @@ function SortableProviderCard({ entry, index, toolName, enabledProviders, onUpda
             onClick={() => setExpanded((v) => !v)}
             className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
-            Settings
+            {t("builtin.mediaChain.settings")}
             {expanded ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
           </button>
         )}
@@ -358,6 +360,7 @@ export function MediaProviderChainForm({
   onSave,
   onCancel,
 }: MediaProviderChainFormProps) {
+  const { t } = useTranslation("tools");
   const { providers } = useProviders();
   const enabledProviders = providers.filter((p) => p.enabled);
   const portalRef = useRef<HTMLDivElement | null>(null);
@@ -420,9 +423,9 @@ export function MediaProviderChainForm({
   return (
     <div ref={portalRef} className="relative">
       <DialogHeader>
-        <DialogTitle>{formatToolTitle(toolName)} — Provider Chain</DialogTitle>
+        <DialogTitle>{formatToolTitle(toolName)} {t("builtin.mediaChain.providerChainSuffix")}</DialogTitle>
         <DialogDescription>
-          Configure and order provider fallbacks. Drag to reorder — the first enabled provider is tried first.
+          {t("builtin.mediaChain.description")}
         </DialogDescription>
       </DialogHeader>
 
@@ -446,22 +449,22 @@ export function MediaProviderChainForm({
 
         {entries.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-6">
-            No providers configured. Add one below.
+            {t("builtin.mediaChain.noProviders")}
           </p>
         )}
 
         <Button type="button" variant="outline" size="sm" className="w-full" onClick={handleAdd}>
           <Plus className="size-3.5 mr-1.5" />
-          Add Provider
+          {t("builtin.mediaChain.addProvider")}
         </Button>
       </div>
 
       <DialogFooter>
         <Button variant="outline" onClick={onCancel}>
-          Cancel
+          {t("builtin.mediaChain.cancel")}
         </Button>
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save"}
+          {saving ? t("builtin.mediaChain.saving") : t("builtin.mediaChain.save")}
         </Button>
       </DialogFooter>
     </div>

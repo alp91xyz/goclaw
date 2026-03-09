@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Plus, Bot } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SearchInput } from "@/components/shared/search-input";
@@ -18,6 +19,7 @@ import { SummoningModal } from "./summoning-modal";
 import { usePagination } from "@/hooks/use-pagination";
 
 export function AgentsPage() {
+  const { t } = useTranslation("agents");
   const { id: detailId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { agents, loading, createAgent, deleteAgent, refresh, resummonAgent } = useAgents();
@@ -62,11 +64,11 @@ export function AgentsPage() {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Agents"
-        description="Manage your AI agents"
+        title={t("title")}
+        description={t("description")}
         actions={
           <Button onClick={() => setCreateOpen(true)} className="gap-1">
-            <Plus className="h-4 w-4" /> Create Agent
+            <Plus className="h-4 w-4" /> {t("createAgent")}
           </Button>
         }
       />
@@ -75,7 +77,7 @@ export function AgentsPage() {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search agents..."
+          placeholder={t("searchPlaceholder")}
           className="max-w-sm"
         />
       </div>
@@ -90,11 +92,11 @@ export function AgentsPage() {
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Bot}
-            title={search ? "No matching agents" : "No agents yet"}
+            title={search ? t("noMatchTitle") : t("emptyTitle")}
             description={
               search
-                ? "Try a different search term."
-                : "Create your first agent to get started."
+                ? t("noMatchDescription")
+                : t("emptyDescription")
             }
           />
         ) : (
@@ -152,9 +154,9 @@ export function AgentsPage() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={() => setDeleteTarget(null)}
-        title="Delete Agent"
-        description="Are you sure you want to delete this agent? This action cannot be undone."
-        confirmLabel="Delete"
+        title={t("delete.title")}
+        description={t("delete.description")}
+        confirmLabel={t("delete.confirmLabel")}
         variant="destructive"
         onConfirm={async () => {
           if (deleteTarget) {

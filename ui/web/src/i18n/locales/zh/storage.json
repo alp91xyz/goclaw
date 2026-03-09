@@ -1,0 +1,14 @@
+{
+  "title": "存储",
+  "description": "工作区文件浏览器",
+  "descriptionWithPath": "{{path}} — {{size}}",
+  "delete": {
+    "fileTitle": "删除文件",
+    "folderTitle": "删除文件夹",
+    "description": "确定要删除 {{name}} 吗？",
+    "folderWarning": " 所有内容将被递归删除。",
+    "undone": " 此操作不可撤销。",
+    "deleting": "删除中...",
+    "confirmLabel": "删除"
+  }
+}

@@ -1,0 +1,213 @@
+{
+  "title": "Channels",
+  "description": "Manage channel instances",
+  "statusDescription": "Communication channel status",
+  "addChannel": "Add Channel",
+  "refresh": "Refresh",
+  "searchPlaceholder": "Search channels...",
+  "emptyTitle": "No channels",
+  "emptyDescription": "Add your first channel instance to get started.",
+  "emptyStatusDescription": "No communication channels are configured.",
+  "noMatchTitle": "No matching channels",
+  "noMatchDescription": "Try a different search term.",
+  "columns": {
+    "name": "Name",
+    "type": "Type",
+    "agent": "Agent",
+    "status": "Status",
+    "enabled": "Enabled",
+    "actions": "Actions"
+  },
+  "status": {
+    "running": "Running",
+    "stopped": "Stopped"
+  },
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "actions": {
+    "reauthenticate": "Re-authenticate",
+    "authenticate": "Authenticate to start channel"
+  },
+  "delete": {
+    "title": "Delete Channel Instance",
+    "description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "confirmLabel": "Delete"
+  },
+  "form": {
+    "createTitle": "Create Channel Instance",
+    "editTitle": "Edit Channel Instance",
+    "key": "Key *",
+    "keyPlaceholder": "my-telegram-bot",
+    "keyHint": "Unique slug used as channel identifier",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "Sales Bot",
+    "channelType": "Channel Type *",
+    "agent": "Agent *",
+    "selectAgent": "Select agent",
+    "credentials": "Credentials",
+    "credentialsHint": "(leave blank to keep current)",
+    "credentialsEncrypted": "Encrypted server-side. Never returned in API responses.",
+    "configuration": "Configuration",
+    "enabled": "Enabled",
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Update",
+    "saving": "Saving...",
+    "step": "Step {{current}} of {{total}}",
+    "authenticate": "Authenticate — {{label}}",
+    "configure": "Configure — {{label}}",
+    "skip": "Skip",
+    "done": "Done",
+    "errors": {
+      "keyRequired": "Key is required",
+      "keySlug": "Key must be a valid slug (lowercase letters, numbers, hyphens only)",
+      "agentRequired": "Agent is required",
+      "requiredFields": "Required: {{fields}}",
+      "failedSave": "Failed to save",
+      "failedSaveConfig": "Failed to save configuration"
+    },
+    "authStatus": {
+      "authenticated": "Authenticated",
+      "notAuthenticated": "Not authenticated",
+      "useQrHint": "— Use the QR login button from the channels table"
+    }
+  },
+  "detail": {
+    "agent": "Agent: {{name}}",
+    "tabs": {
+      "general": "General",
+      "config": "Config",
+      "credentials": "Credentials",
+      "groups": "Groups",
+      "writers": "Writers"
+    },
+    "general": {
+      "name": "Name",
+      "nameHint": "Unique slug (read-only)",
+      "channelType": "Channel Type",
+      "displayName": "Display Name",
+      "displayNamePlaceholder": "Friendly name",
+      "agent": "Agent",
+      "selectAgent": "Select agent",
+      "enabled": "Enabled",
+      "saved": "Saved",
+      "saveChanges": "Save Changes",
+      "saving": "Saving..."
+    },
+    "credentials": {
+      "hint": "Leave fields blank to keep current values. Credentials are encrypted server-side and never returned in API responses.",
+      "noSchema": "No credentials schema for this channel type.",
+      "noCredentials": "No credentials to update",
+      "failedSave": "Failed to save",
+      "saved": "Saved",
+      "updateCredentials": "Update Credentials",
+      "saving": "Saving..."
+    },
+    "config": {
+      "noSchema": "No configuration schema for this channel type.",
+      "saved": "Saved",
+      "saveConfig": "Save Config",
+      "saving": "Saving..."
+    },
+    "groups": {
+      "saved": "Saved",
+      "saveGroups": "Save Groups",
+      "saving": "Saving..."
+    },
+    "writers": {
+      "description": "Manage which users are allowed to write/edit files in group chats.",
+      "groups": "Groups",
+      "noWriterGroups": "No writer groups",
+      "noWriterGroupsHint": "Use the form below to add writers to a group.",
+      "loadingWriters": "Loading writers...",
+      "noWriters": "No writers in this group.",
+      "writersCount": "{{count}} writer",
+      "writersCountPlural": "{{count}} writers",
+      "columns": {
+        "userId": "User ID",
+        "name": "Name",
+        "username": "Username"
+      },
+      "addForm": {
+        "title": "Add Writer to New Group",
+        "hint": "Add a writer to a group that doesn't appear in the list above.",
+        "groupId": "Group ID *",
+        "groupIdPlaceholder": "e.g. group:telegram:-100123456",
+        "userId": "User ID *",
+        "userIdPlaceholder": "e.g. 12345678",
+        "displayName": "Display Name",
+        "username": "Username",
+        "optional": "Optional",
+        "usernameWithout": "Optional (without @)",
+        "adding": "Adding...",
+        "addWriter": "Add Writer",
+        "add": "Add",
+        "errors": {
+          "groupUserRequired": "Group ID and User ID are required",
+          "failedAdd": "Failed to add writer"
+        }
+      }
+    }
+  },
+  "groupOverrides": {
+    "title": "Group & Topic Overrides",
+    "hint": "Override channel defaults per group chat or forum topic. Use \"*\" as group ID for wildcard defaults.",
+    "groupLabel": "Group: {{id}}",
+    "groupWildcard": "* (wildcard)",
+    "addGroupPlaceholder": "Chat ID (e.g. -100123456) or *",
+    "addGroup": "Add Group",
+    "topicOverrides": "Topic Overrides",
+    "topicLabel": "Topic: {{id}}",
+    "addTopicPlaceholder": "Topic thread ID",
+    "addTopic": "Add Topic",
+    "fields": {
+      "groupPolicy": "Group Policy",
+      "requireMention": "Require @mention",
+      "enabled": "Enabled",
+      "allowedUsers": "Allowed Users",
+      "allowedUsersPlaceholder": "One user ID per line",
+      "skillsFilter": "Skills Filter",
+      "skillsPlaceholder": "One skill name per line (empty = inherit)",
+      "toolAllow": "Tool Allow",
+      "toolAllowPlaceholder": "Select allowed tools (empty = inherit all)...",
+      "toolAllowHint": "Restrict which tools are available in this group. Supports group names like \"group:web\", \"group:fs\". Empty = inherit all tools.",
+      "systemPrompt": "System Prompt",
+      "systemPromptPlaceholder": "Additional system prompt for this group/topic",
+      "inherit": "Inherit (channel default)",
+      "yes": "Yes",
+      "no": "No"
+    }
+  },
+  "toast": {
+    "created": "Channel created",
+    "createdDesc": "{{name}} has been added",
+    "updated": "Channel updated",
+    "deleted": "Channel deleted",
+    "failedCreate": "Failed to create channel",
+    "failedUpdate": "Failed to update channel",
+    "failedDelete": "Failed to delete channel"
+  },
+  "zalo": {
+    "allowedUsers": "Allowed Users",
+    "loadContacts": "Load Contacts",
+    "loading": "Loading...",
+    "searchContacts": "Search contacts...",
+    "friends": "Friends",
+    "groups": "Groups",
+    "membersCount": "{{count}} members",
+    "noContacts": "No contacts found",
+    "noContactsMatch": "No contacts match \"{{search}}\"",
+    "addManualPlaceholder": "Add ID manually",
+    "add": "Add",
+    "zaloIdsHint": "Zalo user IDs or group IDs",
+    "completeQrLogin": "Complete QR login to load contacts",
+    "loginQr": "Login with QR — {{name}}",
+    "loginSuccessful": "Login successful! Channel starting...",
+    "generatingQr": "Generating QR code...",
+    "scanHint": "Scan with your Zalo app (expires in ~100s)",
+    "loginSuccessLoading": "Login successful! Loading contacts...",
+    "retry": "Retry",
+    "close": "Close",
+    "skip": "Skip"
+  }
+}

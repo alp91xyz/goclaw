@@ -1,0 +1,35 @@
+{
+  "title": "Nút",
+  "description": "Quản lý thiết bị ghép nối và yêu cầu ghép nối đang chờ",
+  "emptyTitle": "Không có thiết bị nào",
+  "emptyDescription": "Không có thiết bị ghép nối hoặc yêu cầu ghép nối đang chờ.",
+  "pendingRequests": "Yêu cầu đang chờ ({{count}})",
+  "pairedDevices": "Thiết bị đã ghép nối ({{count}})",
+  "sender": "Người gửi: ",
+  "chat": "Cuộc trò chuyện: ",
+  "columns": {
+    "channel": "Channel",
+    "senderId": "Sender ID",
+    "paired": "Đã ghép nối",
+    "by": "Bởi",
+    "actions": "Thao tác"
+  },
+  "approve": "Phê duyệt",
+  "deny": "Từ chối",
+  "revoke": "Thu hồi",
+  "confirmApprove": {
+    "title": "Phê duyệt ghép nối",
+    "description": "Phê duyệt yêu cầu ghép nối từ {{channel}}:{{senderId}} (mã: {{code}})? Thiết bị này sẽ có thể tương tác với các agent.",
+    "confirmLabel": "Phê duyệt"
+  },
+  "confirmDeny": {
+    "title": "Từ chối ghép nối",
+    "description": "Từ chối yêu cầu ghép nối từ {{channel}}:{{senderId}} (mã: {{code}})? Yêu cầu sẽ bị xóa.",
+    "confirmLabel": "Từ chối"
+  },
+  "confirmRevoke": {
+    "title": "Thu hồi thiết bị",
+    "description": "Thu hồi ghép nối cho {{channel}}:{{senderId}}? Thiết bị sẽ cần ghép nối lại.",
+    "confirmLabel": "Thu hồi"
+  }
+}

@@ -1,0 +1,213 @@
+{
+  "title": "Channel",
+  "description": "管理Channel实例",
+  "statusDescription": "通信Channel状态",
+  "addChannel": "添加Channel",
+  "refresh": "刷新",
+  "searchPlaceholder": "搜索Channel...",
+  "emptyTitle": "暂无Channel",
+  "emptyDescription": "添加您的第一个Channel实例以开始使用。",
+  "emptyStatusDescription": "未配置任何通信Channel。",
+  "noMatchTitle": "未找到匹配Channel",
+  "noMatchDescription": "请尝试其他搜索词。",
+  "columns": {
+    "name": "名称",
+    "type": "类型",
+    "agent": "Agent",
+    "status": "状态",
+    "enabled": "已启用",
+    "actions": "操作"
+  },
+  "status": {
+    "running": "运行中",
+    "stopped": "已停止"
+  },
+  "enabled": "已启用",
+  "disabled": "已禁用",
+  "actions": {
+    "reauthenticate": "重新认证",
+    "authenticate": "认证以启动Channel"
+  },
+  "delete": {
+    "title": "删除Channel实例",
+    "description": "确定要删除「{{name}}」吗？此操作无法撤销。",
+    "confirmLabel": "删除"
+  },
+  "form": {
+    "createTitle": "创建Channel实例",
+    "editTitle": "编辑Channel实例",
+    "key": "键 *",
+    "keyPlaceholder": "my-telegram-bot",
+    "keyHint": "用作Channel标识符的唯一 slug",
+    "displayName": "显示名称",
+    "displayNamePlaceholder": "Sales Bot",
+    "channelType": "Channel类型 *",
+    "agent": "Agent *",
+    "selectAgent": "选择Agent",
+    "credentials": "凭据",
+    "credentialsHint": "（留空以保留当前值）",
+    "credentialsEncrypted": "在服务器端加密，不会在 API 响应中返回。",
+    "configuration": "配置",
+    "enabled": "已启用",
+    "cancel": "取消",
+    "create": "创建",
+    "update": "更新",
+    "saving": "保存中...",
+    "step": "第 {{current}} 步，共 {{total}} 步",
+    "authenticate": "认证 — {{label}}",
+    "configure": "配置 — {{label}}",
+    "skip": "跳过",
+    "done": "完成",
+    "errors": {
+      "keyRequired": "键为必填项",
+      "keySlug": "键必须是有效的 slug（小写字母、数字、连字符）",
+      "agentRequired": "Agent为必填项",
+      "requiredFields": "必填: {{fields}}",
+      "failedSave": "保存失败",
+      "failedSaveConfig": "保存配置失败"
+    },
+    "authStatus": {
+      "authenticated": "已认证",
+      "notAuthenticated": "未认证",
+      "useQrHint": "— 使用Channel表中的 QR 登录按钮"
+    }
+  },
+  "detail": {
+    "agent": "Agent: {{name}}",
+    "tabs": {
+      "general": "基本信息",
+      "config": "配置",
+      "credentials": "凭据",
+      "groups": "群组",
+      "writers": "写入权限"
+    },
+    "general": {
+      "name": "名称",
+      "nameHint": "唯一标识（只读）",
+      "channelType": "Channel类型",
+      "displayName": "显示名称",
+      "displayNamePlaceholder": "友好名称",
+      "agent": "Agent",
+      "selectAgent": "选择Agent",
+      "enabled": "已启用",
+      "saved": "已保存",
+      "saveChanges": "保存更改",
+      "saving": "保存中..."
+    },
+    "credentials": {
+      "hint": "留空字段以保留当前值。凭据在服务器端加密，不会在 API 响应中返回。",
+      "noSchema": "此Channel类型没有凭据模式。",
+      "noCredentials": "没有要更新的凭据",
+      "failedSave": "保存失败",
+      "saved": "已保存",
+      "updateCredentials": "更新凭据",
+      "saving": "保存中..."
+    },
+    "config": {
+      "noSchema": "此Channel类型没有配置模式。",
+      "saved": "已保存",
+      "saveConfig": "保存配置",
+      "saving": "保存中..."
+    },
+    "groups": {
+      "saved": "已保存",
+      "saveGroups": "保存群组",
+      "saving": "保存中..."
+    },
+    "writers": {
+      "description": "管理允许在群组聊天中写入/编辑文件的用户。",
+      "groups": "群组",
+      "noWriterGroups": "暂无写入权限群组",
+      "noWriterGroupsHint": "使用下方表单将写入权限添加到群组。",
+      "loadingWriters": "正在加载写入者...",
+      "noWriters": "此群组中没有写入者。",
+      "writersCount": "{{count}} 位写入者",
+      "writersCountPlural": "{{count}} 位写入者",
+      "columns": {
+        "userId": "用户 ID",
+        "name": "名称",
+        "username": "用户名"
+      },
+      "addForm": {
+        "title": "将写入者添加到新群组",
+        "hint": "将写入者添加到上方列表中未出现的群组。",
+        "groupId": "群组 ID *",
+        "groupIdPlaceholder": "例如 group:telegram:-100123456",
+        "userId": "用户 ID *",
+        "userIdPlaceholder": "例如 12345678",
+        "displayName": "显示名称",
+        "username": "用户名",
+        "optional": "可选",
+        "usernameWithout": "可选（不含 @）",
+        "adding": "添加中...",
+        "addWriter": "添加写入者",
+        "add": "添加",
+        "errors": {
+          "groupUserRequired": "群组 ID 和用户 ID 为必填项",
+          "failedAdd": "添加写入者失败"
+        }
+      }
+    }
+  },
+  "groupOverrides": {
+    "title": "群组和话题覆盖",
+    "hint": "按群组聊天或论坛话题覆盖Channel默认值。使用 「*」 作为群组 ID 表示通配符默认值。",
+    "groupLabel": "群组: {{id}}",
+    "groupWildcard": "* (通配符)",
+    "addGroupPlaceholder": "聊天 ID（例如 -100123456）或 *",
+    "addGroup": "添加群组",
+    "topicOverrides": "话题覆盖",
+    "topicLabel": "话题: {{id}}",
+    "addTopicPlaceholder": "话题线程 ID",
+    "addTopic": "添加话题",
+    "fields": {
+      "groupPolicy": "群组策略",
+      "requireMention": "需要 @提及",
+      "enabled": "已启用",
+      "allowedUsers": "允许的用户",
+      "allowedUsersPlaceholder": "每行一个用户 ID",
+      "skillsFilter": "Skill过滤",
+      "skillsPlaceholder": "每行一个Skill名称（空 = 继承）",
+      "toolAllow": "允许的工具",
+      "toolAllowPlaceholder": "选择允许的工具（空 = 继承所有）...",
+      "toolAllowHint": "限制此群组中可用的工具。支持群组名称如 「group:web」、「group:fs」。空 = 继承所有工具。",
+      "systemPrompt": "系统提示词",
+      "systemPromptPlaceholder": "此群组/话题的附加系统提示词",
+      "inherit": "继承（Channel默认）",
+      "yes": "是",
+      "no": "否"
+    }
+  },
+  "toast": {
+    "created": "Channel已创建",
+    "createdDesc": "{{name}} 已添加",
+    "updated": "Channel已更新",
+    "deleted": "Channel已删除",
+    "failedCreate": "创建Channel失败",
+    "failedUpdate": "更新Channel失败",
+    "failedDelete": "删除Channel失败"
+  },
+  "zalo": {
+    "allowedUsers": "允许的用户",
+    "loadContacts": "加载联系人",
+    "loading": "加载中...",
+    "searchContacts": "搜索联系人...",
+    "friends": "好友",
+    "groups": "群组",
+    "membersCount": "{{count}} 位成员",
+    "noContacts": "未找到联系人",
+    "noContactsMatch": "没有与「{{search}}」匹配的联系人",
+    "addManualPlaceholder": "手动添加 ID",
+    "add": "添加",
+    "zaloIdsHint": "Zalo 用户 ID 或群组 ID",
+    "completeQrLogin": "完成 QR 登录以加载联系人",
+    "loginQr": "QR 登录 — {{name}}",
+    "loginSuccessful": "登录成功！Channel正在启动...",
+    "generatingQr": "正在生成二维码...",
+    "scanHint": "使用 Zalo 应用扫描（约 100 秒后过期）",
+    "loginSuccessLoading": "登录成功！正在加载联系人...",
+    "retry": "重试",
+    "close": "关闭",
+    "skip": "跳过"
+  }
+}

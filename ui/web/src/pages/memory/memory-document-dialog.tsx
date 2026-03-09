@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +24,8 @@ interface MemoryDocumentDialogProps {
 }
 
 export function MemoryDocumentDialog({ open, onOpenChange, agentId, document }: MemoryDocumentDialogProps) {
+  const { t } = useTranslation("memory");
+  const { t: tc } = useTranslation("common");
   const http = useHttp();
   const [tab, setTab] = useState<"content" | "chunks">("content");
   const [detail, setDetail] = useState<MemoryDocumentDetail | null>(null);
@@ -44,7 +48,7 @@ export function MemoryDocumentDialog({ open, onOpenChange, agentId, document }: 
       setDetail(res);
       setContent(res.content);
     } catch {
-      toast.error("Failed to load document");
+      toast.error(i18next.t("memory:toast.failedCreate"));
     } finally {
       setLoadingDetail(false);
     }
@@ -91,10 +95,10 @@ export function MemoryDocumentDialog({ open, onOpenChange, agentId, document }: 
         content,
         user_id: document.user_id || "",
       });
-      toast.success("Document updated", document.path);
+      toast.success(i18next.t("memory:documentDialog.title"), document.path);
       onOpenChange(false);
     } catch (err) {
-      toast.error("Failed to save", err instanceof Error ? err.message : "Unknown error");
+      toast.error(i18next.t("memory:toast.failedCreate"), err instanceof Error ? err.message : "");
     } finally {
       setSaving(false);
     }
@@ -109,9 +113,9 @@ export function MemoryDocumentDialog({ open, onOpenChange, agentId, document }: 
           <DialogTitle className="flex items-center gap-2">
             <span className="font-mono text-sm">{document?.path}</span>
             {document?.user_id ? (
-              <Badge variant="secondary">Personal</Badge>
+              <Badge variant="secondary">{t("scopeLabel.personal")}</Badge>
             ) : (
-              <Badge variant="outline">Global</Badge>
+              <Badge variant="outline">{t("scopeLabel.global")}</Badge>
             )}
           </DialogTitle>
         </DialogHeader>
@@ -122,13 +126,13 @@ export function MemoryDocumentDialog({ open, onOpenChange, agentId, document }: 
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${tab === "content" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onClick={() => setTab("content")}
           >
-            Content
+            {t("documentDialog.content")}
           </button>
           <button
             className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${tab === "chunks" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onClick={() => setTab("chunks")}
           >
-            Chunks {detail && `(${detail.chunk_count})`}
+            {detail ? t("documentDialog.chunks", { count: detail.chunk_count }) : t("documentDialog.noChunks")}
           </button>
         </div>
 
@@ -137,15 +141,15 @@ export function MemoryDocumentDialog({ open, onOpenChange, agentId, document }: 
             <div className="grid gap-3">
               {detail && (
                 <div className="flex gap-4 text-xs text-muted-foreground">
-                  <span>Chunks: {detail.chunk_count}</span>
-                  <span>Embedded: {detail.embedded_count}/{detail.chunk_count}</span>
-                  <span>Created: {new Date(detail.created_at).toLocaleString()}</span>
+                  <span>{t("documentDialog.path")} {detail.chunk_count}</span>
+                  <span>{detail.embedded_count}/{detail.chunk_count}</span>
+                  <span>{new Date(detail.created_at).toLocaleString()}</span>
                 </div>
               )}
               <div className="grid gap-1.5">
-                <Label>Content</Label>
+                <Label>{t("documentDialog.content")}</Label>
                 {loadingDetail ? (
-                  <div className="h-48 flex items-center justify-center text-muted-foreground">Loading...</div>
+                  <div className="h-48 flex items-center justify-center text-muted-foreground">{tc("loading")}</div>
                 ) : (
                   <Textarea
                     value={content}
@@ -161,9 +165,9 @@ export function MemoryDocumentDialog({ open, onOpenChange, agentId, document }: 
           {tab === "chunks" && (
             <div>
               {loadingChunks ? (
-                <div className="py-8 text-center text-muted-foreground">Loading chunks...</div>
+                <div className="py-8 text-center text-muted-foreground">{tc("loading")}</div>
               ) : chunks.length === 0 ? (
-                <div className="py-8 text-center text-muted-foreground">No chunks. Index this document first.</div>
+                <div className="py-8 text-center text-muted-foreground">{t("documentDialog.noChunks")}</div>
               ) : (
                 <div className="space-y-2">
                   {chunks.map((chunk) => (
@@ -173,7 +177,7 @@ export function MemoryDocumentDialog({ open, onOpenChange, agentId, document }: 
                           Lines {chunk.start_line}-{chunk.end_line}
                         </span>
                         <Badge variant={chunk.has_embedding ? "default" : "secondary"} className="text-[10px]">
-                          {chunk.has_embedding ? "Embedded" : "No embedding"}
+                          {chunk.has_embedding ? t("documentDialog.embedded") : t("documentDialog.noEmbedding")}
                         </Badge>
                       </div>
                       <pre className="text-xs text-muted-foreground whitespace-pre-wrap break-words">
@@ -189,11 +193,11 @@ export function MemoryDocumentDialog({ open, onOpenChange, agentId, document }: 
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Close
+            {tc("close")}
           </Button>
           {tab === "content" && (
             <Button onClick={handleSave} disabled={saving || !hasChanges}>
-              {saving ? "Saving..." : "Save"}
+              {saving ? tc("saving") : tc("save")}
             </Button>
           )}
         </DialogFooter>

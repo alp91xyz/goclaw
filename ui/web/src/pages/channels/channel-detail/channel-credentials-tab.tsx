@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { ChannelInstanceData } from "@/types/channel";
 import { credentialsSchema } from "../channel-schemas";
 import { ChannelFields } from "../channel-fields";
+import { useTranslation } from "react-i18next";
 
 interface ChannelCredentialsTabProps {
   instance: ChannelInstanceData;
@@ -11,6 +12,7 @@ interface ChannelCredentialsTabProps {
 }
 
 export function ChannelCredentialsTab({ instance, onUpdate }: ChannelCredentialsTabProps) {
+  const { t } = useTranslation("channels");
   const [values, setValues] = useState<Record<string, unknown>>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export function ChannelCredentialsTab({ instance, onUpdate }: ChannelCredentials
       Object.entries(values).filter(([, v]) => v !== undefined && v !== "" && v !== null),
     );
     if (Object.keys(cleanCreds).length === 0) {
-      setSaveError("No credentials to update");
+      setSaveError(t("detail.credentials.noCredentials"));
       return;
     }
     setSaving(true);
@@ -39,7 +41,7 @@ export function ChannelCredentialsTab({ instance, onUpdate }: ChannelCredentials
       setValues({});
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save");
+      setSaveError(err instanceof Error ? err.message : t("detail.credentials.failedSave"));
     } finally {
       setSaving(false);
     }
@@ -49,7 +51,7 @@ export function ChannelCredentialsTab({ instance, onUpdate }: ChannelCredentials
     return (
       <div className="max-w-2xl">
         <p className="text-sm text-muted-foreground">
-          No credentials schema for this channel type.
+          {t("detail.credentials.noSchema")}
         </p>
       </div>
     );
@@ -58,7 +60,7 @@ export function ChannelCredentialsTab({ instance, onUpdate }: ChannelCredentials
   return (
     <div className="max-w-2xl space-y-6">
       <p className="text-sm text-muted-foreground">
-        Leave fields blank to keep current values. Credentials are encrypted server-side and never returned in API responses.
+        {t("detail.credentials.hint")}
       </p>
 
       <ChannelFields
@@ -78,12 +80,12 @@ export function ChannelCredentialsTab({ instance, onUpdate }: ChannelCredentials
       <div className="flex items-center justify-end gap-2">
         {saved && (
           <span className="flex items-center gap-1 text-sm text-success">
-            <Check className="h-3.5 w-3.5" /> Saved
+            <Check className="h-3.5 w-3.5" /> {t("detail.credentials.saved")}
           </span>
         )}
         <Button onClick={handleSave} disabled={saving}>
           {!saving && <Save className="h-4 w-4" />}
-          {saving ? "Saving..." : "Update Credentials"}
+          {saving ? t("detail.credentials.saving") : t("detail.credentials.updateCredentials")}
         </Button>
       </div>
     </div>

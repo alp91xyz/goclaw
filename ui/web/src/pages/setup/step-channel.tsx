@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,7 @@ interface StepChannelProps {
 }
 
 export function StepChannel({ agent, onComplete, onSkip }: StepChannelProps) {
+  const { t } = useTranslation("setup");
   const { createInstance } = useChannelInstances();
 
   const [channelType, setChannelType] = useState("telegram");
@@ -50,11 +52,11 @@ export function StepChannel({ agent, onComplete, onSkip }: StepChannelProps) {
   }, []);
 
   const handleCreate = async () => {
-    if (!agent) { setError("No agent available"); return; }
+    if (!agent) { setError(t("channel.errors.noAgent")); return; }
 
     const missing = credsFields.filter((f) => f.required && !credsValues[f.key]);
     if (missing.length > 0) {
-      setError(`Required: ${missing.map((f) => f.label).join(", ")}`);
+      setError(t("channel.errors.requiredFields", { fields: missing.map((f) => f.label).join(", ") }));
       return;
     }
 
@@ -81,7 +83,7 @@ export function StepChannel({ agent, onComplete, onSkip }: StepChannelProps) {
       });
       onComplete();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create channel");
+      setError(err instanceof Error ? err.message : t("channel.errors.failedCreate"));
     } finally {
       setLoading(false);
     }
@@ -95,27 +97,27 @@ export function StepChannel({ agent, onComplete, onSkip }: StepChannelProps) {
         <TooltipProvider>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">Connect a Channel</h2>
+            <h2 className="text-lg font-semibold">{t("channel.title")}</h2>
             <p className="text-sm text-muted-foreground">
-              Connect a messaging platform to your agent. You can always add channels later.
+              {t("channel.description")}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={onSkip}>
-            Skip
+            {t("channel.skip")}
           </Button>
         </div>
 
         {/* Agent badge */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Agent:</span>
+          <span className="text-sm text-muted-foreground">{t("channel.agent")}</span>
           <Badge variant="secondary">{agentLabel}</Badge>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label className="inline-flex items-center gap-1.5">
-              Channel Type
-              <InfoTip text="The messaging platform to connect. E.g. Telegram, Discord, Zalo." />
+              {t("channel.channelType")}
+              <InfoTip text={t("channel.channelTypeHint")} />
             </Label>
             <Select value={channelType} onValueChange={handleTypeChange}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -129,28 +131,28 @@ export function StepChannel({ agent, onComplete, onSkip }: StepChannelProps) {
 
           <div className="space-y-2">
             <Label className="inline-flex items-center gap-1.5">
-              Name
-              <InfoTip text="Internal identifier for this channel instance. Auto-generated from channel type." />
+              {t("channel.name")}
+              <InfoTip text={t("channel.nameHint")} />
             </Label>
-            <Input value={name} onChange={(e) => setName(slugify(e.target.value))} placeholder="my-telegram" />
+            <Input value={name} onChange={(e) => setName(slugify(e.target.value))} placeholder={t("channel.namePlaceholder")} />
           </div>
         </div>
 
         {displayName !== undefined && (
           <div className="space-y-2">
             <Label className="inline-flex items-center gap-1.5">
-              Display Name
-              <InfoTip text="A friendly name shown in the UI. Optional." />
+              {t("channel.displayName")}
+              <InfoTip text={t("channel.displayNameHint")} />
             </Label>
-            <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Sales Bot" />
+            <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder={t("channel.displayNamePlaceholder")} />
           </div>
         )}
 
         {credsFields.length > 0 && (
           <fieldset className="rounded-md border p-3 space-y-3">
-            <legend className="px-1 text-sm font-medium">Credentials</legend>
+            <legend className="px-1 text-sm font-medium">{t("channel.credentials")}</legend>
             <ChannelFields fields={credsFields} values={credsValues} onChange={handleCredsChange} idPrefix="setup-cred" />
-            <p className="text-xs text-muted-foreground">Encrypted server-side. Never returned in API responses.</p>
+            <p className="text-xs text-muted-foreground">{t("channel.credentialsHint")}</p>
           </fieldset>
         )}
 
@@ -158,10 +160,10 @@ export function StepChannel({ agent, onComplete, onSkip }: StepChannelProps) {
 
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onSkip} disabled={loading}>
-            Skip & Finish
+            {t("channel.skipFinish")}
           </Button>
           <Button onClick={handleCreate} disabled={loading}>
-            {loading ? "Creating..." : "Create Channel"}
+            {loading ? t("channel.creating") : t("channel.create")}
           </Button>
         </div>
         </TooltipProvider>

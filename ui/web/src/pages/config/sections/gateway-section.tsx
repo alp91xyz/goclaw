@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -34,6 +35,7 @@ interface Props {
 }
 
 export function GatewaySection({ data, onSave, saving }: Props) {
+  const { t } = useTranslation("config");
   const [draft, setDraft] = useState<GatewayData>(data ?? DEFAULT);
   const [dirty, setDirty] = useState(false);
 
@@ -61,13 +63,13 @@ export function GatewaySection({ data, onSave, saving }: Props) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Gateway</CardTitle>
-        <CardDescription>WebSocket & HTTP server settings, security</CardDescription>
+        <CardTitle className="text-base">{t("gateway.title")}</CardTitle>
+        <CardDescription>{t("gateway.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="grid gap-1.5">
-            <InfoLabel tip="IP address to bind the server. Use 0.0.0.0 to accept connections from any interface.">Host</InfoLabel>
+            <InfoLabel tip={t("gateway.hostTip")}>{t("gateway.host")}</InfoLabel>
             <Input
               value={draft.host ?? ""}
               onChange={(e) => update({ host: e.target.value })}
@@ -75,7 +77,7 @@ export function GatewaySection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="TCP port for the WebSocket and HTTP server.">Port</InfoLabel>
+            <InfoLabel tip={t("gateway.portTip")}>{t("gateway.port")}</InfoLabel>
             <Input
               type="number"
               value={draft.port ?? ""}
@@ -84,7 +86,7 @@ export function GatewaySection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Bearer token for authenticating WebSocket and API connections. Managed via GOCLAW_GATEWAY_TOKEN env var.">Token</InfoLabel>
+            <InfoLabel tip={t("gateway.tokenTip")}>{t("gateway.token")}</InfoLabel>
             <Input
               type="password"
               value={draft.token ?? ""}
@@ -93,33 +95,33 @@ export function GatewaySection({ data, onSave, saving }: Props) {
               onChange={(e) => update({ token: e.target.value })}
             />
             {isSecret(draft.token) && (
-              <p className="text-xs text-muted-foreground">Managed via GOCLAW_GATEWAY_TOKEN</p>
+              <p className="text-xs text-muted-foreground">{t("gateway.tokenManaged")}</p>
             )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5">
-            <InfoLabel tip="Sender IDs with admin privileges. These users bypass rate limits and can manage configuration.">Owner IDs</InfoLabel>
+            <InfoLabel tip={t("gateway.ownerIdsTip")}>{t("gateway.ownerIds")}</InfoLabel>
             <TagInput
               value={draft.owner_ids ?? []}
               onChange={(v) => update({ owner_ids: v })}
-              placeholder="Type ID and press Enter..."
+              placeholder={t("gateway.ownerIdsPlaceholder")}
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="CORS allowed origins for the HTTP API. Empty means all origins are allowed.">Allowed Origins</InfoLabel>
+            <InfoLabel tip={t("gateway.allowedOriginsTip")}>{t("gateway.allowedOrigins")}</InfoLabel>
             <TagInput
               value={draft.allowed_origins ?? []}
               onChange={(v) => update({ allowed_origins: v })}
-              placeholder="Type origin and press Enter..."
+              placeholder={t("gateway.allowedOriginsPlaceholder")}
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="grid gap-1.5">
-            <InfoLabel tip="Maximum characters per inbound message. Messages exceeding this are rejected.">Max Message Chars</InfoLabel>
+            <InfoLabel tip={t("gateway.maxMessageCharsTip")}>{t("gateway.maxMessageChars")}</InfoLabel>
             <Input
               type="number"
               value={draft.max_message_chars ?? ""}
@@ -128,7 +130,7 @@ export function GatewaySection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Requests per minute per sender. 0 = no limit. Prevents abuse from individual users.">Rate Limit (RPM)</InfoLabel>
+            <InfoLabel tip={t("gateway.rateLimitRpmTip")}>{t("gateway.rateLimitRpm")}</InfoLabel>
             <Input
               type="number"
               value={draft.rate_limit_rpm ?? ""}
@@ -138,7 +140,7 @@ export function GatewaySection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Delay in ms before processing messages. Groups rapid messages into one request. -1 = disabled.">Inbound Debounce (ms)</InfoLabel>
+            <InfoLabel tip={t("gateway.inboundDebounceMsTip")}>{t("gateway.inboundDebounceMs")}</InfoLabel>
             <Input
               type="number"
               value={draft.inbound_debounce_ms ?? ""}
@@ -148,7 +150,7 @@ export function GatewaySection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Action when prompt injection is detected. Off = disabled, Log = log only, Warn = add warning to prompt, Block = reject.">Injection Action</InfoLabel>
+            <InfoLabel tip={t("gateway.injectionActionTip")}>{t("gateway.injectionAction")}</InfoLabel>
             <Select value={draft.injection_action ?? "warn"} onValueChange={(v) => update({ injection_action: v })}>
               <SelectTrigger>
                 <SelectValue />
@@ -162,7 +164,7 @@ export function GatewaySection({ data, onSave, saving }: Props) {
             </Select>
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Deliver intermediate assistant text to non-streaming channels during tool iterations. Each assistant block is sent before tool execution.">Block Reply</InfoLabel>
+            <InfoLabel tip={t("gateway.blockReplyTip")}>{t("gateway.blockReply")}</InfoLabel>
             <div className="flex items-center h-9">
               <Switch checked={draft.block_reply ?? false} onCheckedChange={(v) => update({ block_reply: v })} />
             </div>
@@ -172,7 +174,7 @@ export function GatewaySection({ data, onSave, saving }: Props) {
         {dirty && (
           <div className="flex justify-end pt-2">
             <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5">
-              <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save"}
+              <Save className="h-3.5 w-3.5" /> {saving ? t("saving") : t("save")}
             </Button>
           </div>
         )}

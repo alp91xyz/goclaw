@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function TelegramGroupOverrides({ groups, onChange }: Props) {
+  const { t } = useTranslation("channels");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [newGroupId, setNewGroupId] = useState("");
 
@@ -53,10 +55,8 @@ export function TelegramGroupOverrides({ groups, onChange }: Props) {
 
   return (
     <fieldset className="rounded-md border p-3 space-y-3">
-      <legend className="px-1 text-sm font-medium">Group & Topic Overrides</legend>
-      <p className="text-xs text-muted-foreground">
-        Override channel defaults per group chat or forum topic. Use &quot;*&quot; as group ID for wildcard defaults.
-      </p>
+      <legend className="px-1 text-sm font-medium">{t("groupOverrides.title")}</legend>
+      <p className="text-xs text-muted-foreground">{t("groupOverrides.hint")}</p>
 
       {groupIds.map((id) => {
         const group = groups[id] ?? {};
@@ -69,7 +69,9 @@ export function TelegramGroupOverrides({ groups, onChange }: Props) {
                 onClick={() => toggle(id)}
               >
                 {expanded[id] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                Group: {id === "*" ? "* (wildcard)" : id}
+                {id === "*"
+                  ? t("groupOverrides.groupWildcard")
+                  : t("groupOverrides.groupLabel", { id })}
               </button>
               <Button
                 type="button"
@@ -104,13 +106,13 @@ export function TelegramGroupOverrides({ groups, onChange }: Props) {
         <Input
           value={newGroupId}
           onChange={(e) => setNewGroupId(e.target.value)}
-          placeholder="Chat ID (e.g. -100123456) or *"
+          placeholder={t("groupOverrides.addGroupPlaceholder")}
           className="h-8 flex-1 text-sm"
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addGroup())}
         />
         <Button type="button" variant="outline" size="sm" className="h-8" onClick={addGroup} disabled={!newGroupId.trim()}>
           <Plus className="h-3.5 w-3.5 mr-1" />
-          Add Group
+          {t("groupOverrides.addGroup")}
         </Button>
       </div>
     </fieldset>

@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import i18next from "i18next";
 import { useHttp } from "@/hooks/use-ws";
 import { queryKeys } from "@/lib/query-keys";
 import { toast } from "@/stores/use-toast-store";
@@ -46,10 +47,13 @@ export function useChannelInstances(filters: ChannelInstanceFilters = {}) {
       try {
         const res = await http.post<{ id: string }>("/v1/channels/instances", data);
         await invalidate();
-        toast.success("Channel created", `${data.name} has been added`);
+        toast.success(
+          i18next.t("channels:toast.created"),
+          i18next.t("channels:toast.createdDesc", { name: data.name }),
+        );
         return res;
       } catch (err) {
-        toast.error("Failed to create channel", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("channels:toast.failedCreate"), err instanceof Error ? err.message : "");
         throw err;
       }
     },
@@ -61,9 +65,9 @@ export function useChannelInstances(filters: ChannelInstanceFilters = {}) {
       try {
         await http.put(`/v1/channels/instances/${id}`, data);
         await invalidate();
-        toast.success("Channel updated");
+        toast.success(i18next.t("channels:toast.updated"));
       } catch (err) {
-        toast.error("Failed to update channel", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("channels:toast.failedUpdate"), err instanceof Error ? err.message : "");
         throw err;
       }
     },
@@ -75,9 +79,9 @@ export function useChannelInstances(filters: ChannelInstanceFilters = {}) {
       try {
         await http.delete(`/v1/channels/instances/${id}`);
         await invalidate();
-        toast.success("Channel deleted");
+        toast.success(i18next.t("channels:toast.deleted"));
       } catch (err) {
-        toast.error("Failed to delete channel", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("channels:toast.failedDelete"), err instanceof Error ? err.message : "");
         throw err;
       }
     },

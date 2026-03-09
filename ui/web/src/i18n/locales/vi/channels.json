@@ -1,0 +1,213 @@
+{
+  "title": "Channel",
+  "description": "Quản lý các phiên bản channel",
+  "statusDescription": "Trạng thái channel liên lạc",
+  "addChannel": "Thêm channel",
+  "refresh": "Làm mới",
+  "searchPlaceholder": "Tìm kiếm channel...",
+  "emptyTitle": "Không có channel nào",
+  "emptyDescription": "Thêm phiên bản channel đầu tiên để bắt đầu.",
+  "emptyStatusDescription": "Chưa có channel liên lạc nào được cấu hình.",
+  "noMatchTitle": "Không tìm thấy channel phù hợp",
+  "noMatchDescription": "Thử từ khóa tìm kiếm khác.",
+  "columns": {
+    "name": "Tên",
+    "type": "Loại",
+    "agent": "Agent",
+    "status": "Trạng thái",
+    "enabled": "Bật",
+    "actions": "Thao tác"
+  },
+  "status": {
+    "running": "Đang chạy",
+    "stopped": "Đã dừng"
+  },
+  "enabled": "Đã bật",
+  "disabled": "Đã tắt",
+  "actions": {
+    "reauthenticate": "Xác thực lại",
+    "authenticate": "Xác thực để khởi động channel"
+  },
+  "delete": {
+    "title": "Xóa phiên bản channel",
+    "description": "Bạn có chắc chắn muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác.",
+    "confirmLabel": "Xóa"
+  },
+  "form": {
+    "createTitle": "Tạo phiên bản channel",
+    "editTitle": "Chỉnh sửa phiên bản channel",
+    "key": "Khóa *",
+    "keyPlaceholder": "my-telegram-bot",
+    "keyHint": "Slug duy nhất dùng làm định danh channel",
+    "displayName": "Tên hiển thị",
+    "displayNamePlaceholder": "Sales Bot",
+    "channelType": "Loại channel *",
+    "agent": "Agent *",
+    "selectAgent": "Chọn agent",
+    "credentials": "Thông tin xác thực",
+    "credentialsHint": "(để trống để giữ giá trị hiện tại)",
+    "credentialsEncrypted": "Được mã hóa phía máy chủ. Không bao giờ trả về trong phản hồi API.",
+    "configuration": "Cấu hình",
+    "enabled": "Bật",
+    "cancel": "Hủy",
+    "create": "Tạo",
+    "update": "Cập nhật",
+    "saving": "Đang lưu...",
+    "step": "Bước {{current}} / {{total}}",
+    "authenticate": "Xác thực — {{label}}",
+    "configure": "Cấu hình — {{label}}",
+    "skip": "Bỏ qua",
+    "done": "Xong",
+    "errors": {
+      "keyRequired": "Khóa là bắt buộc",
+      "keySlug": "Khóa phải là slug hợp lệ (chữ thường, số, dấu gạch ngang)",
+      "agentRequired": "Agent là bắt buộc",
+      "requiredFields": "Bắt buộc: {{fields}}",
+      "failedSave": "Không thể lưu",
+      "failedSaveConfig": "Không thể lưu cấu hình"
+    },
+    "authStatus": {
+      "authenticated": "Đã xác thực",
+      "notAuthenticated": "Chưa xác thực",
+      "useQrHint": "— Dùng nút đăng nhập QR từ bảng channel"
+    }
+  },
+  "detail": {
+    "agent": "Agent: {{name}}",
+    "tabs": {
+      "general": "Chung",
+      "config": "Cấu hình",
+      "credentials": "Thông tin xác thực",
+      "groups": "Nhóm",
+      "writers": "Người viết"
+    },
+    "general": {
+      "name": "Tên",
+      "nameHint": "Slug duy nhất (chỉ đọc)",
+      "channelType": "Loại channel",
+      "displayName": "Tên hiển thị",
+      "displayNamePlaceholder": "Tên thân thiện",
+      "agent": "Agent",
+      "selectAgent": "Chọn agent",
+      "enabled": "Bật",
+      "saved": "Đã lưu",
+      "saveChanges": "Lưu thay đổi",
+      "saving": "Đang lưu..."
+    },
+    "credentials": {
+      "hint": "Để trống các trường để giữ giá trị hiện tại. Thông tin xác thực được mã hóa phía máy chủ và không bao giờ trả về trong phản hồi API.",
+      "noSchema": "Không có lược đồ thông tin xác thực cho loại channel này.",
+      "noCredentials": "Không có thông tin xác thực để cập nhật",
+      "failedSave": "Lưu thất bại",
+      "saved": "Đã lưu",
+      "updateCredentials": "Cập nhật thông tin xác thực",
+      "saving": "Đang lưu..."
+    },
+    "config": {
+      "noSchema": "Không có lược đồ cấu hình cho loại channel này.",
+      "saved": "Đã lưu",
+      "saveConfig": "Lưu cấu hình",
+      "saving": "Đang lưu..."
+    },
+    "groups": {
+      "saved": "Đã lưu",
+      "saveGroups": "Lưu nhóm",
+      "saving": "Đang lưu..."
+    },
+    "writers": {
+      "description": "Quản lý người dùng được phép viết/chỉnh sửa tệp trong cuộc trò chuyện nhóm.",
+      "groups": "Nhóm",
+      "noWriterGroups": "Không có nhóm người viết",
+      "noWriterGroupsHint": "Dùng biểu mẫu bên dưới để thêm người viết vào nhóm.",
+      "loadingWriters": "Đang tải người viết...",
+      "noWriters": "Không có người viết trong nhóm này.",
+      "writersCount": "{{count}} người viết",
+      "writersCountPlural": "{{count}} người viết",
+      "columns": {
+        "userId": "ID người dùng",
+        "name": "Tên",
+        "username": "Tên đăng nhập"
+      },
+      "addForm": {
+        "title": "Thêm người viết vào nhóm mới",
+        "hint": "Thêm người viết vào nhóm chưa xuất hiện trong danh sách trên.",
+        "groupId": "ID nhóm *",
+        "groupIdPlaceholder": "vd: group:telegram:-100123456",
+        "userId": "ID người dùng *",
+        "userIdPlaceholder": "vd: 12345678",
+        "displayName": "Tên hiển thị",
+        "username": "Tên đăng nhập",
+        "optional": "Tùy chọn",
+        "usernameWithout": "Tùy chọn (không có @)",
+        "adding": "Đang thêm...",
+        "addWriter": "Thêm người viết",
+        "add": "Thêm",
+        "errors": {
+          "groupUserRequired": "ID nhóm và ID người dùng là bắt buộc",
+          "failedAdd": "Không thể thêm người viết"
+        }
+      }
+    }
+  },
+  "groupOverrides": {
+    "title": "Ghi đè nhóm & chủ đề",
+    "hint": "Ghi đè mặc định channel theo cuộc trò chuyện nhóm hoặc chủ đề diễn đàn. Dùng \"*\" làm ID nhóm cho mặc định ký tự đại diện.",
+    "groupLabel": "Nhóm: {{id}}",
+    "groupWildcard": "* (ký tự đại diện)",
+    "addGroupPlaceholder": "ID cuộc trò chuyện (vd: -100123456) hoặc *",
+    "addGroup": "Thêm nhóm",
+    "topicOverrides": "Ghi đè chủ đề",
+    "topicLabel": "Chủ đề: {{id}}",
+    "addTopicPlaceholder": "ID luồng chủ đề",
+    "addTopic": "Thêm chủ đề",
+    "fields": {
+      "groupPolicy": "Chính sách nhóm",
+      "requireMention": "Yêu cầu @đề cập",
+      "enabled": "Bật",
+      "allowedUsers": "Người dùng được phép",
+      "allowedUsersPlaceholder": "Mỗi ID người dùng một dòng",
+      "skillsFilter": "Bộ lọc skill",
+      "skillsPlaceholder": "Mỗi tên skill một dòng (trống = kế thừa)",
+      "toolAllow": "Công cụ được phép",
+      "toolAllowPlaceholder": "Chọn công cụ được phép (trống = kế thừa tất cả)...",
+      "toolAllowHint": "Giới hạn công cụ có sẵn trong nhóm này. Hỗ trợ tên nhóm như \"group:web\", \"group:fs\". Trống = kế thừa tất cả công cụ.",
+      "systemPrompt": "Prompt hệ thống",
+      "systemPromptPlaceholder": "Prompt hệ thống bổ sung cho nhóm/chủ đề này",
+      "inherit": "Kế thừa (mặc định channel)",
+      "yes": "Có",
+      "no": "Không"
+    }
+  },
+  "toast": {
+    "created": "Đã tạo channel",
+    "createdDesc": "{{name}} đã được thêm",
+    "updated": "Đã cập nhật channel",
+    "deleted": "Đã xóa channel",
+    "failedCreate": "Không thể tạo channel",
+    "failedUpdate": "Không thể cập nhật channel",
+    "failedDelete": "Không thể xóa channel"
+  },
+  "zalo": {
+    "allowedUsers": "Người dùng được phép",
+    "loadContacts": "Tải danh bạ",
+    "loading": "Đang tải...",
+    "searchContacts": "Tìm kiếm danh bạ...",
+    "friends": "Bạn bè",
+    "groups": "Nhóm",
+    "membersCount": "{{count}} thành viên",
+    "noContacts": "Không tìm thấy danh bạ",
+    "noContactsMatch": "Không có danh bạ khớp với \"{{search}}\"",
+    "addManualPlaceholder": "Thêm ID thủ công",
+    "add": "Thêm",
+    "zaloIdsHint": "ID người dùng hoặc ID nhóm Zalo",
+    "completeQrLogin": "Hoàn tất đăng nhập QR để tải danh bạ",
+    "loginQr": "Đăng nhập bằng QR — {{name}}",
+    "loginSuccessful": "Đăng nhập thành công! Đang khởi động channel...",
+    "generatingQr": "Đang tạo mã QR...",
+    "scanHint": "Quét bằng ứng dụng Zalo của bạn (hết hạn sau ~100 giây)",
+    "loginSuccessLoading": "Đăng nhập thành công! Đang tải danh bạ...",
+    "retry": "Thử lại",
+    "close": "Đóng",
+    "skip": "Bỏ qua"
+  }
+}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { BootstrapFile } from "@/types/agent";
@@ -42,6 +43,7 @@ export function FileSidebar({
   onSelect,
   isUserScoped,
 }: FileSidebarProps) {
+  const { t } = useTranslation("agents");
   return (
     <div className="w-56 shrink-0 overflow-y-auto rounded-lg bg-muted/40 p-2">
       <div className="space-y-0.5">
@@ -67,19 +69,19 @@ export function FileSidebar({
                 <div className="truncate">{file.name}</div>
                 {userScoped ? (
                   <Badge variant="outline" className="mt-0.5 text-[10px]">
-                    per-user
+                    {t("files.perUser")}
                   </Badge>
                 ) : file.missing ? (
                   <span className="text-[10px] text-muted-foreground/60">
-                    empty
+                    {t("files.emptyFile")}
                   </span>
                 ) : (
                   <div className="text-[10px] text-muted-foreground/60">
-                    Est {formatTokenCount(
+                    {t("files.estTokens", { tokens: formatTokenCount(
                       file.content
                         ? estimateTokensFromContent(file.content)
                         : estimateTokensFromBytes(file.size),
-                    )} tokens
+                    ) })}
                   </div>
                 )}
               </div>

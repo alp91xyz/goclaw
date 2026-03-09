@@ -1,0 +1,102 @@
+{
+  "title": "Cron",
+  "description": "Schedule recurring agent tasks",
+  "newJob": "New Job",
+  "emptyTitle": "No cron jobs",
+  "emptyDescription": "Create a cron job to schedule recurring agent tasks.",
+  "columns": {
+    "enabled": "Enabled",
+    "name": "Name",
+    "schedule": "Schedule",
+    "message": "Message",
+    "agent": "Agent",
+    "actions": "Actions"
+  },
+  "runNow": "Run now",
+  "running": "Running...",
+  "runHistory": "Run history",
+  "defaultAgent": "default",
+  "create": {
+    "title": "Create Cron Job",
+    "name": "Name",
+    "namePlaceholder": "my-daily-task",
+    "nameHint": "Lowercase letters, numbers, and hyphens only",
+    "agentId": "Agent ID (optional)",
+    "agentIdPlaceholder": "default",
+    "scheduleType": "Schedule Type",
+    "every": "Every",
+    "cron": "Cron",
+    "once": "Once",
+    "intervalSeconds": "Interval (seconds)",
+    "cronExpression": "Cron Expression",
+    "cronHint": "Standard 5-field cron: min hour day month weekday",
+    "onceDesc": "The job will run once, approximately 1 minute from now.",
+    "message": "Message",
+    "messagePlaceholder": "What should the agent do?",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating..."
+  },
+  "enable": {
+    "title": "Enable Cron Job",
+    "description": "Enable \"{{name}}\"? It will start running on schedule.",
+    "confirmLabel": "Enable"
+  },
+  "disable": {
+    "title": "Disable Cron Job",
+    "description": "Disable \"{{name}}\"? It will stop running until re-enabled.",
+    "confirmLabel": "Disable"
+  },
+  "delete": {
+    "title": "Delete Cron Job",
+    "description": "Delete \"{{name}}\"? This cannot be undone.",
+    "confirmLabel": "Delete"
+  },
+  "runLog": {
+    "title": "Run Log: {{name}}",
+    "noHistory": "No run history yet.",
+    "loading": "Loading..."
+  },
+  "detail": {
+    "runNow": "Run Now",
+    "running": "Running...",
+    "disable": "Disable",
+    "enable": "Enable",
+    "delete": "Delete",
+    "enabled": "enabled",
+    "disabled": "disabled",
+    "runningStatus": "running...",
+    "payload": "Payload",
+    "empty": "(empty)",
+    "deliverDirect": "Deliver: direct",
+    "channel": "Channel: {{name}}",
+    "to": "To: {{name}}",
+    "lastError": "Last Error",
+    "runHistory": "Run History",
+    "refresh": "Refresh",
+    "noHistory": "No run history yet.",
+    "inOut": "{{input}} in / {{output}} out",
+    "infoRows": {
+      "schedule": "Schedule",
+      "timezone": "Timezone",
+      "nextRun": "Next Run",
+      "lastRun": "Last Run",
+      "created": "Created",
+      "updated": "Updated",
+      "autoDelete": "Auto-delete",
+      "autoDeleteValue": "Yes (one-time)"
+    }
+  },
+  "toast": {
+    "created": "Cron job created",
+    "createdDesc": "{{name}} has been added",
+    "enabled": "Cron job enabled",
+    "disabled": "Cron job disabled",
+    "deleted": "Cron job deleted",
+    "triggered": "Cron job triggered",
+    "failedCreate": "Failed to create cron job",
+    "failedToggle": "Failed to toggle cron job",
+    "failedDelete": "Failed to delete cron job",
+    "failedRun": "Failed to run cron job"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "pairing": {
+    "approved": "Truy cập đã được phê duyệt! Đang chuyển hướng...",
+    "askAdmin": "Yêu cầu quản trị viên phê duyệt mã này:",
+    "cancel": "Hủy",
+    "connecting": "Đang kết nối...",
+    "errorCannotConnect": "Không thể kết nối đến gateway.",
+    "errorConnectionLost": "Mất kết nối. Vui lòng thử lại.",
+    "noTokenNeeded": "Không cần token. Mã ghép nối sẽ được tạo để quản trị viên phê duyệt.",
+    "orRun": "Hoặc chạy:",
+    "requestAccess": "Yêu cầu truy cập",
+    "userId": "User ID",
+    "userIdPlaceholder": "your-user-id",
+    "waitingForApproval": "Đang chờ phê duyệt..."
+  },
+  "subtitle": "Đăng nhập vào bảng điều khiển gateway",
+  "tabs": {
+    "pairing": "Ghép nối",
+    "token": "Token"
+  },
+  "token": {
+    "connect": "Kết nối",
+    "connecting": "Đang kết nối...",
+    "errorCannotConnect": "Không thể kết nối đến gateway. Kiểm tra server đã chạy chưa.",
+    "errorInvalidCredentials": "Thông tin xác thực không hợp lệ. Kiểm tra token và user ID.",
+    "errorServer": "Server trả về {{status}}. Vui lòng thử lại.",
+    "gatewayToken": "Gateway Token",
+    "tokenPlaceholder": "Bearer token",
+    "userId": "User ID",
+    "userIdPlaceholder": "your-user-id"
+  }
+}

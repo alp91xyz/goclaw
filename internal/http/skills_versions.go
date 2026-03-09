@@ -10,19 +10,23 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
+	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
 
 // handleListVersions returns all available version numbers for a skill.
 func (h *SkillsHandler) handleListVersions(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid skill ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "skill")})
 		return
 	}
 
 	_, slug, currentVersion, ok := h.skills.GetSkillFilePath(id)
 	if !ok {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "skill not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "skill", id.String())})
 		return
 	}
 
@@ -60,15 +64,16 @@ func (h *SkillsHandler) handleListVersions(w http.ResponseWriter, r *http.Reques
 
 // handleListFiles returns all files in a skill version directory.
 func (h *SkillsHandler) handleListFiles(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid skill ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "skill")})
 		return
 	}
 
 	_, slug, currentVersion, ok := h.skills.GetSkillFilePath(id)
 	if !ok {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "skill not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "skill", id.String())})
 		return
 	}
 
@@ -76,7 +81,7 @@ func (h *SkillsHandler) handleListFiles(w http.ResponseWriter, r *http.Request) 
 	if v := r.URL.Query().Get("version"); v != "" {
 		parsed, err := strconv.Atoi(v)
 		if err != nil || parsed < 1 {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid version"})
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidVersion)})
 			return
 		}
 		version = parsed
@@ -84,7 +89,7 @@ func (h *SkillsHandler) handleListFiles(w http.ResponseWriter, r *http.Request) 
 
 	versionDir := filepath.Join(h.baseDir, slug, strconv.Itoa(version))
 	if _, err := os.Stat(versionDir); err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "version not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgVersionNotFound)})
 		return
 	}
 
@@ -137,26 +142,27 @@ func (h *SkillsHandler) handleListFiles(w http.ResponseWriter, r *http.Request) 
 
 // handleReadFile reads a single file from a skill version directory.
 func (h *SkillsHandler) handleReadFile(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid skill ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "skill")})
 		return
 	}
 
 	relPath := r.PathValue("path")
 	if relPath == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "path is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "path")})
 		return
 	}
 	if strings.Contains(relPath, "..") {
 		slog.Warn("security.skill_files_traversal", "path", relPath)
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 		return
 	}
 
 	_, slug, currentVersion, ok := h.skills.GetSkillFilePath(id)
 	if !ok {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "skill not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "skill", id.String())})
 		return
 	}
 
@@ -164,7 +170,7 @@ func (h *SkillsHandler) handleReadFile(w http.ResponseWriter, r *http.Request) {
 	if v := r.URL.Query().Get("version"); v != "" {
 		parsed, err := strconv.Atoi(v)
 		if err != nil || parsed < 1 {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid version"})
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidVersion)})
 			return
 		}
 		version = parsed
@@ -176,31 +182,31 @@ func (h *SkillsHandler) handleReadFile(w http.ResponseWriter, r *http.Request) {
 	// Verify resolved path is within the version directory
 	if !strings.HasPrefix(absPath, versionDir+string(filepath.Separator)) {
 		slog.Warn("security.skill_files_escape", "resolved", absPath, "root", versionDir)
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 		return
 	}
 
 	// Use Lstat to detect symlinks — reject them to prevent directory escape
 	info, err := os.Lstat(absPath)
 	if err != nil || info.IsDir() {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "file not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgFileNotFound)})
 		return
 	}
 	if info.Mode()&os.ModeSymlink != 0 {
 		slog.Warn("security.skill_files_symlink", "path", absPath)
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid path"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidPath)})
 		return
 	}
 
 	// Skip system artifacts
 	if isSystemArtifact(relPath) {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "file not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgFileNotFound)})
 		return
 	}
 
 	data, err := os.ReadFile(absPath)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to read file"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToReadFile)})
 		return
 	}
 

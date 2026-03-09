@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -23,11 +24,13 @@ export function CronRunLogDialog({
   entries,
   loading,
 }: CronRunLogDialogProps) {
+  const { t } = useTranslation("cron");
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[70vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Run Log: {jobName}</DialogTitle>
+          <DialogTitle>{t("runLog.title", { name: jobName })}</DialogTitle>
         </DialogHeader>
 
         {loading && entries.length === 0 ? (
@@ -36,7 +39,7 @@ export function CronRunLogDialog({
           </div>
         ) : entries.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            No run history yet.
+            {t("runLog.noHistory")}
           </p>
         ) : (
           <div className="space-y-2">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export function TelemetrySection({ data, onSave, saving }: Props) {
+  const { t } = useTranslation("config");
   const [draft, setDraft] = useState<TelemetryData>(data ?? DEFAULT);
   const [headers, setHeaders] = useState<Record<string, string>>({});
   const [dirty, setDirty] = useState(false);
@@ -50,18 +52,18 @@ export function TelemetrySection({ data, onSave, saving }: Props) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Telemetry</CardTitle>
-        <CardDescription>OpenTelemetry export configuration</CardDescription>
+        <CardTitle className="text-base">{t("telemetry.title")}</CardTitle>
+        <CardDescription>{t("telemetry.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
-          <InfoLabel tip="Enable OpenTelemetry export of LLM call traces and spans.">Enabled</InfoLabel>
+          <InfoLabel tip={t("telemetry.enabledTip")}>{t("telemetry.enabled")}</InfoLabel>
           <Switch checked={draft.enabled ?? false} onCheckedChange={(v) => update({ enabled: v })} />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-1.5">
-            <InfoLabel tip="OTel collector endpoint address (host:port). E.g. localhost:4317 for gRPC or localhost:4318 for HTTP.">Endpoint</InfoLabel>
+            <InfoLabel tip={t("telemetry.endpointTip")}>{t("telemetry.endpoint")}</InfoLabel>
             <Input
               value={draft.endpoint ?? ""}
               onChange={(e) => update({ endpoint: e.target.value })}
@@ -69,7 +71,7 @@ export function TelemetrySection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
-            <InfoLabel tip="Transport protocol for exporting traces. gRPC is recommended for most setups.">Protocol</InfoLabel>
+            <InfoLabel tip={t("telemetry.protocolTip")}>{t("telemetry.protocol")}</InfoLabel>
             <Select value={draft.protocol ?? "grpc"} onValueChange={(v) => update({ protocol: v })}>
               <SelectTrigger>
                 <SelectValue />
@@ -84,7 +86,7 @@ export function TelemetrySection({ data, onSave, saving }: Props) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-1.5">
-            <InfoLabel tip="Service name reported in trace spans. Useful for distinguishing multiple gateway instances.">Service Name</InfoLabel>
+            <InfoLabel tip={t("telemetry.serviceNameTip")}>{t("telemetry.serviceName")}</InfoLabel>
             <Input
               value={draft.service_name ?? ""}
               onChange={(e) => update({ service_name: e.target.value })}
@@ -92,26 +94,26 @@ export function TelemetrySection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="flex items-center justify-between">
-            <InfoLabel tip="Disable TLS for the connection to the OTel collector. Use only for local/trusted networks.">Insecure (no TLS)</InfoLabel>
+            <InfoLabel tip={t("telemetry.insecureTip")}>{t("telemetry.insecure")}</InfoLabel>
             <Switch checked={draft.insecure ?? false} onCheckedChange={(v) => update({ insecure: v })} />
           </div>
         </div>
 
         <div className="grid gap-1.5">
-          <InfoLabel tip="Additional HTTP headers sent with each export request. Useful for authentication tokens or routing metadata.">Headers</InfoLabel>
+          <InfoLabel tip={t("telemetry.headersTip")}>{t("telemetry.headers")}</InfoLabel>
           <KeyValueEditor
             value={headers}
             onChange={(v) => { setHeaders(v); setDirty(true); }}
-            keyPlaceholder="Header name"
-            valuePlaceholder="Header value"
-            addLabel="Add Header"
+            keyPlaceholder={t("telemetry.headerKeyPlaceholder")}
+            valuePlaceholder={t("telemetry.headerValuePlaceholder")}
+            addLabel={t("telemetry.addHeader")}
           />
         </div>
 
         {dirty && (
           <div className="flex justify-end pt-2">
             <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5">
-              <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save"}
+              <Save className="h-3.5 w-3.5" /> {saving ? t("saving") : t("save")}
             </Button>
           </div>
         )}

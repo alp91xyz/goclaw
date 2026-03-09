@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Zap, Pencil, RefreshCw, Upload, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ const visibilityColor: Record<string, string> = {
 };
 
 export function SkillsPage() {
+  const { t } = useTranslation("skills");
   const {
     skills, loading, refresh, getSkill, uploadSkill, updateSkill, deleteSkill,
     getSkillVersions, getSkillFiles, getSkillFileContent,
@@ -71,15 +73,15 @@ export function SkillsPage() {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Skills"
-        description="Manage agent skills and capabilities"
+        title={t("title")}
+        description={t("description")}
         actions={
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => setUploadOpen(true)} className="gap-1">
-              <Upload className="h-3.5 w-3.5" /> Upload
+              <Upload className="h-3.5 w-3.5" /> {t("upload.button")}
             </Button>
             <Button variant="outline" size="sm" onClick={refresh} disabled={spinning} className="gap-1">
-              <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> Refresh
+              <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> {t("refresh", { ns: "common" })}
             </Button>
           </div>
         }
@@ -89,7 +91,7 @@ export function SkillsPage() {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search skills..."
+          placeholder={t("searchPlaceholder")}
           className="max-w-sm"
         />
       </div>
@@ -100,19 +102,19 @@ export function SkillsPage() {
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Zap}
-            title={search ? "No matching skills" : "No skills"}
-            description={search ? "Try a different search term." : "No skills have been registered yet."}
+            title={search ? t("noMatchTitle") : t("emptyTitle")}
+            description={search ? t("noMatchDescription") : t("emptyDescription")}
           />
         ) : (
           <div className="rounded-md border">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-3 text-left font-medium">Name</th>
-                  <th className="px-4 py-3 text-left font-medium">Description</th>
-                  <th className="px-4 py-3 text-left font-medium">Source</th>
-                  <th className="px-4 py-3 text-left font-medium">Visibility</th>
-                  <th className="px-4 py-3 text-right font-medium">Actions</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("columns.name")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("columns.description")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("columns.source")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("columns.visibility")}</th>
+                  <th className="px-4 py-3 text-right font-medium">{t("columns.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,7 +136,7 @@ export function SkillsPage() {
                       </div>
                     </td>
                     <td className="max-w-xs truncate px-4 py-3 text-muted-foreground">
-                      {skill.description || "No description"}
+                      {skill.description || t("noDescription")}
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant="outline">{skill.source || "file"}</Badge>
@@ -216,10 +218,10 @@ export function SkillsPage() {
       <ConfirmDeleteDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete Skill"
-        description={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
+        title={t("delete.title")}
+        description={t("delete.description", { name: deleteTarget?.name })}
         confirmValue={deleteTarget?.name || ""}
-        confirmLabel="Delete"
+        confirmLabel={t("delete.confirmLabel")}
         onConfirm={handleDelete}
         loading={deleteLoading}
       />

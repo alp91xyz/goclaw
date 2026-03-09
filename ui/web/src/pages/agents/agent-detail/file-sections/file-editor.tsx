@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +28,8 @@ export function FileEditor({
   onSave,
   headerActions,
 }: FileEditorProps) {
+  const { t } = useTranslation("agents");
+
   if (!fileName) {
     return (
       <div className="flex flex-1 flex-col">
@@ -34,7 +37,7 @@ export function FileEditor({
           <div className="mb-2 flex justify-end gap-2">{headerActions}</div>
         )}
         <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-          Select a file to {canEdit ? "edit" : "view"}
+          {canEdit ? t("files.selectFileToEdit") : t("files.selectFileToView")}
         </div>
       </div>
     );
@@ -56,14 +59,14 @@ export function FileEditor({
           {canEdit && (
             <Button size="sm" onClick={onSave} disabled={!dirty || saving}>
               {!saving && <Save className="h-3.5 w-3.5" />}
-              {saving ? "Saving..." : "Save"}
+              {saving ? t("files.saving") : t("files.save")}
             </Button>
           )}
         </div>
       </div>
       {loading && !content ? (
         <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-          Loading...
+          {t("files.loading")}
         </div>
       ) : (
         <Textarea

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "react-i18next";
 import { ProviderModelSelect } from "@/components/shared/provider-model-select";
 
 interface KGExtractDialogProps {
@@ -17,6 +18,7 @@ interface KGExtractDialogProps {
 }
 
 export function KGExtractDialog({ open, onOpenChange, onExtract }: KGExtractDialogProps) {
+  const { t } = useTranslation("memory");
   const [text, setText] = useState("");
   const [provider, setProvider] = useState("");
   const [model, setModel] = useState("");
@@ -38,7 +40,7 @@ export function KGExtractDialog({ open, onOpenChange, onExtract }: KGExtractDial
     <Dialog open={open} onOpenChange={(v) => !loading && onOpenChange(v)}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Extract Entities from Text</DialogTitle>
+          <DialogTitle>{t("kg.extractDialog.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 min-h-0 overflow-y-auto py-2 px-1 -mx-1 space-y-4">
@@ -47,16 +49,16 @@ export function KGExtractDialog({ open, onOpenChange, onExtract }: KGExtractDial
             onProviderChange={setProvider}
             model={model}
             onModelChange={setModel}
-            providerLabel="Extraction Provider"
-            modelLabel="Extraction Model"
+            providerLabel={t("kg.extractDialog.providerLabel")}
+            modelLabel={t("kg.extractDialog.modelLabel")}
           />
 
           <div className="grid gap-1.5">
-            <label className="text-xs font-medium">Text to extract from</label>
+            <label className="text-xs font-medium">{t("kg.extractDialog.textLabel")}</label>
             <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Paste conversation text, notes, or any content to extract entities and relations from..."
+              placeholder={t("kg.extractDialog.textPlaceholder")}
               rows={10}
             />
           </div>
@@ -64,10 +66,10 @@ export function KGExtractDialog({ open, onOpenChange, onExtract }: KGExtractDial
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancel
+            {t("kg.extractDialog.cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={loading || !text.trim() || !provider || !model}>
-            {loading ? "Extracting..." : "Extract"}
+            {loading ? t("kg.extractDialog.extracting") : t("kg.extractDialog.extract")}
           </Button>
         </DialogFooter>
       </DialogContent>

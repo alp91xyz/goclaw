@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,7 @@ function JsonSettingsForm({
   onOpenChange: (open: boolean) => void;
   onSave: (name: string, settings: Record<string, unknown>) => Promise<void>;
 }) {
+  const { t } = useTranslation("tools");
   const [json, setJson] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -93,7 +95,7 @@ function JsonSettingsForm({
       setError("");
       setValidJson(true);
     } catch {
-      setError("Cannot format: invalid JSON");
+      setError(t("builtin.jsonDialog.cannotFormat"));
     }
   };
 
@@ -106,7 +108,7 @@ function JsonSettingsForm({
       await onSave(tool.name, parsed);
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof SyntaxError ? "Invalid JSON" : String(e));
+      setError(e instanceof SyntaxError ? t("builtin.jsonDialog.invalidJson") : String(e));
     } finally {
       setSaving(false);
     }
@@ -115,9 +117,9 @@ function JsonSettingsForm({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Settings: {tool?.display_name ?? tool?.name}</DialogTitle>
+        <DialogTitle>{t("builtin.jsonDialog.title", { name: tool?.display_name ?? tool?.name })}</DialogTitle>
         <DialogDescription>
-          Edit tool-specific settings as JSON. Changes take effect immediately after saving.
+          {t("builtin.jsonDialog.description")}
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-3">
@@ -129,18 +131,18 @@ function JsonSettingsForm({
         />
         <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" onClick={handleFormat} className="h-7 px-2 text-xs">
-            Format JSON
+            {t("builtin.jsonDialog.formatJson")}
           </Button>
-          {!validJson && <span className="text-xs text-destructive">Invalid JSON syntax</span>}
+          {!validJson && <span className="text-xs text-destructive">{t("builtin.jsonDialog.invalidJsonSyntax")}</span>}
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
       <DialogFooter>
         <Button variant="outline" onClick={() => onOpenChange(false)}>
-          Cancel
+          {t("builtin.jsonDialog.cancel")}
         </Button>
         <Button onClick={handleSave} disabled={saving || !validJson}>
-          {saving ? "Saving..." : "Save"}
+          {saving ? t("builtin.jsonDialog.saving") : t("builtin.jsonDialog.save")}
         </Button>
       </DialogFooter>
     </>

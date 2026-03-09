@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import i18next from "i18next";
 import { useHttp } from "@/hooks/use-ws";
 import { queryKeys } from "@/lib/query-keys";
 import { toast } from "@/stores/use-toast-store";
@@ -30,10 +31,13 @@ export function useProviders() {
       try {
         const res = await http.post<ProviderData>("/v1/providers", data);
         await invalidate();
-        toast.success("Provider created", `${data.name} has been added`);
+        toast.success(
+          i18next.t("providers:toast.created"),
+          i18next.t("providers:toast.createdDesc", { name: data.name }),
+        );
         return res;
       } catch (err) {
-        toast.error("Failed to create provider", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("providers:toast.failedCreate"), err instanceof Error ? err.message : "");
         throw err;
       }
     },
@@ -45,9 +49,9 @@ export function useProviders() {
       try {
         await http.put(`/v1/providers/${id}`, data);
         await invalidate();
-        toast.success("Provider updated");
+        toast.success(i18next.t("providers:toast.updated"));
       } catch (err) {
-        toast.error("Failed to update provider", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("providers:toast.failedUpdate"), err instanceof Error ? err.message : "");
         throw err;
       }
     },
@@ -59,9 +63,9 @@ export function useProviders() {
       try {
         await http.delete(`/v1/providers/${id}`);
         await invalidate();
-        toast.success("Provider deleted");
+        toast.success(i18next.t("providers:toast.deleted"));
       } catch (err) {
-        toast.error("Failed to delete provider", err instanceof Error ? err.message : "Unknown error");
+        toast.error(i18next.t("providers:toast.failedDelete"), err instanceof Error ? err.message : "");
         throw err;
       }
     },

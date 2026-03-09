@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -27,10 +28,11 @@ export function ConfirmDeleteDialog({
   title,
   description,
   confirmValue,
-  confirmLabel = "Delete",
+  confirmLabel,
   onConfirm,
   loading,
 }: ConfirmDeleteDialogProps) {
+  const { t } = useTranslation("common");
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export function ConfirmDeleteDialog({
         </DialogHeader>
         <div className="py-2">
           <p className="mb-2 text-sm text-muted-foreground">
-            Type <span className="font-semibold text-foreground">{confirmValue}</span> to confirm.
+            {t("typeToConfirmPrefix")} <span className="font-semibold text-foreground">{confirmValue}</span> {t("typeToConfirmSuffix")}
           </p>
           <Input
             value={inputValue}
@@ -59,14 +61,14 @@ export function ConfirmDeleteDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={onConfirm}
             disabled={!isMatch || loading}
           >
-            {loading ? "..." : confirmLabel}
+            {loading ? "..." : (confirmLabel ?? t("delete"))}
           </Button>
         </DialogFooter>
       </DialogContent>

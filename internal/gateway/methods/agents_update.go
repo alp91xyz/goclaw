@@ -10,13 +10,16 @@ import (
 
 	"github.com/nextlevelbuilder/goclaw/internal/config"
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
+	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
 
 // --- agents.update ---
 // Matching TS src/gateway/server-methods/agents.ts:288-346
 
-func (m *AgentsMethods) handleUpdate(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *AgentsMethods) handleUpdate(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		AgentID   string `json:"agentId"`
 		Name      string `json:"name"`
@@ -37,7 +40,7 @@ func (m *AgentsMethods) handleUpdate(_ context.Context, client *gateway.Client, 
 	}
 
 	if params.AgentID == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "agentId is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "agentId")))
 		return
 	}
 
@@ -46,7 +49,7 @@ func (m *AgentsMethods) handleUpdate(_ context.Context, client *gateway.Client, 
 		ctx := context.Background()
 		ag, err := m.agentStore.GetByKey(ctx, params.AgentID)
 		if err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, "agent not found: "+params.AgentID))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, i18n.T(locale, i18n.MsgAgentNotFound, params.AgentID)))
 			return
 		}
 
@@ -87,7 +90,7 @@ func (m *AgentsMethods) handleUpdate(_ context.Context, client *gateway.Client, 
 
 		if len(updates) > 0 {
 			if err := m.agentStore.Update(ctx, ag.ID, updates); err != nil {
-				client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, fmt.Sprintf("failed to update agent: %v", err)))
+				client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToUpdate, "agent", fmt.Sprintf("%v", err))))
 				return
 			}
 		}
@@ -110,7 +113,7 @@ func (m *AgentsMethods) handleUpdate(_ context.Context, client *gateway.Client, 
 		spec, ok := m.cfg.Agents.List[params.AgentID]
 		if !ok {
 			if params.AgentID != "default" {
-				client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, "agent not found: "+params.AgentID))
+				client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, i18n.T(locale, i18n.MsgAgentNotFound, params.AgentID)))
 				return
 			}
 		}
@@ -147,7 +150,7 @@ func (m *AgentsMethods) handleUpdate(_ context.Context, client *gateway.Client, 
 		}
 
 		if err := config.Save(m.cfgPath, m.cfg); err != nil {
-			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to save config: "+err.Error()))
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToSave, "config", err.Error())))
 			return
 		}
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
@@ -47,15 +48,17 @@ func (h *ChannelInstancesHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if h.token != "" {
 			if extractBearerToken(r) != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
 		userID := extractUserID(r)
+		ctx := store.WithLocale(r.Context(), extractLocale(r))
 		if userID != "" {
-			ctx := store.WithUserID(r.Context(), userID)
-			r = r.WithContext(ctx)
+			ctx = store.WithUserID(ctx, userID)
 		}
+		r = r.WithContext(ctx)
 		next(w, r)
 	}
 }
@@ -93,7 +96,8 @@ func (h *ChannelInstancesHandler) handleList(w http.ResponseWriter, r *http.Requ
 	instances, err := h.store.ListPaged(r.Context(), opts)
 	if err != nil {
 		slog.Error("channel_instances.list", "error", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list instances"})
+		locale := store.LocaleFromContext(r.Context())
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToList, "instances")})
 		return
 	}
 
@@ -113,6 +117,7 @@ func (h *ChannelInstancesHandler) handleList(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *ChannelInstancesHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	var body struct {
 		Name        string          `json:"name"`
 		DisplayName string          `json:"display_name"`
@@ -123,23 +128,23 @@ func (h *ChannelInstancesHandler) handleCreate(w http.ResponseWriter, r *http.Re
 		Enabled     *bool           `json:"enabled"`
 	}
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&body); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 
 	if body.Name == "" || body.ChannelType == "" || body.AgentID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "name, channel_type, and agent_id are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "name, channel_type, and agent_id")})
 		return
 	}
 
 	if !isValidChannelType(body.ChannelType) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid channel_type"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidChannelType)})
 		return
 	}
 
 	agentID, err := uuid.Parse(body.AgentID)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid agent_id"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "agent")})
 		return
 	}
 
@@ -172,15 +177,16 @@ func (h *ChannelInstancesHandler) handleCreate(w http.ResponseWriter, r *http.Re
 }
 
 func (h *ChannelInstancesHandler) handleGet(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid instance ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "instance")})
 		return
 	}
 
 	inst, err := h.store.Get(r.Context(), id)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "instance not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgInstanceNotFound)})
 		return
 	}
 
@@ -188,15 +194,16 @@ func (h *ChannelInstancesHandler) handleGet(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *ChannelInstancesHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid instance ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "instance")})
 		return
 	}
 
 	var updates map[string]interface{}
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&updates); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 
@@ -211,20 +218,21 @@ func (h *ChannelInstancesHandler) handleUpdate(w http.ResponseWriter, r *http.Re
 }
 
 func (h *ChannelInstancesHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid instance ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "instance")})
 		return
 	}
 
 	// Look up instance to check if it's a default (seeded) instance.
 	inst, err := h.store.Get(r.Context(), id)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "instance not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgInstanceNotFound)})
 		return
 	}
 	if store.IsDefaultChannelInstance(inst.Name) {
-		writeJSON(w, http.StatusForbidden, map[string]string{"error": "cannot delete default channel instance"})
+		writeJSON(w, http.StatusForbidden, map[string]string{"error": i18n.T(locale, i18n.MsgCannotDeleteDefaultInst)})
 		return
 	}
 
@@ -241,18 +249,18 @@ func (h *ChannelInstancesHandler) handleDelete(w http.ResponseWriter, r *http.Re
 // maskInstanceHTTP returns a map with credentials masked for HTTP responses.
 func maskInstanceHTTP(inst store.ChannelInstanceData) map[string]interface{} {
 	result := map[string]interface{}{
-		"id":           inst.ID,
-		"name":         inst.Name,
-		"display_name": inst.DisplayName,
-		"channel_type": inst.ChannelType,
-		"agent_id":     inst.AgentID,
-		"config":       inst.Config,
-		"enabled":      inst.Enabled,
-		"is_default":       store.IsDefaultChannelInstance(inst.Name),
-		"has_credentials":  len(inst.Credentials) > 0,
-		"created_by":       inst.CreatedBy,
-		"created_at":       inst.CreatedAt,
-		"updated_at":       inst.UpdatedAt,
+		"id":              inst.ID,
+		"name":            inst.Name,
+		"display_name":    inst.DisplayName,
+		"channel_type":    inst.ChannelType,
+		"agent_id":        inst.AgentID,
+		"config":          inst.Config,
+		"enabled":         inst.Enabled,
+		"is_default":      store.IsDefaultChannelInstance(inst.Name),
+		"has_credentials": len(inst.Credentials) > 0,
+		"created_by":      inst.CreatedBy,
+		"created_at":      inst.CreatedAt,
+		"updated_at":      inst.UpdatedAt,
 	}
 
 	if len(inst.Credentials) > 0 {
@@ -277,14 +285,15 @@ func maskInstanceHTTP(inst store.ChannelInstanceData) map[string]interface{} {
 
 // resolveAgentID looks up the channel instance and returns its agent_id.
 func (h *ChannelInstancesHandler) resolveAgentID(w http.ResponseWriter, r *http.Request) (uuid.UUID, bool) {
+	locale := store.LocaleFromContext(r.Context())
 	instID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid instance ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "instance")})
 		return uuid.Nil, false
 	}
 	inst, err := h.store.Get(r.Context(), instID)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "instance not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgInstanceNotFound)})
 		return uuid.Nil, false
 	}
 	return inst.AgentID, true
@@ -298,7 +307,8 @@ func (h *ChannelInstancesHandler) handleWriterGroups(w http.ResponseWriter, r *h
 	groups, err := h.agentStore.ListGroupFileWriterGroups(r.Context(), agentID)
 	if err != nil {
 		slog.Error("channel_instances.writer_groups", "error", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list writer groups"})
+		locale := store.LocaleFromContext(r.Context())
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToList, "writer groups")})
 		return
 	}
 	if groups == nil {
@@ -312,15 +322,16 @@ func (h *ChannelInstancesHandler) handleListWriters(w http.ResponseWriter, r *ht
 	if !ok {
 		return
 	}
+	locale := store.LocaleFromContext(r.Context())
 	groupID := r.URL.Query().Get("group_id")
 	if groupID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "group_id query parameter is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "group_id")})
 		return
 	}
 	writers, err := h.agentStore.ListGroupFileWriters(r.Context(), agentID, groupID)
 	if err != nil {
 		slog.Error("channel_instances.list_writers", "error", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list writers"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToList, "writers")})
 		return
 	}
 	if writers == nil {
@@ -334,6 +345,7 @@ func (h *ChannelInstancesHandler) handleAddWriter(w http.ResponseWriter, r *http
 	if !ok {
 		return
 	}
+	locale := store.LocaleFromContext(r.Context())
 	var body struct {
 		GroupID     string `json:"group_id"`
 		UserID      string `json:"user_id"`
@@ -341,16 +353,16 @@ func (h *ChannelInstancesHandler) handleAddWriter(w http.ResponseWriter, r *http
 		Username    string `json:"username"`
 	}
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<16)).Decode(&body); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 	if body.GroupID == "" || body.UserID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "group_id and user_id are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "group_id and user_id")})
 		return
 	}
 	if err := h.agentStore.AddGroupFileWriter(r.Context(), agentID, body.GroupID, body.UserID, body.DisplayName, body.Username); err != nil {
 		slog.Error("channel_instances.add_writer", "error", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to add writer"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToCreate, "writer", err.Error())})
 		return
 	}
 	writeJSON(w, http.StatusCreated, map[string]string{"status": "added"})
@@ -361,15 +373,16 @@ func (h *ChannelInstancesHandler) handleRemoveWriter(w http.ResponseWriter, r *h
 	if !ok {
 		return
 	}
+	locale := store.LocaleFromContext(r.Context())
 	userID := r.PathValue("userId")
 	groupID := r.URL.Query().Get("group_id")
 	if groupID == "" || userID == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "group_id query parameter and userId path parameter are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "group_id and userId")})
 		return
 	}
 	if err := h.agentStore.RemoveGroupFileWriter(r.Context(), agentID, groupID, userID); err != nil {
 		slog.Error("channel_instances.remove_writer", "error", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to remove writer"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToDelete, "writer", err.Error())})
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"status": "removed"})

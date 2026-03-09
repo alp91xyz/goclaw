@@ -7,11 +7,14 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
+	"github.com/nextlevelbuilder/goclaw/internal/store"
 	mcpbridge "github.com/nextlevelbuilder/goclaw/internal/mcp"
 )
 
 // handleTestConnection tests an MCP server connection without saving it.
 func (h *MCPHandler) handleTestConnection(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	var req struct {
 		Transport string            `json:"transport"`
 		Command   string            `json:"command"`
@@ -21,11 +24,11 @@ func (h *MCPHandler) handleTestConnection(w http.ResponseWriter, r *http.Request
 		Env       map[string]string `json:"env"`
 	}
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&req); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 	if req.Transport == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "transport is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "transport")})
 		return
 	}
 
@@ -46,15 +49,16 @@ func (h *MCPHandler) handleTestConnection(w http.ResponseWriter, r *http.Request
 
 // handleListServerTools lists tools for a specific MCP server.
 func (h *MCPHandler) handleListServerTools(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid server ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "server")})
 		return
 	}
 
 	srv, err := h.store.GetServer(r.Context(), id)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "server not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "server", id.String())})
 		return
 	}
 

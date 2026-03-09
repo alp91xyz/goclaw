@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/lib/constants";
@@ -22,38 +23,39 @@ interface Trace {
 }
 
 export function RecentRequestsCard({ traces }: { traces: Trace[] }) {
+  const { t } = useTranslation("overview");
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="text-base">Recent Requests</CardTitle>
+        <CardTitle className="text-base">{t("recentRequests.title")}</CardTitle>
         {traces.length > 0 && (
           <Link
             to={ROUTES.TRACES}
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            View All <ArrowRight className="h-3 w-3" />
+            {t("recentRequests.viewAll")} <ArrowRight className="h-3 w-3" />
           </Link>
         )}
       </CardHeader>
       <CardContent>
         {traces.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            No recent requests
+            {t("recentRequests.noRequests")}
           </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="pb-2 pr-4 font-medium">Time</th>
-                  <th className="pb-2 px-4 font-medium">Name</th>
-                  <th className="pb-2 px-4 font-medium">User</th>
-                  <th className="pb-2 px-4 font-medium">Channel</th>
-                  <th className="pb-2 px-4 font-medium text-right">Tokens</th>
+                  <th className="pb-2 pr-4 font-medium">{t("recentRequests.columns.time")}</th>
+                  <th className="pb-2 px-4 font-medium">{t("recentRequests.columns.name")}</th>
+                  <th className="pb-2 px-4 font-medium">{t("recentRequests.columns.user")}</th>
+                  <th className="pb-2 px-4 font-medium">{t("recentRequests.columns.channel")}</th>
+                  <th className="pb-2 px-4 font-medium text-right">{t("recentRequests.columns.tokens")}</th>
                   <th className="pb-2 px-4 font-medium text-right">
-                    Duration
+                    {t("recentRequests.columns.duration")}
                   </th>
-                  <th className="pb-2 pl-4 font-medium">Status</th>
+                  <th className="pb-2 pl-4 font-medium">{t("recentRequests.columns.status")}</th>
                 </tr>
               </thead>
               <tbody>

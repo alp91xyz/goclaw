@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Radio, Plus, RefreshCw, Pencil, Trash2, QrCode } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/shared/page-header";
@@ -21,6 +22,7 @@ import { useDeferredLoading } from "@/hooks/use-deferred-loading";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 
 export function ChannelsPage() {
+  const { t } = useTranslation("channels");
   const { id: detailId } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -109,15 +111,15 @@ export function ChannelsPage() {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Channels"
-        description="Manage channel instances"
+        title={t("title")}
+        description={t("description")}
         actions={
           <div className="flex gap-2">
             <Button size="sm" onClick={() => setFormOpen(true)} className="gap-1">
-              <Plus className="h-3.5 w-3.5" /> Add Channel
+              <Plus className="h-3.5 w-3.5" /> {t("addChannel")}
             </Button>
             <Button variant="outline" size="sm" onClick={refresh} disabled={spinning} className="gap-1">
-              <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> Refresh
+              <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> {t("refresh")}
             </Button>
           </div>
         }
@@ -127,7 +129,7 @@ export function ChannelsPage() {
         <SearchInput
           value={search}
           onChange={handleSearchChange}
-          placeholder="Search channels..."
+          placeholder={t("searchPlaceholder")}
           className="max-w-sm"
         />
       </div>
@@ -138,20 +140,20 @@ export function ChannelsPage() {
         ) : instances.length === 0 ? (
           <EmptyState
             icon={Radio}
-            title={debouncedSearch ? "No matching channels" : "No channels"}
-            description={debouncedSearch ? "Try a different search term." : "Add your first channel instance to get started."}
+            title={debouncedSearch ? t("noMatchTitle") : t("emptyTitle")}
+            description={debouncedSearch ? t("noMatchDescription") : t("emptyDescription")}
           />
         ) : (
           <div className="rounded-md border">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-3 text-left font-medium">Name</th>
-                  <th className="px-4 py-3 text-left font-medium">Type</th>
-                  <th className="px-4 py-3 text-left font-medium">Agent</th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
-                  <th className="px-4 py-3 text-left font-medium">Enabled</th>
-                  <th className="px-4 py-3 text-right font-medium">Actions</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("columns.name")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("columns.type")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("columns.agent")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("columns.status")}</th>
+                  <th className="px-4 py-3 text-left font-medium">{t("columns.enabled")}</th>
+                  <th className="px-4 py-3 text-right font-medium">{t("columns.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -189,7 +191,7 @@ export function ChannelsPage() {
                               className={`h-2 w-2 rounded-full ${status.running ? "bg-green-500" : "bg-muted-foreground"}`}
                             />
                             <span className="text-muted-foreground">
-                              {status.running ? "Running" : "Stopped"}
+                              {status.running ? t("status.running") : t("status.stopped")}
                             </span>
                           </div>
                         ) : (
@@ -198,7 +200,7 @@ export function ChannelsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <Badge variant={inst.enabled ? "default" : "secondary"}>
-                          {inst.enabled ? "Enabled" : "Disabled"}
+                          {inst.enabled ? t("enabled") : t("disabled")}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -207,7 +209,7 @@ export function ChannelsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              title={status?.running ? "Re-authenticate" : "Authenticate to start channel"}
+                              title={status?.running ? t("actions.reauthenticate") : t("actions.authenticate")}
                               onClick={(e) => { e.stopPropagation(); setQrTarget(inst); }}
                             >
                               <QrCode className="h-3.5 w-3.5" />
@@ -267,10 +269,10 @@ export function ChannelsPage() {
       <ConfirmDeleteDialog
         open={!!deleteTarget}
         onOpenChange={(v) => !v && setDeleteTarget(null)}
-        title="Delete Channel Instance"
-        description={`Are you sure you want to delete "${deleteTarget?.display_name || deleteTarget?.name}"? This action cannot be undone.`}
+        title={t("delete.title")}
+        description={t("delete.description", { name: deleteTarget?.display_name || deleteTarget?.name })}
         confirmValue={deleteTarget?.display_name || deleteTarget?.name || ""}
-        confirmLabel="Delete"
+        confirmLabel={t("delete.confirmLabel")}
         onConfirm={handleDelete}
         loading={deleteLoading}
       />

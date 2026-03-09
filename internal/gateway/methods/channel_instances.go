@@ -9,6 +9,7 @@ import (
 
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
@@ -44,10 +45,11 @@ func (m *ChannelInstancesMethods) emitCacheInvalidate() {
 }
 
 func (m *ChannelInstancesMethods) handleList(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	instances, err := m.store.ListAll(ctx)
 	if err != nil {
 		slog.Error("channels.instances.list", "error", err)
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to list channel instances"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToList, "channel instances")))
 		return
 	}
 
@@ -63,6 +65,7 @@ func (m *ChannelInstancesMethods) handleList(ctx context.Context, client *gatewa
 }
 
 func (m *ChannelInstancesMethods) handleGet(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		ID string `json:"id"`
 	}
@@ -72,13 +75,13 @@ func (m *ChannelInstancesMethods) handleGet(ctx context.Context, client *gateway
 
 	id, err := uuid.Parse(params.ID)
 	if err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid instance ID"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidID, "instance")))
 		return
 	}
 
 	inst, err := m.store.Get(ctx, id)
 	if err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, "instance not found"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrNotFound, i18n.T(locale, i18n.MsgInstanceNotFound)))
 		return
 	}
 
@@ -86,6 +89,7 @@ func (m *ChannelInstancesMethods) handleGet(ctx context.Context, client *gateway
 }
 
 func (m *ChannelInstancesMethods) handleCreate(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		Name        string          `json:"name"`
 		DisplayName string          `json:"display_name"`
@@ -100,18 +104,18 @@ func (m *ChannelInstancesMethods) handleCreate(ctx context.Context, client *gate
 	}
 
 	if params.Name == "" || params.ChannelType == "" || params.AgentID == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "name, channel_type, and agent_id are required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "name, channel_type, and agent_id")))
 		return
 	}
 
 	if !isValidChannelType(params.ChannelType) {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid channel_type"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidChannelType)))
 		return
 	}
 
 	agentID, err := uuid.Parse(params.AgentID)
 	if err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid agent_id"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidID, "agent_id")))
 		return
 	}
 
@@ -132,7 +136,7 @@ func (m *ChannelInstancesMethods) handleCreate(ctx context.Context, client *gate
 
 	if err := m.store.Create(ctx, inst); err != nil {
 		slog.Error("channels.instances.create", "error", err)
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to create instance: "+err.Error()))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToCreate, "instance", err.Error())))
 		return
 	}
 
@@ -141,6 +145,7 @@ func (m *ChannelInstancesMethods) handleCreate(ctx context.Context, client *gate
 }
 
 func (m *ChannelInstancesMethods) handleUpdate(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		ID      string          `json:"id"`
 		Updates json.RawMessage `json:"updates"`
@@ -151,19 +156,19 @@ func (m *ChannelInstancesMethods) handleUpdate(ctx context.Context, client *gate
 
 	id, err := uuid.Parse(params.ID)
 	if err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid instance ID"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidID, "instance")))
 		return
 	}
 
 	var updates map[string]interface{}
 	if err := json.Unmarshal(params.Updates, &updates); err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid updates"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidUpdates)))
 		return
 	}
 
 	if err := m.store.Update(ctx, id, updates); err != nil {
 		slog.Error("channels.instances.update", "error", err)
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to update instance: "+err.Error()))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToUpdate, "instance", err.Error())))
 		return
 	}
 
@@ -172,6 +177,7 @@ func (m *ChannelInstancesMethods) handleUpdate(ctx context.Context, client *gate
 }
 
 func (m *ChannelInstancesMethods) handleDelete(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	var params struct {
 		ID string `json:"id"`
 	}
@@ -181,24 +187,24 @@ func (m *ChannelInstancesMethods) handleDelete(ctx context.Context, client *gate
 
 	id, err := uuid.Parse(params.ID)
 	if err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid instance ID"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidID, "instance")))
 		return
 	}
 
 	// Look up instance to check if it's a default (seeded) instance.
 	inst, err := m.store.Get(ctx, id)
 	if err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "instance not found"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInstanceNotFound)))
 		return
 	}
 	if store.IsDefaultChannelInstance(inst.Name) {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "cannot delete default channel instance"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgCannotDeleteDefaultInst)))
 		return
 	}
 
 	if err := m.store.Delete(ctx, id); err != nil {
 		slog.Error("channels.instances.delete", "error", err)
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "failed to delete instance: "+err.Error()))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToDelete, "instance", err.Error())))
 		return
 	}
 

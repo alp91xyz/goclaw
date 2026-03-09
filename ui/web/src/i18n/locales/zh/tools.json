@@ -1,0 +1,156 @@
+{
+  "builtin": {
+    "categories": {
+      "browser": "浏览器",
+      "delegation": "委托",
+      "filesystem": "文件系统",
+      "media": "媒体",
+      "memory": "内存",
+      "messaging": "消息",
+      "runtime": "运行时",
+      "scheduling": "调度",
+      "sessions": "Session",
+      "skills": "Skill",
+      "subagents": "Agent",
+      "teams": "Team",
+      "web": "网页"
+    },
+    "categoryCount": "{{count}} 个分类",
+    "configuredVia": "通过配置页面配置",
+    "description": "管理系统内置工具。全局启用/禁用或配置设置。",
+    "emptyDescription": "尚未初始化任何内置工具。",
+    "emptyTitle": "暂无内置工具",
+    "jsonDialog": {
+      "cancel": "取消",
+      "cannotFormat": "无法格式化：JSON 无效",
+      "description": "以 JSON 格式编辑工具专属设置。保存后立即生效。",
+      "formatJson": "格式化 JSON",
+      "invalidJson": "无效的 JSON",
+      "invalidJsonSyntax": "JSON 语法无效",
+      "save": "保存",
+      "saving": "保存中...",
+      "title": "设置：{{name}}"
+    },
+    "kgSettings": {
+      "autoExtract": "写入内存时自动提取",
+      "autoExtractHint": "当Agent写入内存文件时自动提取实体。",
+      "cancel": "取消",
+      "description": "配置从内存写入中提取实体。需要支持结构化 JSON 输出的Provider/模型。",
+      "extractionModel": "提取模型",
+      "extractionProvider": "提取Provider",
+      "minConfidence": "最低置信度",
+      "minConfidenceHint": "低于此置信度分数的实体将被丢弃（0.0–1.0）。",
+      "modelTip": "用于提取的模型 ID。应支持结构化 JSON 输出。",
+      "providerTip": "用于从文本中提取实体和关系的 LLM Provider。",
+      "save": "保存",
+      "saving": "保存中...",
+      "title": "知识图谱设置"
+    },
+    "mediaChain": {
+      "addProvider": "添加Provider",
+      "cancel": "取消",
+      "description": "配置并排序Provider回退。拖动以重新排序 — 第一个启用的Provider将被优先尝试。",
+      "loadingModels": "加载中...",
+      "model": "模型",
+      "newProvider": "新Provider",
+      "noProviders": "未配置Provider。请在下方添加。",
+      "provider": "Provider",
+      "providerChainSuffix": "— Provider链",
+      "retries": "重试次数",
+      "save": "保存",
+      "saving": "保存中...",
+      "selectModel": "选择模型",
+      "selectProvider": "选择Provider",
+      "settings": "设置",
+      "timeout": "超时"
+    },
+    "noMatchDescription": "请尝试其他搜索词。",
+    "noMatchTitle": "未找到匹配工具",
+    "requires": "需要",
+    "requiresTooltip": "需要：{{list}}",
+    "searchPlaceholder": "搜索工具...",
+    "settings": "设置",
+    "settingsDialog": {
+      "cancel": "取消",
+      "noFields": "此工具没有可配置的设置。",
+      "save": "保存",
+      "saving": "保存中...",
+      "title": "设置 — {{name}}",
+      "toast": {
+        "failed": "保存设置失败",
+        "saved": "设置已保存"
+      }
+    },
+    "title": "内置工具",
+    "toast": {
+      "failedToggle": "更新工具失败",
+      "toggled": "工具已更新"
+    },
+    "toolCount": "{{count}} 个工具",
+    "toolCountPlural": "{{count}} 个工具"
+  },
+  "custom": {
+    "columns": {
+      "actions": "操作",
+      "description": "描述",
+      "enabled": "已启用",
+      "name": "名称",
+      "scope": "范围",
+      "timeout": "超时"
+    },
+    "createTool": "创建工具",
+    "delete": {
+      "confirmLabel": "删除",
+      "description": "确定要删除「{{name}}」吗？此操作无法撤销。",
+      "title": "删除自定义工具"
+    },
+    "description": "管理Agent的自定义 Shell 工具",
+    "emptyDescription": "创建您的第一个自定义工具以开始使用。",
+    "emptyTitle": "暂无自定义工具",
+    "form": {
+      "agentId": "Agent ID（可选）",
+      "agentIdPlaceholder": "留空为全局范围",
+      "cancel": "取消",
+      "command": "命令 *",
+      "commandHint": "Shell 模板。使用 {{.key}} 作为参数占位符。",
+      "create": "创建",
+      "createTitle": "创建自定义工具",
+      "description": "描述",
+      "descriptionPlaceholder": "此工具的功能...",
+      "editTitle": "编辑工具",
+      "enabled": "已启用",
+      "errors": {
+        "invalidJson": "参数必须是有效的 JSON",
+        "nameRequired": "名称和命令为必填项",
+        "nameSlug": "名称必须是有效的 slug（小写字母、数字、连字符）"
+      },
+      "name": "名称 *",
+      "nameHint": "仅小写字母、数字和连字符",
+      "namePlaceholder": "my-tool",
+      "parameters": "参数（JSON Schema）",
+      "saving": "保存中...",
+      "timeout": "超时（秒）",
+      "update": "更新",
+      "workingDir": "工作目录",
+      "workingDirPlaceholder": "/path/to/dir"
+    },
+    "noDescription": "无描述",
+    "noMatchDescription": "请尝试其他搜索词。",
+    "noMatchTitle": "未找到匹配工具",
+    "scope": {
+      "agent": "Agent",
+      "global": "全局"
+    },
+    "searchPlaceholder": "搜索工具...",
+    "title": "自定义工具",
+    "toast": {
+      "created": "工具已创建",
+      "createdDesc": "{{name}} 已添加",
+      "deleted": "工具已删除",
+      "failedCreate": "创建工具失败",
+      "failedDelete": "删除工具失败",
+      "failedUpdate": "更新工具失败",
+      "updated": "工具已更新"
+    }
+  }
+}

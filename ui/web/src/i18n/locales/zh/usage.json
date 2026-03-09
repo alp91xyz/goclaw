@@ -1,0 +1,21 @@
+{
+  "title": "用量",
+  "description": "按Agent统计令牌用量和费用",
+  "emptyTitle": "暂无用量数据",
+  "emptyDescription": "Agent处理请求后，用量数据将显示在此处。",
+  "recentRecords": "近期记录",
+  "summary": {
+    "sessions": "{{count}} 个Session",
+    "inputTokens": "输入令牌",
+    "outputTokens": "输出令牌",
+    "total": "合计"
+  },
+  "columns": {
+    "agent": "Agent",
+    "model": "模型",
+    "provider": "Provider",
+    "input": "输入",
+    "output": "输出",
+    "total": "合计"
+  }
+}

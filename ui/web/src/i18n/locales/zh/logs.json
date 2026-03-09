@@ -1,0 +1,15 @@
+{
+  "title": "日志",
+  "description": "实时日志流",
+  "descriptionLive": "正在实时追踪 {{level}} 级别",
+  "live": "实时",
+  "start": "开始",
+  "stop": "停止",
+  "clear": "清除",
+  "filterPlaceholder": "过滤日志...",
+  "logLevelTitle": "日志级别",
+  "emptyWaiting": "等待日志...",
+  "emptyFilter": "没有匹配的日志。",
+  "emptyStart": "点击「开始」以开始流式传输日志。",
+  "count": "{{filtered}}/{{total}}"
+}

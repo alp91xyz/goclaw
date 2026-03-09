@@ -1,4 +1,5 @@
 import { Settings, RefreshCw, ShieldAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +21,7 @@ import { BindingsSection } from "./sections/bindings-section";
 import { QuotaSection } from "./sections/quota-section";
 
 export function ConfigPage() {
+  const { t } = useTranslation("config");
   const { config, hash, loading, saving, refresh, patch } = useConfig();
   const isMobile = useIsMobile();
   const spinning = useMinLoading(loading);
@@ -28,7 +30,7 @@ export function ConfigPage() {
   if (showSkeleton) {
     return (
       <div className="p-4 sm:p-6">
-        <PageHeader title="Config" description="Gateway configuration" />
+        <PageHeader title={t("title")} description={t("description")} />
         <div className="mt-6">
           <DetailSkeleton />
         </div>
@@ -39,15 +41,15 @@ export function ConfigPage() {
   if (!config) {
     return (
       <div className="p-4 sm:p-6">
-        <PageHeader title="Config" description="Gateway configuration" />
+        <PageHeader title={t("title")} description={t("description")} />
         <div className="mt-6">
           <EmptyState
             icon={Settings}
-            title="No configuration"
-            description="Could not load gateway configuration."
+            title={t("noConfig")}
+            description={t("noConfigDescription")}
             action={
               <Button variant="outline" size="sm" onClick={refresh}>
-                Retry
+                {t("retry")}
               </Button>
             }
           />
@@ -59,8 +61,8 @@ export function ConfigPage() {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title="Config"
-        description="Gateway configuration"
+        title={t("title")}
+        description={t("description")}
         actions={
           <div className="flex items-center gap-2">
             {hash && (
@@ -69,7 +71,7 @@ export function ConfigPage() {
               </Badge>
             )}
             <Button variant="outline" size="sm" onClick={refresh} disabled={spinning} className="gap-1">
-              <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> Refresh
+              <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> {t("common:refresh", "Refresh")}
             </Button>
           </div>
         }
@@ -77,11 +79,7 @@ export function ConfigPage() {
 
       <div className="mt-4 flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-400">
         <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
-        <span>
-          This page manages gateway-level defaults. LLM providers and channels are managed on their
-          dedicated pages. Secrets shown as <code className="rounded bg-muted px-1 font-mono text-xs">***</code> are
-          stored encrypted in the database. Environment variables (if set) take highest precedence.
-        </span>
+        <span>{t("warning")}</span>
       </div>
 
       <Tabs orientation={isMobile ? "horizontal" : "vertical"} defaultValue="general" className="mt-4 items-start">
@@ -92,12 +90,12 @@ export function ConfigPage() {
             : "w-44 shrink-0 sticky top-6 rounded-lg border bg-card p-3 shadow-sm"
           }
         >
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="quota">Quota</TabsTrigger>
-          <TabsTrigger value="agents">Agents</TabsTrigger>
-          <TabsTrigger value="sessions">Sessions</TabsTrigger>
-          <TabsTrigger value="tools">Tools</TabsTrigger>
-          <TabsTrigger value="advanced">Advanced</TabsTrigger>
+          <TabsTrigger value="general">{t("tabs.general")}</TabsTrigger>
+          <TabsTrigger value="quota">{t("tabs.quota")}</TabsTrigger>
+          <TabsTrigger value="agents">{t("tabs.agents")}</TabsTrigger>
+          <TabsTrigger value="sessions">{t("tabs.sessions")}</TabsTrigger>
+          <TabsTrigger value="tools">{t("tabs.tools")}</TabsTrigger>
+          <TabsTrigger value="advanced">{t("tabs.advanced")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-4">

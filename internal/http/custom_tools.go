@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/internal/tools"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
@@ -40,15 +41,17 @@ func (h *CustomToolsHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if h.token != "" {
 			if extractBearerToken(r) != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
 		userID := extractUserID(r)
+		ctx := store.WithLocale(r.Context(), extractLocale(r))
 		if userID != "" {
-			ctx := store.WithUserID(r.Context(), userID)
-			r = r.WithContext(ctx)
+			ctx = store.WithUserID(ctx, userID)
 		}
+		r = r.WithContext(ctx)
 		next(w, r)
 	}
 }
@@ -64,6 +67,7 @@ func (h *CustomToolsHandler) emitCacheInvalidate(key string) {
 }
 
 func (h *CustomToolsHandler) handleList(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	opts := store.CustomToolListOpts{
 		Limit:  50,
 		Offset: 0,
@@ -72,7 +76,7 @@ func (h *CustomToolsHandler) handleList(w http.ResponseWriter, r *http.Request) 
 	if v := r.URL.Query().Get("agent_id"); v != "" {
 		id, err := uuid.Parse(v)
 		if err != nil {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid agent_id"})
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "agent")})
 			return
 		}
 		opts.AgentID = &id
@@ -94,7 +98,7 @@ func (h *CustomToolsHandler) handleList(w http.ResponseWriter, r *http.Request) 
 	result, err := h.store.ListPaged(r.Context(), opts)
 	if err != nil {
 		slog.Error("custom_tools.list", "error", err)
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list tools"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": i18n.T(locale, i18n.MsgFailedToList, "tools")})
 		return
 	}
 
@@ -109,25 +113,26 @@ func (h *CustomToolsHandler) handleList(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *CustomToolsHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	var def store.CustomToolDef
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&def); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 
 	if def.Name == "" || def.Command == "" {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "name and command are required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgRequired, "name and command")})
 		return
 	}
 	if !isValidSlug(def.Name) {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "name must be a valid slug (lowercase letters, numbers, hyphens only)"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidSlug, "name")})
 		return
 	}
 
 	// Check name collision with built-in/MCP tools
 	if h.toolsReg != nil {
 		if _, exists := h.toolsReg.Get(def.Name); exists {
-			writeJSON(w, http.StatusConflict, map[string]string{"error": "tool name conflicts with existing built-in or MCP tool"})
+			writeJSON(w, http.StatusConflict, map[string]string{"error": i18n.T(locale, i18n.MsgAlreadyExists, "tool name", def.Name)})
 			return
 		}
 	}
@@ -152,15 +157,16 @@ func (h *CustomToolsHandler) handleCreate(w http.ResponseWriter, r *http.Request
 }
 
 func (h *CustomToolsHandler) handleGet(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid tool ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "tool")})
 		return
 	}
 
 	def, err := h.store.Get(r.Context(), id)
 	if err != nil {
-		writeJSON(w, http.StatusNotFound, map[string]string{"error": "tool not found"})
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": i18n.T(locale, i18n.MsgNotFound, "tool", id.String())})
 		return
 	}
 
@@ -168,21 +174,22 @@ func (h *CustomToolsHandler) handleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CustomToolsHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid tool ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "tool")})
 		return
 	}
 
 	var updates map[string]interface{}
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&updates); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
 		return
 	}
 
 	if name, ok := updates["name"]; ok {
 		if s, _ := name.(string); !isValidSlug(s) {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "name must be a valid slug (lowercase letters, numbers, hyphens only)"})
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidSlug, "name")})
 			return
 		}
 	}
@@ -198,9 +205,10 @@ func (h *CustomToolsHandler) handleUpdate(w http.ResponseWriter, r *http.Request
 }
 
 func (h *CustomToolsHandler) handleDelete(w http.ResponseWriter, r *http.Request) {
+	locale := store.LocaleFromContext(r.Context())
 	id, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid tool ID"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "tool")})
 		return
 	}
 

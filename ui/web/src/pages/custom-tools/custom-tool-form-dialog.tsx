@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,7 @@ interface CustomToolFormDialogProps {
 }
 
 export function CustomToolFormDialog({ open, onOpenChange, tool, onSubmit }: CustomToolFormDialogProps) {
+  const { t } = useTranslation("tools");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [command, setCommand] = useState("");
@@ -49,11 +51,11 @@ export function CustomToolFormDialog({ open, onOpenChange, tool, onSubmit }: Cus
 
   const handleSubmit = async () => {
     if (!name.trim() || !command.trim()) {
-      setError("Name and command are required");
+      setError(t("custom.form.errors.nameRequired"));
       return;
     }
     if (!isValidSlug(name.trim())) {
-      setError("Name must be a valid slug (lowercase letters, numbers, hyphens only)");
+      setError(t("custom.form.errors.nameSlug"));
       return;
     }
 
@@ -62,7 +64,7 @@ export function CustomToolFormDialog({ open, onOpenChange, tool, onSubmit }: Cus
       try {
         parsedParams = JSON.parse(parameters);
       } catch {
-        setError("Parameters must be valid JSON");
+        setError(t("custom.form.errors.invalidJson"));
         return;
       }
     }
@@ -82,7 +84,7 @@ export function CustomToolFormDialog({ open, onOpenChange, tool, onSubmit }: Cus
       });
       onOpenChange(false);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to save");
+      setError(err instanceof Error ? err.message : t("custom.form.saving"));
     } finally {
       setLoading(false);
     }
@@ -92,23 +94,23 @@ export function CustomToolFormDialog({ open, onOpenChange, tool, onSubmit }: Cus
     <Dialog open={open} onOpenChange={(v) => !loading && onOpenChange(v)}>
       <DialogContent className="max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{tool ? "Edit Tool" : "Create Custom Tool"}</DialogTitle>
+          <DialogTitle>{tool ? t("custom.form.editTitle") : t("custom.form.createTitle")}</DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-2 px-0.5 -mx-0.5 overflow-y-auto min-h-0">
           <div className="grid gap-1.5">
-            <Label htmlFor="ct-name">Name *</Label>
-            <Input id="ct-name" value={name} onChange={(e) => setName(slugify(e.target.value))} placeholder="my-tool" />
-            <p className="text-xs text-muted-foreground">Lowercase letters, numbers, and hyphens only</p>
+            <Label htmlFor="ct-name">{t("custom.form.name")}</Label>
+            <Input id="ct-name" value={name} onChange={(e) => setName(slugify(e.target.value))} placeholder={t("custom.form.namePlaceholder")} />
+            <p className="text-xs text-muted-foreground">{t("custom.form.nameHint")}</p>
           </div>
 
           <div className="grid gap-1.5">
-            <Label htmlFor="ct-desc">Description</Label>
-            <Textarea id="ct-desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What this tool does..." rows={2} />
+            <Label htmlFor="ct-desc">{t("custom.form.description")}</Label>
+            <Textarea id="ct-desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("custom.form.descriptionPlaceholder")} rows={2} />
           </div>
 
           <div className="grid gap-1.5">
-            <Label htmlFor="ct-cmd">Command *</Label>
+            <Label htmlFor="ct-cmd">{t("custom.form.command")}</Label>
             <Textarea
               id="ct-cmd"
               value={command}
@@ -117,11 +119,11 @@ export function CustomToolFormDialog({ open, onOpenChange, tool, onSubmit }: Cus
               className="font-mono text-sm"
               rows={3}
             />
-            <p className="text-xs text-muted-foreground">Shell template. Use {"{{.key}}"} for parameter placeholders.</p>
+            <p className="text-xs text-muted-foreground">{t("custom.form.commandHint")}</p>
           </div>
 
           <div className="grid gap-1.5">
-            <Label htmlFor="ct-params">Parameters (JSON Schema)</Label>
+            <Label htmlFor="ct-params">{t("custom.form.parameters")}</Label>
             <Textarea
               id="ct-params"
               value={parameters}
@@ -134,31 +136,31 @@ export function CustomToolFormDialog({ open, onOpenChange, tool, onSubmit }: Cus
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
-              <Label htmlFor="ct-wd">Working Directory</Label>
-              <Input id="ct-wd" value={workingDir} onChange={(e) => setWorkingDir(e.target.value)} placeholder="/path/to/dir" />
+              <Label htmlFor="ct-wd">{t("custom.form.workingDir")}</Label>
+              <Input id="ct-wd" value={workingDir} onChange={(e) => setWorkingDir(e.target.value)} placeholder={t("custom.form.workingDirPlaceholder")} />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="ct-timeout">Timeout (seconds)</Label>
+              <Label htmlFor="ct-timeout">{t("custom.form.timeout")}</Label>
               <Input id="ct-timeout" type="number" value={timeout} onChange={(e) => setTimeout(Number(e.target.value))} min={1} />
             </div>
           </div>
 
           <div className="grid gap-1.5">
-            <Label htmlFor="ct-agent">Agent ID (optional)</Label>
-            <Input id="ct-agent" value={agentId} onChange={(e) => setAgentId(e.target.value)} placeholder="Leave blank for global scope" />
+            <Label htmlFor="ct-agent">{t("custom.form.agentId")}</Label>
+            <Input id="ct-agent" value={agentId} onChange={(e) => setAgentId(e.target.value)} placeholder={t("custom.form.agentIdPlaceholder")} />
           </div>
 
           <div className="flex items-center gap-2">
             <Switch id="ct-enabled" checked={enabled} onCheckedChange={setEnabled} />
-            <Label htmlFor="ct-enabled">Enabled</Label>
+            <Label htmlFor="ct-enabled">{t("custom.form.enabled")}</Label>
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>{t("custom.form.cancel")}</Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Saving..." : tool ? "Update" : "Create"}
+            {loading ? t("custom.form.saving") : tool ? t("custom.form.update") : t("custom.form.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

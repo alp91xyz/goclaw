@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 )
 
 // FilesHandler serves files over HTTP with Bearer token auth.
@@ -34,7 +36,8 @@ func (h *FilesHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 				provided = r.URL.Query().Get("token")
 			}
 			if provided != h.token {
-				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+				locale := extractLocale(r)
+				writeJSON(w, http.StatusUnauthorized, map[string]string{"error": i18n.T(locale, i18n.MsgUnauthorized)})
 				return
 			}
 		}
@@ -43,16 +46,17 @@ func (h *FilesHandler) auth(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func (h *FilesHandler) handleServe(w http.ResponseWriter, r *http.Request) {
+	locale := extractLocale(r)
 	urlPath := r.PathValue("path")
 	if urlPath == "" {
-		http.Error(w, "path is required", http.StatusBadRequest)
+		http.Error(w, i18n.T(locale, i18n.MsgRequired, "path"), http.StatusBadRequest)
 		return
 	}
 
 	// Prevent path traversal
 	if strings.Contains(urlPath, "..") {
 		slog.Warn("security.files_traversal", "path", urlPath)
-		http.Error(w, "invalid path", http.StatusBadRequest)
+		http.Error(w, i18n.T(locale, i18n.MsgInvalidPath), http.StatusBadRequest)
 		return
 	}
 

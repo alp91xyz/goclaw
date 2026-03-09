@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,7 @@ interface LinkEditDialogProps {
 }
 
 export function LinkEditDialog({ link, onClose, onSave }: LinkEditDialogProps) {
+  const { t } = useTranslation("agents");
   const [direction, setDirection] = useState("outbound");
   const [description, setDescription] = useState("");
   const [maxConcurrent, setMaxConcurrent] = useState("3");
@@ -66,14 +68,14 @@ export function LinkEditDialog({ link, onClose, onSave }: LinkEditDialogProps) {
     <Dialog open={!!link} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Link</DialogTitle>
+          <DialogTitle>{t("links.editTitle")}</DialogTitle>
           <DialogDescription>
-            Update the delegation link settings.
+            {t("links.editDescription")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label>Direction</Label>
+            <Label>{t("links.direction")}</Label>
             <Select value={direction} onValueChange={setDirection}>
               <SelectTrigger>
                 <SelectValue />
@@ -91,15 +93,15 @@ export function LinkEditDialog({ link, onClose, onSave }: LinkEditDialogProps) {
             </p>
           </div>
           <div className="space-y-1.5">
-            <Label>Description</Label>
+            <Label>{t("links.description")}</Label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description..."
+              placeholder={t("links.optionalDescription")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Max Concurrent</Label>
+            <Label>{t("links.maxConcurrent")}</Label>
             <Input
               type="number"
               min={1}
@@ -108,34 +110,34 @@ export function LinkEditDialog({ link, onClose, onSave }: LinkEditDialogProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Allowed Users</Label>
+            <Label>{t("links.allowedUsers")}</Label>
             <Input
               value={userAllow}
               onChange={(e) => setUserAllow(e.target.value)}
               placeholder="user1, user2, ..."
             />
             <p className="text-xs text-muted-foreground">
-              If set, only these users can trigger this delegation.
+              {t("links.allowedUsersHintShort")}
             </p>
           </div>
           <div className="space-y-1.5">
-            <Label>Denied Users</Label>
+            <Label>{t("links.deniedUsers")}</Label>
             <Input
               value={userDeny}
               onChange={(e) => setUserDeny(e.target.value)}
               placeholder="user3, user4, ..."
             />
             <p className="text-xs text-muted-foreground">
-              These users are blocked from triggering this delegation.
+              {t("links.deniedUsersHintShort")}
             </p>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={saving}>
-            Cancel
+            {t("files.cancel")}
           </Button>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save"}
+            {saving ? t("config.saving") : t("general.saveChanges")}
           </Button>
         </DialogFooter>
       </DialogContent>

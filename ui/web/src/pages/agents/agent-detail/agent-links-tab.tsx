@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router";
 import { Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { useAgentLinks } from "../hooks/use-agent-links";
 import { useAgents } from "../hooks/use-agents";
@@ -13,6 +14,7 @@ interface AgentLinksTabProps {
 }
 
 export function AgentLinksTab({ agentId }: AgentLinksTabProps) {
+  const { t } = useTranslation("agents");
   const { links, loading, load, createLink, updateLink, deleteLink } =
     useAgentLinks(agentId);
   const { agents } = useAgents();
@@ -27,7 +29,6 @@ export function AgentLinksTab({ agentId }: AgentLinksTabProps) {
     load();
   }, [load]);
 
-  // Only predefined agents can be delegation targets (open agents have no agent-level context)
   const agentOptions = useMemo(
     () =>
       agents
@@ -49,11 +50,11 @@ export function AgentLinksTab({ agentId }: AgentLinksTabProps) {
       <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900 dark:bg-blue-950/30">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
         <p className="text-sm text-blue-800 dark:text-blue-300">
-          For multi-agent collaboration with task tracking and quality control, consider using{" "}
+          {t("links.teamsHint").split("Agent Teams")[0]}
           <Link to={ROUTES.TEAMS} className="font-medium underline underline-offset-2 hover:text-blue-900 dark:hover:text-blue-200">
             Agent Teams
-          </Link>{" "}
-          instead. Agent Links are best for simple 1-to-1 delegation between two agents.
+          </Link>
+          {t("links.teamsHint").split("Agent Teams")[1]}
         </p>
       </div>
 
@@ -79,9 +80,9 @@ export function AgentLinksTab({ agentId }: AgentLinksTabProps) {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={() => setDeleteTarget(null)}
-        title="Delete Link"
-        description={`Remove the delegation link to "${deleteTarget?.name}"? Agents will no longer be able to delegate to each other through this link.`}
-        confirmLabel="Delete"
+        title={t("links.deleteTitle")}
+        description={t("links.deleteDesc", { name: deleteTarget?.name })}
+        confirmLabel={t("delete.confirmLabel")}
         variant="destructive"
         onConfirm={async () => {
           if (deleteTarget) {

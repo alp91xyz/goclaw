@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft, Trash2, RotateCcw, Info, Eye, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,7 @@ export function SessionDetailPage({
   onReset,
   onPatch,
 }: SessionDetailPageProps) {
+  const { t } = useTranslation("sessions");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -187,7 +189,7 @@ export function SessionDetailPage({
               {session.metadata?.peer_kind && (
                 <Badge variant="outline">{session.metadata.peer_kind}</Badge>
               )}
-              <span>{session.messageCount} messages</span>
+              <span>{session.messageCount} {t("detail.messages")}</span>
               <span>{formatDate(session.updated)}</span>
               {session.inputTokens != null && (
                 <span>
@@ -199,10 +201,10 @@ export function SessionDetailPage({
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setConfirmReset(true)} className="gap-1">
-            <RotateCcw className="h-3.5 w-3.5" /> Reset
+            <RotateCcw className="h-3.5 w-3.5" /> {t("detail.reset")}
           </Button>
           <Button variant="destructive" size="sm" onClick={() => setConfirmDelete(true)} className="gap-1">
-            <Trash2 className="h-3.5 w-3.5" /> Delete
+            <Trash2 className="h-3.5 w-3.5" /> {t("detail.delete")}
           </Button>
         </div>
       </div>
@@ -220,7 +222,7 @@ export function SessionDetailPage({
           </div>
         ) : messages.length === 0 ? (
           <div className="py-12 text-center text-sm text-muted-foreground">
-            No messages in this session
+            {t("detail.noMessages")}
           </div>
         ) : (
           <div className="mx-auto max-w-3xl space-y-4">
@@ -238,9 +240,9 @@ export function SessionDetailPage({
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}
-        title="Delete Session"
-        description="This will permanently delete all messages in this session."
-        confirmLabel="Delete"
+        title={t("detail.deleteTitle")}
+        description={t("detail.deleteDescription")}
+        confirmLabel={t("detail.confirmDelete")}
         variant="destructive"
         onConfirm={async () => {
           await onDelete(session.key);
@@ -252,9 +254,9 @@ export function SessionDetailPage({
       <ConfirmDialog
         open={confirmReset}
         onOpenChange={setConfirmReset}
-        title="Reset Session"
-        description="This will clear all messages but keep the session."
-        confirmLabel="Reset"
+        title={t("detail.resetTitle")}
+        description={t("detail.resetDescription")}
+        confirmLabel={t("detail.confirmReset")}
         onConfirm={async () => {
           await onReset(session.key);
           setConfirmReset(false);
@@ -266,6 +268,7 @@ export function SessionDetailPage({
 }
 
 function SystemMessageBlock({ content }: { content: string }) {
+  const { t } = useTranslation("sessions");
   const [expanded, setExpanded] = useState(false);
   // Extract the first line as title, rest as body
   const lines = content.split("\n");
@@ -276,7 +279,7 @@ function SystemMessageBlock({ content }: { content: string }) {
     <div className="mx-auto flex max-w-3xl items-start gap-2 rounded-md border border-dashed border-muted-foreground/30 bg-muted/30 px-4 py-2">
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
       <div className="min-w-0 text-xs text-muted-foreground">
-        <span className="font-medium">{title || "System Message"}</span>
+        <span className="font-medium">{title || t("detail.systemMessage")}</span>
         {body && (
           <>
             <button
@@ -284,7 +287,7 @@ function SystemMessageBlock({ content }: { content: string }) {
               onClick={() => setExpanded((v) => !v)}
               className="ml-1 cursor-pointer text-primary hover:underline"
             >
-              {expanded ? "hide" : "show details"}
+              {expanded ? t("detail.hide") : t("detail.showDetails")}
             </button>
             {expanded && (
               <div className="mt-2">
@@ -301,6 +304,7 @@ function SystemMessageBlock({ content }: { content: string }) {
 const SUMMARY_MAX_HEIGHT = 72; // ~3 lines of text
 
 function SummaryBlock({ text }: { text: string }) {
+  const { t } = useTranslation("sessions");
   const [expanded, setExpanded] = useState(false);
   const [needsTruncation, setNeedsTruncation] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -313,7 +317,7 @@ function SummaryBlock({ text }: { text: string }) {
 
   return (
     <div className="border-b bg-muted/50 px-6 py-3 text-sm">
-      <span className="font-medium">Summary: </span>
+      <span className="font-medium">{t("detail.summary")}: </span>
       <div
         ref={contentRef}
         className="mt-1 overflow-hidden transition-[max-height] duration-200"
@@ -327,7 +331,7 @@ function SummaryBlock({ text }: { text: string }) {
           onClick={() => setExpanded((v) => !v)}
           className="mt-1 cursor-pointer text-xs font-medium text-primary hover:underline"
         >
-          {expanded ? "Show less" : "Show more"}
+          {expanded ? t("detail.showLess") : t("detail.showMore")}
         </button>
       )}
     </div>

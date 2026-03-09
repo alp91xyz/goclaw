@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ export function IdentitySection({
   isDefault,
   onIsDefaultChange,
 }: IdentitySectionProps) {
+  const { t } = useTranslation("agents");
   const [copied, setCopied] = useState(false);
 
   const copyAgentKey = async () => {
@@ -45,10 +47,10 @@ export function IdentitySection({
 
   return (
     <section className="space-y-4">
-      <h3 className="text-sm font-medium text-muted-foreground">Identity</h3>
+      <h3 className="text-sm font-medium text-muted-foreground">{t("identity.title")}</h3>
       <div className="space-y-4 rounded-lg border p-4">
         <div className="space-y-2">
-          <Label>Agent Key</Label>
+          <Label>{t("identity.agentKey")}</Label>
           <div className="flex items-center gap-2">
             <Input value={agentKey} disabled className="font-mono text-sm" />
             <Button
@@ -65,46 +67,46 @@ export function IdentitySection({
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Unique identifier, cannot be changed.
+            {t("identity.agentKeyHint")}
           </p>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="displayName">Display Name</Label>
+          <Label htmlFor="displayName">{t("identity.displayName")}</Label>
           <Input
             id="displayName"
             value={displayName}
             onChange={(e) => onDisplayNameChange(e.target.value)}
-            placeholder="e.g. My Assistant"
+            placeholder={t("identity.displayNamePlaceholder")}
           />
           <p className="text-xs text-muted-foreground">
-            Friendly name shown in the UI. Leave empty to use the agent key.
+            {t("identity.displayNameHint")}
           </p>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="frontmatter">Expertise Summary</Label>
+          <Label htmlFor="frontmatter">{t("identity.expertiseSummary")}</Label>
           <Input
             id="frontmatter"
             value={frontmatter}
             onChange={(e) => onFrontmatterChange(e.target.value)}
-            placeholder="e.g. Chiêm tinh, bói toán, tử vi, thần số học"
+            placeholder={t("identity.expertiseSummaryPlaceholder")}
           />
           <p className="text-xs text-muted-foreground">
-            Short description of this agent's expertise. Used for delegation discovery.
+            {t("identity.expertiseSummaryHint")}
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Status</Label>
+            <Label>{t("identity.status")}</Label>
             <Select value={status} onValueChange={onStatusChange}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="active">{t("identity.active")}</SelectItem>
+                <SelectItem value="inactive">{t("identity.inactive")}</SelectItem>
                 {status === "summon_failed" && (
                   <SelectItem value="summon_failed" disabled>
-                    Summon Failed
+                    {t("identity.summonFailed")}
                   </SelectItem>
                 )}
               </SelectContent>
@@ -113,7 +115,7 @@ export function IdentitySection({
           <div className="flex items-end pb-2">
             <div className="flex items-center gap-2">
               <Switch checked={isDefault} onCheckedChange={onIsDefaultChange} />
-              <Label>Default Agent</Label>
+              <Label>{t("identity.defaultAgent")}</Label>
             </div>
           </div>
         </div>

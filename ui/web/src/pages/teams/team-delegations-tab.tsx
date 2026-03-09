@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { DeferredSpinner } from "@/components/shared/loading-skeleton";
+import { useTranslation } from "react-i18next";
 import { useMinLoading } from "@/hooks/use-min-loading";
 import { formatDate, formatDuration } from "@/lib/format";
 import { useTeamDelegations } from "./hooks/use-team-delegations";
@@ -16,6 +17,7 @@ interface TeamDelegationsTabProps {
 }
 
 export function TeamDelegationsTab({ teamId }: TeamDelegationsTabProps) {
+  const { t } = useTranslation("teams");
   const { records, loading, refresh } = useTeamDelegations(teamId);
   const { getDelegation } = useDelegations();
   const { getTrace } = useTraces();
@@ -28,8 +30,8 @@ export function TeamDelegationsTab({ teamId }: TeamDelegationsTabProps) {
     return (
       <EmptyState
         icon={ArrowRightLeft}
-        title="No delegations"
-        description="No delegation records found for this team."
+        title={t("delegations.noTitle")}
+        description={t("delegations.noDescription")}
       />
     );
   }
@@ -38,18 +40,18 @@ export function TeamDelegationsTab({ teamId }: TeamDelegationsTabProps) {
     <>
       <div className="mb-4 flex justify-end">
         <Button variant="outline" size="sm" onClick={refresh} disabled={spinning} className="gap-1">
-          <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> Refresh
+          <RefreshCw className={"h-3.5 w-3.5" + (spinning ? " animate-spin" : "")} /> {t("delegations.refresh")}
         </Button>
       </div>
       <div className="rounded-md border overflow-x-auto">
         <table className="w-full min-w-[600px] text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
-              <th className="px-4 py-3 text-left font-medium">Source / Target</th>
-              <th className="px-4 py-3 text-left font-medium">Task</th>
-              <th className="px-4 py-3 text-left font-medium">Status</th>
-              <th className="px-4 py-3 text-left font-medium">Duration</th>
-              <th className="px-4 py-3 text-left font-medium">Time</th>
+              <th className="px-4 py-3 text-left font-medium">{t("delegations.columns.sourceTarget")}</th>
+              <th className="px-4 py-3 text-left font-medium">{t("delegations.columns.task")}</th>
+              <th className="px-4 py-3 text-left font-medium">{t("delegations.columns.status")}</th>
+              <th className="px-4 py-3 text-left font-medium">{t("delegations.columns.duration")}</th>
+              <th className="px-4 py-3 text-left font-medium">{t("delegations.columns.time")}</th>
             </tr>
           </thead>
           <tbody>

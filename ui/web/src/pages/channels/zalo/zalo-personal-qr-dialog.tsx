@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ export function ZaloPersonalQRDialog({
   instanceName,
   onSuccess,
 }: ZaloPersonalQRDialogProps) {
+  const { t } = useTranslation("channels");
   const { qrPng, status, errorMsg, loading, start, reset } = useZaloQrLogin(instanceId);
 
   // Auto-start when dialog opens
@@ -47,12 +49,12 @@ export function ZaloPersonalQRDialog({
     <Dialog open={open} onOpenChange={(v) => { if (!loading) onOpenChange(v); }}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Login with QR — {instanceName}</DialogTitle>
+          <DialogTitle>{t("zalo.loginQr", { name: instanceName })}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-4 py-4">
           {status === "done" && (
-            <p className="text-sm text-green-600 font-medium">Login successful! Channel starting...</p>
+            <p className="text-sm text-green-600 font-medium">{t("zalo.loginSuccessful")}</p>
           )}
           {status === "error" && (
             <p className="text-sm text-destructive">{errorMsg}</p>
@@ -65,17 +67,17 @@ export function ZaloPersonalQRDialog({
             />
           )}
           {status === "waiting" && !qrPng && (
-            <p className="text-sm text-muted-foreground">Generating QR code...</p>
+            <p className="text-sm text-muted-foreground">{t("zalo.generatingQr")}</p>
           )}
           {status === "waiting" && qrPng && (
-            <p className="text-xs text-muted-foreground">Scan with your Zalo app (expires in ~100s)</p>
+            <p className="text-xs text-muted-foreground">{t("zalo.scanHint")}</p>
           )}
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("zalo.close")}</Button>
           {status === "error" && (
-            <Button onClick={start} disabled={loading}>Retry</Button>
+            <Button onClick={start} disabled={loading}>{t("zalo.retry")}</Button>
           )}
         </div>
       </DialogContent>

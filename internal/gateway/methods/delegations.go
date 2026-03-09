@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/nextlevelbuilder/goclaw/internal/gateway"
+	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 	"github.com/nextlevelbuilder/goclaw/pkg/protocol"
 )
@@ -25,9 +26,10 @@ func (m *DelegationsMethods) Register(router *gateway.MethodRouter) {
 	router.Register(protocol.MethodDelegationsGet, m.handleGet)
 }
 
-func (m *DelegationsMethods) handleList(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *DelegationsMethods) handleList(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	if m.teamStore == nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "delegations not available"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgDelegationsUnavailable)))
 		return
 	}
 
@@ -67,7 +69,6 @@ func (m *DelegationsMethods) handleList(_ context.Context, client *gateway.Clien
 		}
 	}
 
-	ctx := context.Background()
 	records, total, err := m.teamStore.ListDelegationHistory(ctx, opts)
 	if err != nil {
 		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, err.Error()))
@@ -92,9 +93,10 @@ func (m *DelegationsMethods) handleList(_ context.Context, client *gateway.Clien
 	}))
 }
 
-func (m *DelegationsMethods) handleGet(_ context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+func (m *DelegationsMethods) handleGet(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
 	if m.teamStore == nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, "delegations not available"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgDelegationsUnavailable)))
 		return
 	}
 
@@ -105,17 +107,16 @@ func (m *DelegationsMethods) handleGet(_ context.Context, client *gateway.Client
 		_ = json.Unmarshal(req.Params, &params)
 	}
 	if params.ID == "" {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "id is required"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgRequired, "id")))
 		return
 	}
 
 	id, err := uuid.Parse(params.ID)
 	if err != nil {
-		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, "invalid id"))
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidID, "id")))
 		return
 	}
 
-	ctx := context.Background()
 	record, err := m.teamStore.GetDelegationHistory(ctx, id)
 	if err != nil {
 		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, err.Error()))

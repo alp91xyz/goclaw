@@ -1,0 +1,14 @@
+{
+  "title": "Storage",
+  "description": "Workspace file browser",
+  "descriptionWithPath": "{{path}} — {{size}}",
+  "delete": {
+    "fileTitle": "Delete file",
+    "folderTitle": "Delete folder",
+    "description": "Are you sure you want to delete {{name}}?",
+    "folderWarning": " All contents will be removed recursively.",
+    "undone": " This action cannot be undone.",
+    "deleting": "Deleting...",
+    "confirmLabel": "Delete"
+  }
+}

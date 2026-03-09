@@ -1,0 +1,102 @@
+{
+  "title": "Tác vụ định kỳ",
+  "description": "Lên lịch các tác vụ agent định kỳ",
+  "newJob": "Tác vụ mới",
+  "emptyTitle": "Không có tác vụ định kỳ",
+  "emptyDescription": "Tạo tác vụ định kỳ để lên lịch các tác vụ agent định kỳ.",
+  "columns": {
+    "enabled": "Bật",
+    "name": "Tên",
+    "schedule": "Lịch",
+    "message": "Tin nhắn",
+    "agent": "Agent",
+    "actions": "Thao tác"
+  },
+  "runNow": "Chạy ngay",
+  "running": "Đang chạy...",
+  "runHistory": "Lịch sử chạy",
+  "defaultAgent": "mặc định",
+  "create": {
+    "title": "Tạo tác vụ định kỳ",
+    "name": "Tên",
+    "namePlaceholder": "my-daily-task",
+    "nameHint": "Chỉ chữ thường, số và dấu gạch ngang",
+    "agentId": "Agent ID (tùy chọn)",
+    "agentIdPlaceholder": "mặc định",
+    "scheduleType": "Loại lịch",
+    "every": "Mỗi",
+    "cron": "Cron",
+    "once": "Một lần",
+    "intervalSeconds": "Khoảng thời gian (giây)",
+    "cronExpression": "Biểu thức Cron",
+    "cronHint": "Cron 5 trường tiêu chuẩn: phút giờ ngày tháng thứ",
+    "onceDesc": "Tác vụ sẽ chạy một lần, khoảng 1 phút kể từ bây giờ.",
+    "message": "Tin nhắn",
+    "messagePlaceholder": "Agent cần làm gì?",
+    "cancel": "Hủy",
+    "create": "Tạo",
+    "creating": "Đang tạo..."
+  },
+  "enable": {
+    "title": "Bật tác vụ định kỳ",
+    "description": "Bật \"{{name}}\"? Tác vụ sẽ bắt đầu chạy theo lịch.",
+    "confirmLabel": "Bật"
+  },
+  "disable": {
+    "title": "Tắt tác vụ định kỳ",
+    "description": "Tắt \"{{name}}\"? Tác vụ sẽ dừng chạy cho đến khi được bật lại.",
+    "confirmLabel": "Tắt"
+  },
+  "delete": {
+    "title": "Xóa tác vụ định kỳ",
+    "description": "Xóa \"{{name}}\"? Hành động này không thể hoàn tác.",
+    "confirmLabel": "Xóa"
+  },
+  "runLog": {
+    "title": "Lịch sử chạy: {{name}}",
+    "noHistory": "Chưa có lịch sử chạy nào.",
+    "loading": "Đang tải..."
+  },
+  "detail": {
+    "runNow": "Chạy ngay",
+    "running": "Đang chạy...",
+    "disable": "Tắt",
+    "enable": "Bật",
+    "delete": "Xóa",
+    "enabled": "đã bật",
+    "disabled": "đã tắt",
+    "runningStatus": "đang chạy...",
+    "payload": "Tải trọng",
+    "empty": "(trống)",
+    "deliverDirect": "Gửi: trực tiếp",
+    "channel": "Channel: {{name}}",
+    "to": "Đến: {{name}}",
+    "lastError": "Lỗi gần nhất",
+    "runHistory": "Lịch sử chạy",
+    "refresh": "Làm mới",
+    "noHistory": "Chưa có lịch sử chạy nào.",
+    "inOut": "{{input}} vào / {{output}} ra",
+    "infoRows": {
+      "schedule": "Lịch",
+      "timezone": "Múi giờ",
+      "nextRun": "Lần chạy tiếp theo",
+      "lastRun": "Lần chạy gần nhất",
+      "created": "Đã tạo",
+      "updated": "Đã cập nhật",
+      "autoDelete": "Tự động xóa",
+      "autoDeleteValue": "Có (một lần)"
+    }
+  },
+  "toast": {
+    "created": "Đã tạo tác vụ định kỳ",
+    "createdDesc": "{{name}} đã được thêm",
+    "enabled": "Đã bật tác vụ định kỳ",
+    "disabled": "Đã tắt tác vụ định kỳ",
+    "deleted": "Đã xóa tác vụ định kỳ",
+    "triggered": "Đã kích hoạt tác vụ định kỳ",
+    "failedCreate": "Không thể tạo tác vụ định kỳ",
+    "failedToggle": "Không thể chuyển đổi tác vụ định kỳ",
+    "failedDelete": "Không thể xóa tác vụ định kỳ",
+    "failedRun": "Không thể chạy tác vụ định kỳ"
+  }
+}

@@ -1,4 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { X, ChevronDownIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBuiltinTools } from "@/pages/builtin-tools/hooks/use-builtin-tools";
@@ -20,9 +21,10 @@ interface ToolOption {
 export function ToolNameSelect({
   value,
   onChange,
-  placeholder = "Select or type tool names...",
+  placeholder,
   className,
 }: ToolNameSelectProps) {
+  const { t } = useTranslation("common");
   const { tools: builtinTools } = useBuiltinTools();
   const { tools: customTools } = useCustomTools();
   const [open, setOpen] = useState(false);
@@ -127,7 +129,7 @@ export function ToolNameSelect({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder={value.length === 0 ? placeholder : ""}
+          placeholder={value.length === 0 ? (placeholder ?? t("selectOrTypeTools")) : ""}
           className="placeholder:text-muted-foreground min-w-[80px] flex-1 bg-transparent py-0.5 text-sm outline-none"
         />
         <ChevronDownIcon
@@ -140,7 +142,7 @@ export function ToolNameSelect({
           {grouped.builtin.length > 0 && (
             <>
               <div className="text-muted-foreground px-2 py-1 text-[10px] font-semibold uppercase tracking-wider">
-                Built-in
+                {t("builtinTools")}
               </div>
               {grouped.builtin.map((t) => (
                 <button
@@ -159,7 +161,7 @@ export function ToolNameSelect({
           {grouped.custom.length > 0 && (
             <>
               <div className="text-muted-foreground mt-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider">
-                Custom
+                {t("customTools")}
               </div>
               {grouped.custom.map((t) => (
                 <button
