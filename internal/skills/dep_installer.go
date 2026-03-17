@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -65,6 +67,11 @@ func InstallSingleDep(ctx context.Context, dep string) (bool, string) {
 		return false, msg
 	}
 
+	// Persist system packages for re-install after container recreate.
+	if !strings.Contains(dep, ":") {
+		persistApkPackages([]string{dep})
+	}
+
 	slog.Info("skills: dep installed", "dep", dep)
 	cleanCaches(ctx)
 	return true, ""
@@ -98,6 +105,7 @@ func InstallDeps(ctx context.Context, manifest *SkillManifest, missing []string)
 			result.Errors = append(result.Errors, fmt.Sprintf("apk: %s (%v)", strings.TrimSpace(string(out)), err))
 		} else {
 			result.System = sysPkgs
+			persistApkPackages(sysPkgs)
 		}
 	}
 
@@ -125,6 +133,25 @@ func InstallDeps(ctx context.Context, manifest *SkillManifest, missing []string)
 
 	cleanCaches(ctx)
 	return result, nil
+}
+
+// persistApkPackages appends system package names to the runtime persist file
+// so docker-entrypoint.sh can re-install them after container recreate.
+func persistApkPackages(pkgs []string) {
+	runtimeDir := os.Getenv("RUNTIME_DIR")
+	if runtimeDir == "" {
+		runtimeDir = "/app/data/.runtime"
+	}
+	listFile := filepath.Join(runtimeDir, "apk-packages")
+	f, err := os.OpenFile(listFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		slog.Warn("skills: failed to persist apk packages", "error", err)
+		return
+	}
+	defer f.Close()
+	for _, pkg := range pkgs {
+		fmt.Fprintln(f, pkg)
+	}
 }
 
 // cleanCaches removes pip and npm caches to save disk space.
