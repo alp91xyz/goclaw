@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useWs } from "@/hooks/use-ws";
-import { Methods } from "@/api/protocol";
+import { useWsEvent } from "@/hooks/use-ws-event";
+import { Methods, Events } from "@/api/protocol";
 import type { SessionInfo } from "@/types/session";
 import { useAuthStore } from "@/stores/use-auth-store";
 
@@ -10,7 +11,6 @@ import { useAuthStore } from "@/stores/use-auth-store";
  */
 export function useChatSessions(agentId: string) {
   const ws = useWs();
-  const userId = useAuthStore((s) => s.userId);
   const connected = useAuthStore((s) => s.connected);
   const [sessions, setSessions] = useState<SessionInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ export function useChatSessions(agentId: string) {
     try {
       const res = await ws.call<{ sessions: SessionInfo[] }>(
         Methods.SESSIONS_LIST,
-        { agentId },
+        { agentId, channel: "ws" },
       );
       const sorted = (res.sessions ?? []).sort(
         (a: SessionInfo, b: SessionInfo) =>
@@ -42,9 +42,27 @@ export function useChatSessions(agentId: string) {
   }, [loadSessions]);
 
   const buildNewSessionKey = useCallback(() => {
-    const ts = Date.now().toString(36);
-    return `agent:${agentId}:ws-${userId}-${ts}`;
-  }, [agentId, userId]);
+    const convId = crypto.randomUUID();
+    return `agent:${agentId}:ws:direct:${convId}`;
+  }, [agentId]);
+
+  const deleteSession = useCallback(async (key: string) => {
+    if (!connected) return;
+    await ws.call(Methods.SESSIONS_DELETE, { key });
+    await loadSessions();
+  }, [ws, connected, loadSessions]);
+
+  // Update session label in-place when backend generates a title.
+  const handleSessionUpdated = useCallback((payload: unknown) => {
+    const event = payload as { sessionKey?: string; label?: string };
+    if (!event?.sessionKey || !event?.label) return;
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.key === event.sessionKey ? { ...s, label: event.label } : s,
+      ),
+    );
+  }, []);
+  useWsEvent(Events.SESSION_UPDATED, handleSessionUpdated);
 
   return {
     sessions,
@@ -52,5 +70,6 @@ export function useChatSessions(agentId: string) {
     error,
     refresh: loadSessions,
     buildNewSessionKey,
+    deleteSession,
   };
 }

@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // OpenAIProvider implements Provider for OpenAI-compatible APIs
@@ -41,7 +40,7 @@ func NewOpenAIProvider(name, apiKey, apiBase, defaultModel string) *OpenAIProvid
 		apiBase:      apiBase,
 		chatPath:     "/chat/completions",
 		defaultModel: defaultModel,
-		client:       &http.Client{Timeout: 300 * time.Second},
+		client:       &http.Client{Timeout: DefaultHTTPTimeout},
 		retryConfig:  DefaultRetryConfig(),
 	}
 }
@@ -143,7 +142,7 @@ func (p *OpenAIProvider) ChatStream(ctx context.Context, req ChatRequest, onChun
 	accumulators := make(map[int]*toolCallAccumulator)
 
 	scanner := bufio.NewScanner(respBody)
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024) // 1MB max line for large tool call / thinking chunks
+	scanner.Buffer(make([]byte, 0, SSEScanBufInit), SSEScanBufMax)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if !strings.HasPrefix(line, "data:") {
@@ -260,8 +259,9 @@ func (p *OpenAIProvider) buildRequestBody(model string, req ChatRequest, stream 
 	inputMessages := req.Messages
 
 	// Compute provider capability once: does this endpoint support Google's thought_signature?
-	// We check name, apiBase, and the model string (which covers OpenRouter/LiteLLM routing to Gemini).
-	supportsThoughtSignature := strings.Contains(strings.ToLower(p.name), "gemini") ||
+	// We check providerType, name, apiBase, and the model string (robust detection for proxies/OpenRouter).
+	supportsThoughtSignature := strings.Contains(strings.ToLower(p.providerType), "gemini") ||
+		strings.Contains(strings.ToLower(p.name), "gemini") ||
 		strings.Contains(strings.ToLower(p.apiBase), "generativelanguage") ||
 		strings.Contains(strings.ToLower(model), "gemini")
 
