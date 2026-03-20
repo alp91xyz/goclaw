@@ -387,10 +387,9 @@ type ExecApprovalCfg struct {
 
 // WebFetchPolicyConfig controls domain filtering for the web_fetch tool.
 type WebFetchPolicyConfig struct {
-	Policy          string   `json:"policy,omitempty"`           // "allow_all" (default), "allowlist"
-	AllowedDomains  []string `json:"allowed_domains,omitempty"`  // e.g. ["github.com", "*.example.com"]
-	BlockedDomains  []string `json:"blocked_domains,omitempty"`  // always checked regardless of policy
-	DefuddleEnabled *bool    `json:"defuddle_enabled,omitempty"` // use Defuddle CF Worker for markdown extraction (default true)
+	Policy         string   `json:"policy,omitempty"`          // "allow_all" (default), "allowlist"
+	AllowedDomains []string `json:"allowed_domains,omitempty"` // e.g. ["github.com", "*.example.com"]
+	BlockedDomains []string `json:"blocked_domains,omitempty"` // always checked regardless of policy
 }
 
 // BrowserToolConfig controls the browser automation tool.

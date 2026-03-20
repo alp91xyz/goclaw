@@ -402,6 +402,7 @@ func runGateway() {
 	if pgStores.BuiltinTools != nil {
 		seedBuiltinTools(context.Background(), pgStores.BuiltinTools)
 		migrateBuiltinToolSettings(context.Background(), pgStores.BuiltinTools)
+		backfillWebFetchSettings(context.Background(), pgStores.BuiltinTools)
 		applyBuiltinToolDisables(context.Background(), pgStores.BuiltinTools, toolsReg)
 	}
 
@@ -860,8 +861,6 @@ func runGateway() {
 			return
 		}
 		webFetchTool.UpdatePolicy(updatedCfg.Tools.WebFetch.Policy, updatedCfg.Tools.WebFetch.AllowedDomains, updatedCfg.Tools.WebFetch.BlockedDomains)
-		defuddleEnabled := updatedCfg.Tools.WebFetch.DefuddleEnabled == nil || *updatedCfg.Tools.WebFetch.DefuddleEnabled
-		webFetchTool.UpdateDefuddleEnabled(defuddleEnabled)
 	})
 
 	// Reload TTS providers on config changes via pub/sub.

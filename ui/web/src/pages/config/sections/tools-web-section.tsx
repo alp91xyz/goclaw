@@ -111,17 +111,6 @@ export function ToolsWebSection({ data, onSave, saving }: Props) {
 
         {/* Web Fetch */}
         <div className="grid gap-3">
-          <div className="flex items-center justify-between">
-            <InfoLabel tip={t("tools.defuddleEnabledTip")}>
-              {t("tools.defuddleEnabled")}
-            </InfoLabel>
-            <Switch
-              checked={webFetch.defuddle_enabled !== false}
-              onCheckedChange={(v) =>
-                updateNested("web_fetch", { ...webFetch, defuddle_enabled: v })
-              }
-            />
-          </div>
           <div className="grid gap-1.5 max-w-xs">
             <InfoLabel tip={t("tools.webFetchPolicyTip")}>{t("tools.webFetchPolicy")}</InfoLabel>
             <Select

@@ -22,17 +22,29 @@ type DefuddleExtractor struct {
 	client  *http.Client
 }
 
-// NewDefuddleExtractor creates a DefuddleExtractor with the default base URL.
-func NewDefuddleExtractor() *DefuddleExtractor {
-	return newDefuddleExtractor(defuddleBaseURL)
+// NewDefuddleExtractorFromEntry creates a DefuddleExtractor from chain settings.
+func NewDefuddleExtractorFromEntry(entry ExtractorEntry) *DefuddleExtractor {
+	baseURL := entry.BaseURL
+	if baseURL == "" {
+		baseURL = defuddleBaseURL
+	}
+	// Ensure trailing slash for URL construction.
+	if !strings.HasSuffix(baseURL, "/") {
+		baseURL += "/"
+	}
+	timeout := time.Duration(entry.Timeout) * time.Second
+	if timeout <= 0 {
+		timeout = defuddleTimeout
+	}
+	return newDefuddleExtractor(baseURL, timeout)
 }
 
-// newDefuddleExtractor creates a DefuddleExtractor with a custom base URL (for testing).
-func newDefuddleExtractor(baseURL string) *DefuddleExtractor {
+// newDefuddleExtractor creates a DefuddleExtractor with custom base URL and timeout (for testing).
+func newDefuddleExtractor(baseURL string, timeout time.Duration) *DefuddleExtractor {
 	return &DefuddleExtractor{
 		baseURL: baseURL,
 		client: &http.Client{
-			Timeout: defuddleTimeout,
+			Timeout: timeout,
 			Transport: &http.Transport{
 				ForceAttemptHTTP2:   true,
 				MaxIdleConns:        5,
@@ -52,7 +64,8 @@ func (d *DefuddleExtractor) Extract(ctx context.Context, rawURL string) (string,
 	target := strings.TrimPrefix(strings.TrimPrefix(rawURL, "https://"), "http://")
 	fetchURL := d.baseURL + target
 
-	ctx, cancel := context.WithTimeout(ctx, defuddleTimeout)
+	// Context timeout ensures cancellation propagates even if transport ignores client.Timeout.
+	ctx, cancel := context.WithTimeout(ctx, d.client.Timeout)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, "GET", fetchURL, nil)

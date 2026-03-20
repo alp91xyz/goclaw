@@ -2,6 +2,7 @@ package tools
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -60,4 +61,64 @@ func isQualityContent(content string) bool {
 		return false
 	}
 	return len(strings.Fields(trimmed)) >= 10
+}
+
+// ---------------------------------------------------------------------------
+// Extractor chain settings — stored in builtin_tools.settings for web_fetch
+// ---------------------------------------------------------------------------
+
+// ExtractorEntry represents a single extractor in the chain settings JSON.
+type ExtractorEntry struct {
+	Name    string `json:"name"`
+	Enabled bool   `json:"enabled"`
+	Timeout int    `json:"timeout,omitempty"`  // seconds, 0 = use extractor default
+	BaseURL string `json:"base_url,omitempty"` // for defuddle: CF Worker URL
+}
+
+// extractorChainSettings is the JSON schema for web_fetch builtin_tools.settings.
+type extractorChainSettings struct {
+	Extractors []ExtractorEntry `json:"extractors,omitempty"`
+}
+
+// ResolveExtractorChain parses builtin_tools.settings from context and builds
+// an ordered ExtractorChain. Returns nil if no extractors are enabled.
+func ResolveExtractorChain(ctx context.Context, tool *WebFetchTool) *ExtractorChain {
+	if settings := BuiltinToolSettingsFromCtx(ctx); settings != nil {
+		if raw, ok := settings["web_fetch"]; ok && len(raw) > 0 {
+			chain := parseExtractorChainSettings(raw, tool)
+			if chain != nil {
+				return chain
+			}
+		}
+	}
+	// Default fallback: InProcess only (no external extractors).
+	return NewExtractorChain(&InProcessExtractor{tool: tool})
+}
+
+// parseExtractorChainSettings parses the settings JSON and builds a chain.
+func parseExtractorChainSettings(raw []byte, tool *WebFetchTool) *ExtractorChain {
+	var settings extractorChainSettings
+	if err := json.Unmarshal(raw, &settings); err != nil {
+		slog.Warn("web_fetch: failed to parse extractor chain settings", "error", err)
+		return nil
+	}
+
+	var extractors []ContentExtractor
+	for _, entry := range settings.Extractors {
+		if !entry.Enabled || entry.Name == "" {
+			continue
+		}
+		switch entry.Name {
+		case "defuddle":
+			extractors = append(extractors, NewDefuddleExtractorFromEntry(entry))
+		case "html-to-markdown":
+			extractors = append(extractors, &InProcessExtractor{tool: tool})
+		default:
+			slog.Warn("web_fetch: unknown extractor in chain, skipping", "name", entry.Name)
+		}
+	}
+	if len(extractors) == 0 {
+		return nil
+	}
+	return NewExtractorChain(extractors...)
 }

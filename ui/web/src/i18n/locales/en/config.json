@@ -211,8 +211,6 @@
   "tools.webFetchPolicyTip": "Controls which URLs the agent can fetch. 'Allowlist' restricts to approved domains only.",
   "tools.allowedDomains": "Allowed Domains",
   "tools.blockedDomains": "Blocked Domains",
-  "tools.defuddleEnabled": "Defuddle (fetch.goclaw.sh)",
-  "tools.defuddleEnabledTip": "Use Cloudflare Worker with Defuddle for cleaner markdown extraction. Falls back to built-in converter when disabled or unavailable.",
   "tools.blockedDomainsTip": "Domains always blocked regardless of policy. One entry per line, supports wildcards (*.example.com).",
   "tools.browser": "Browser Automation",
   "tools.browserEnabled": "Enabled",

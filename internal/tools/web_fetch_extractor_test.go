@@ -2,11 +2,13 @@ package tools
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 // --- Quality Gate Tests ---
@@ -154,15 +156,13 @@ func TestExtractorChain_SingleSuccess(t *testing.T) {
 // --- DefuddleExtractor Tests ---
 
 // newTestDefuddleExtractor creates a DefuddleExtractor pointing at a test server.
-// The test server URL replaces the production fetch.goclaw.sh base URL.
 func newTestDefuddleExtractor(serverURL string) *DefuddleExtractor {
-	return newDefuddleExtractor(serverURL + "/")
+	return newDefuddleExtractor(serverURL+"/", defuddleTimeout)
 }
 
 func TestDefuddleExtractor_Success(t *testing.T) {
 	expected := qualityContent()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Verify path received is the stripped URL (no scheme)
 		if r.URL.Path != "/example.com/page" {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
@@ -241,7 +241,6 @@ func TestDefuddleExtractor_HTTP500(t *testing.T) {
 func TestDefuddleExtractor_EmptyBody(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		// empty body
 	}))
 	defer server.Close()
 
@@ -250,13 +249,47 @@ func TestDefuddleExtractor_EmptyBody(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	// Empty body returns successfully — the chain's quality gate will catch it
 	if result != "" {
 		t.Errorf("expected empty result, got %q", result)
 	}
 }
 
-// --- InProcessExtractor Tests ---
+func TestDefuddleExtractorFromEntry(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Write([]byte(qualityContent()))
+	}))
+	defer server.Close()
+
+	ext := NewDefuddleExtractorFromEntry(ExtractorEntry{
+		Name:    "defuddle",
+		Enabled: true,
+		Timeout: 5,
+		BaseURL: server.URL + "/",
+	})
+	result, err := ext.Extract(context.Background(), "https://example.com/page")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result != qualityContent() {
+		t.Errorf("content mismatch")
+	}
+	// Verify timeout was applied
+	if ext.client.Timeout != 5*time.Second {
+		t.Errorf("expected 5s timeout, got %v", ext.client.Timeout)
+	}
+}
+
+func TestDefuddleExtractorFromEntry_Defaults(t *testing.T) {
+	ext := NewDefuddleExtractorFromEntry(ExtractorEntry{Name: "defuddle", Enabled: true})
+	if ext.baseURL != defuddleBaseURL {
+		t.Errorf("expected default base URL %q, got %q", defuddleBaseURL, ext.baseURL)
+	}
+	if ext.client.Timeout != defuddleTimeout {
+		t.Errorf("expected default timeout %v, got %v", defuddleTimeout, ext.client.Timeout)
+	}
+}
+
+// --- InProcessExtractor Tests (delegate to fetchRawContent) ---
 
 func TestInProcessExtractor_HTML(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -265,13 +298,14 @@ func TestInProcessExtractor_HTML(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ext := NewInProcessExtractor()
+	tool := NewWebFetchTool(WebFetchConfig{})
+	ext := &InProcessExtractor{tool: tool}
 	result, err := ext.Extract(context.Background(), server.URL)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(result, "# Hello World") {
-		t.Errorf("expected markdown heading, got: %s", result)
+	if !strings.Contains(result, "Hello World") {
+		t.Errorf("expected heading content, got: %s", result)
 	}
 	if !strings.Contains(result, "test paragraph") {
 		t.Errorf("expected paragraph content, got: %s", result)
@@ -285,7 +319,8 @@ func TestInProcessExtractor_JSON(t *testing.T) {
 	}))
 	defer server.Close()
 
-	ext := NewInProcessExtractor()
+	tool := NewWebFetchTool(WebFetchConfig{})
+	ext := &InProcessExtractor{tool: tool}
 	result, err := ext.Extract(context.Background(), server.URL)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -295,70 +330,20 @@ func TestInProcessExtractor_JSON(t *testing.T) {
 	}
 }
 
-func TestInProcessExtractor_Markdown(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/markdown")
-		w.Write([]byte("# Title\n\nSome content here"))
-	}))
-	defer server.Close()
+// --- ResolveExtractorChain Tests ---
 
-	ext := NewInProcessExtractor()
-	result, err := ext.Extract(context.Background(), server.URL)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if result != "# Title\n\nSome content here" {
-		t.Errorf("expected markdown passthrough, got: %s", result)
-	}
-}
-
-func TestInProcessExtractor_RawText(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("plain text content"))
-	}))
-	defer server.Close()
-
-	ext := NewInProcessExtractor()
-	result, err := ext.Extract(context.Background(), server.URL)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if result != "plain text content" {
-		t.Errorf("expected raw text, got: %s", result)
-	}
-}
-
-func TestInProcessExtractor_EmptyHTML(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(`<html><body><script>app.init()</script></body></html>`))
-	}))
-	defer server.Close()
-
-	ext := NewInProcessExtractor()
-	_, err := ext.Extract(context.Background(), server.URL)
-	if err == nil {
-		t.Fatal("expected error for empty HTML extraction")
-	}
-	if !strings.Contains(err.Error(), "no content extracted") {
-		t.Errorf("unexpected error: %v", err)
-	}
-}
-
-// --- WebFetchTool Config Toggle Tests ---
-
-func TestWebFetchTool_DefuddleEnabledChain(t *testing.T) {
-	tool := NewWebFetchTool(WebFetchConfig{DefuddleEnabled: true})
-	tool.mu.RLock()
-	chain := tool.chain
-	tool.mu.RUnlock()
-
+func TestResolveExtractorChain_FromSettings(t *testing.T) {
+	settings := `{"extractors":[{"name":"defuddle","enabled":true,"timeout":5,"base_url":"https://test.example.com/"},{"name":"html-to-markdown","enabled":true}]}`
+	ctx := WithBuiltinToolSettings(context.Background(), BuiltinToolSettings{
+		"web_fetch": json.RawMessage(settings),
+	})
+	tool := NewWebFetchTool(WebFetchConfig{})
+	chain := ResolveExtractorChain(ctx, tool)
 	if chain == nil {
-		t.Fatal("chain should not be nil when defuddle enabled")
+		t.Fatal("expected non-nil chain")
 	}
 	if len(chain.extractors) != 2 {
-		t.Errorf("expected 2 extractors (defuddle + inprocess), got %d", len(chain.extractors))
+		t.Fatalf("expected 2 extractors, got %d", len(chain.extractors))
 	}
 	if chain.extractors[0].Name() != "defuddle" {
 		t.Errorf("first extractor should be 'defuddle', got %q", chain.extractors[0].Name())
@@ -368,48 +353,63 @@ func TestWebFetchTool_DefuddleEnabledChain(t *testing.T) {
 	}
 }
 
-func TestWebFetchTool_DefuddleDisabledChain(t *testing.T) {
-	tool := NewWebFetchTool(WebFetchConfig{DefuddleEnabled: false})
-	tool.mu.RLock()
-	chain := tool.chain
-	tool.mu.RUnlock()
-
+func TestResolveExtractorChain_DisabledExtractor(t *testing.T) {
+	settings := `{"extractors":[{"name":"defuddle","enabled":false},{"name":"html-to-markdown","enabled":true}]}`
+	ctx := WithBuiltinToolSettings(context.Background(), BuiltinToolSettings{
+		"web_fetch": json.RawMessage(settings),
+	})
+	tool := NewWebFetchTool(WebFetchConfig{})
+	chain := ResolveExtractorChain(ctx, tool)
 	if chain == nil {
-		t.Fatal("chain should not be nil")
+		t.Fatal("expected non-nil chain")
 	}
 	if len(chain.extractors) != 1 {
-		t.Errorf("expected 1 extractor (inprocess only), got %d", len(chain.extractors))
+		t.Fatalf("expected 1 extractor (defuddle disabled), got %d", len(chain.extractors))
 	}
 	if chain.extractors[0].Name() != "html-to-markdown" {
 		t.Errorf("expected 'html-to-markdown', got %q", chain.extractors[0].Name())
 	}
 }
 
-func TestWebFetchTool_RuntimeToggle(t *testing.T) {
-	tool := NewWebFetchTool(WebFetchConfig{DefuddleEnabled: true})
-
-	// Verify initially has 2 extractors
-	tool.mu.RLock()
-	if len(tool.chain.extractors) != 2 {
-		t.Fatalf("expected 2 extractors initially, got %d", len(tool.chain.extractors))
+func TestResolveExtractorChain_NoSettings(t *testing.T) {
+	tool := NewWebFetchTool(WebFetchConfig{})
+	chain := ResolveExtractorChain(context.Background(), tool)
+	if chain == nil {
+		t.Fatal("expected default chain")
 	}
-	tool.mu.RUnlock()
-
-	// Disable defuddle
-	tool.UpdateDefuddleEnabled(false)
-	tool.mu.RLock()
-	if len(tool.chain.extractors) != 1 {
-		t.Errorf("expected 1 extractor after disable, got %d", len(tool.chain.extractors))
+	if len(chain.extractors) != 1 {
+		t.Fatalf("expected 1 default extractor, got %d", len(chain.extractors))
 	}
-	tool.mu.RUnlock()
-
-	// Re-enable defuddle
-	tool.UpdateDefuddleEnabled(true)
-	tool.mu.RLock()
-	if len(tool.chain.extractors) != 2 {
-		t.Errorf("expected 2 extractors after re-enable, got %d", len(tool.chain.extractors))
+	if chain.extractors[0].Name() != "html-to-markdown" {
+		t.Errorf("expected 'html-to-markdown' default, got %q", chain.extractors[0].Name())
 	}
-	tool.mu.RUnlock()
+}
+
+func TestResolveExtractorChain_UnknownExtractor(t *testing.T) {
+	settings := `{"extractors":[{"name":"unknown-thing","enabled":true},{"name":"html-to-markdown","enabled":true}]}`
+	ctx := WithBuiltinToolSettings(context.Background(), BuiltinToolSettings{
+		"web_fetch": json.RawMessage(settings),
+	})
+	tool := NewWebFetchTool(WebFetchConfig{})
+	chain := ResolveExtractorChain(ctx, tool)
+	if len(chain.extractors) != 1 {
+		t.Fatalf("expected 1 extractor (unknown skipped), got %d", len(chain.extractors))
+	}
+}
+
+func TestResolveExtractorChain_MalformedJSON(t *testing.T) {
+	ctx := WithBuiltinToolSettings(context.Background(), BuiltinToolSettings{
+		"web_fetch": []byte(`not valid json`),
+	})
+	tool := NewWebFetchTool(WebFetchConfig{})
+	chain := ResolveExtractorChain(ctx, tool)
+	// Malformed JSON falls through to default InProcess chain.
+	if chain == nil {
+		t.Fatal("expected default chain on malformed JSON")
+	}
+	if len(chain.extractors) != 1 || chain.extractors[0].Name() != "html-to-markdown" {
+		t.Errorf("expected single html-to-markdown fallback, got %d extractors", len(chain.extractors))
+	}
 }
 
 // --- formatFetchResult Tests ---
@@ -431,7 +431,6 @@ func TestFormatFetchResult_Truncation(t *testing.T) {
 	longContent := strings.Repeat("x", 200)
 	result := formatFetchResult(longContent, "test", "https://example.com", 100, context.Background())
 	if !strings.Contains(result, "Truncated: true") && !strings.Contains(result, "Content-Length:") {
-		// Either truncation or temp file path should be present
 		if !strings.Contains(result, "Content truncated") {
 			t.Error("expected truncation indicator in result")
 		}

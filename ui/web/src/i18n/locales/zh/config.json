@@ -211,8 +211,6 @@
   "tools.webFetchPolicyTip": "控制 Agent 可以抓取哪些 URL。\"允许列表\"仅限已批准的域名。",
   "tools.allowedDomains": "允许的域名",
   "tools.blockedDomains": "屏蔽的域名",
-  "tools.defuddleEnabled": "Defuddle (fetch.goclaw.sh)",
-  "tools.defuddleEnabledTip": "使用 Cloudflare Worker 和 Defuddle 提取更干净的 Markdown。禁用或不可用时自动回退到内置转换器。",
   "tools.blockedDomainsTip": "无论策略如何都始终屏蔽的域名，每行一条，支持通配符（*.example.com）。",
   "tools.browser": "浏览器自动化",
   "tools.browserEnabled": "已启用",
