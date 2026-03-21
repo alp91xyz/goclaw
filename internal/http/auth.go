@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
 	"github.com/nextlevelbuilder/goclaw/internal/crypto"
 	"github.com/nextlevelbuilder/goclaw/internal/i18n"
@@ -112,6 +113,8 @@ type authResult struct {
 	Role          permissions.Role
 	Authenticated bool
 	KeyData       *store.APIKeyData // non-nil when authenticated via API key
+	TenantID      uuid.UUID         // resolved tenant; uuid.Nil for cross-tenant
+	CrossTenant   bool              // true for owner/system admin
 }
 
 // resolveAuth determines the caller's role from the request.
@@ -123,19 +126,25 @@ func resolveAuth(r *http.Request, gatewayToken string) authResult {
 // resolveAuthBearer is like resolveAuth but accepts a pre-extracted bearer token.
 // Useful for handlers that also accept tokens from query params.
 func resolveAuthBearer(r *http.Request, gatewayToken, bearer string) authResult {
-	// Gateway token → admin
+	// Gateway token → admin (cross-tenant)
 	if gatewayToken != "" && tokenMatch(bearer, gatewayToken) {
-		return authResult{Role: permissions.RoleAdmin, Authenticated: true}
+		return authResult{Role: permissions.RoleAdmin, Authenticated: true, CrossTenant: true}
 	}
 	// API key → role from scopes
 	if keyData, role := ResolveAPIKey(r.Context(), bearer); role != "" {
-		return authResult{Role: role, Authenticated: true, KeyData: keyData}
+		res := authResult{Role: role, Authenticated: true, KeyData: keyData}
+		if keyData.TenantID == uuid.Nil {
+			res.CrossTenant = true
+		} else {
+			res.TenantID = keyData.TenantID
+		}
+		return res
 	}
 	// Browser pairing → operator (via X-GoClaw-Sender-Id header)
 	if senderID := r.Header.Get("X-GoClaw-Sender-Id"); senderID != "" && pkgPairingStore != nil {
 		paired, err := pkgPairingStore.IsPaired(senderID, "browser")
 		if err == nil && paired {
-			return authResult{Role: permissions.RoleOperator, Authenticated: true}
+			return authResult{Role: permissions.RoleOperator, Authenticated: true, TenantID: store.MasterTenantID}
 		}
 		if err != nil {
 			slog.Warn("security.http_pairing_check_failed", "sender_id", senderID, "error", err)
@@ -145,7 +154,7 @@ func resolveAuthBearer(r *http.Request, gatewayToken, bearer string) authResult 
 	}
 	// No auth configured → admin (no token = dev/single-user mode, full access)
 	if gatewayToken == "" {
-		return authResult{Role: permissions.RoleAdmin, Authenticated: true}
+		return authResult{Role: permissions.RoleAdmin, Authenticated: true, TenantID: store.MasterTenantID}
 	}
 	return authResult{}
 }
@@ -202,6 +211,28 @@ func requireAuth(token string, minRole permissions.Role, next http.HandlerFunc) 
 		if userID != "" {
 			ctx = store.WithUserID(ctx, userID)
 		}
+		if auth.CrossTenant {
+			ctx = store.WithCrossTenant(ctx)
+			slog.Debug("security.http_auth_resolved",
+				"path", r.URL.Path,
+				"role", string(auth.Role),
+				"cross_tenant", true,
+			)
+		} else if auth.TenantID != uuid.Nil {
+			ctx = store.WithTenantID(ctx, auth.TenantID)
+			slog.Debug("security.http_auth_resolved",
+				"path", r.URL.Path,
+				"role", string(auth.Role),
+				"tenant_id", auth.TenantID.String(),
+			)
+		} else {
+			ctx = store.WithTenantID(ctx, store.MasterTenantID)
+			slog.Debug("security.http_auth_resolved",
+				"path", r.URL.Path,
+				"role", string(auth.Role),
+				"tenant_id", store.MasterTenantID.String(),
+			)
+		}
 		next(w, r.WithContext(ctx))
 	}
 }
@@ -247,6 +278,13 @@ func requireAuthBearer(token string, minRole permissions.Role, bearer string, w 
 	}
 	if userID != "" {
 		ctx = store.WithUserID(ctx, userID)
+	}
+	if auth.CrossTenant {
+		ctx = store.WithCrossTenant(ctx)
+	} else if auth.TenantID != uuid.Nil {
+		ctx = store.WithTenantID(ctx, auth.TenantID)
+	} else {
+		ctx = store.WithTenantID(ctx, store.MasterTenantID)
 	}
 	return r.WithContext(ctx), true
 }

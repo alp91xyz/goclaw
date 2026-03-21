@@ -1,10 +1,15 @@
 package store
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 // CronJob represents a scheduled job.
 type CronJob struct {
 	ID             string       `json:"id"`
+	TenantID       uuid.UUID    `json:"tenantId,omitempty"`
 	Name           string       `json:"name"`
 	AgentID        string       `json:"agentId,omitempty"`
 	UserID         string       `json:"userId,omitempty"`

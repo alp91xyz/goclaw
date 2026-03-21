@@ -10,6 +10,7 @@ import (
 // APIKeyData represents a gateway API key with scoped permissions.
 type APIKeyData struct {
 	ID         uuid.UUID  `json:"id"`
+	TenantID   uuid.UUID  `json:"tenant_id"` // uuid.Nil when NULL in DB
 	Name       string     `json:"name"`
 	Prefix     string     `json:"prefix"`               // first 8 chars for display
 	KeyHash    string     `json:"-"`                    // SHA-256 hex, never serialized

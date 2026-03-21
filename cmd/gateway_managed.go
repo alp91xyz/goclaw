@@ -45,7 +45,6 @@ func wireExtras(
 	injectionAction string,
 	appCfg *config.Config,
 	sandboxMgr sandbox.Manager,
-	dynamicLoader *tools.DynamicToolLoader,
 	redisClient any, // nil when built without -tags redis or when Redis is unconfigured
 ) (*tools.ContextFileInterceptor, *mcpbridge.Pool, *media.Store, tools.PostTurnProcessor) {
 	// 1. Build cache instances (in-memory or Redis depending on build tags)
@@ -145,7 +144,6 @@ func wireExtras(
 		SandboxEnabled:         sandboxEnabled,
 		SandboxContainerDir:    sandboxContainerDir,
 		SandboxWorkspaceAccess: sandboxWorkspaceAccess,
-		DynamicLoader:          dynamicLoader,
 		AgentLinkStore:         stores.AgentLinks,
 		TeamStore:              stores.Teams,
 		DataDir:                workspace,
@@ -160,8 +158,9 @@ func wireExtras(
 		MemoryStore:            stores.Memory,
 		OnEvent: func(event agent.AgentEvent) {
 			msgBus.Broadcast(bus.Event{
-				Name:    protocol.EventAgent,
-				Payload: event,
+				Name:     protocol.EventAgent,
+				Payload:  event,
+				TenantID: event.TenantID,
 			})
 		},
 	})
@@ -378,22 +377,6 @@ func wireExtras(
 				return
 			}
 			pi.InvalidateCache()
-		})
-	}
-
-	// Custom tools cache: reload global tools on create/update/delete
-	if dynamicLoader != nil {
-		msgBus.Subscribe(bus.TopicCacheCustomTools, func(event bus.Event) {
-			if event.Name != protocol.EventCacheInvalidate {
-				return
-			}
-			payload, ok := event.Payload.(bus.CacheInvalidatePayload)
-			if !ok || payload.Kind != bus.CacheKindCustomTools {
-				return
-			}
-			dynamicLoader.ReloadGlobal(context.Background(), toolsReg)
-			// Invalidate all agent caches so they re-resolve with updated tools
-			agentRouter.InvalidateAll()
 		})
 	}
 

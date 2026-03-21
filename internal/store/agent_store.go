@@ -41,7 +41,8 @@ const (
 // AgentData represents an agent in the database.
 type AgentData struct {
 	BaseModel
-	AgentKey            string `json:"agent_key"`
+	TenantID            uuid.UUID `json:"tenant_id"`
+	AgentKey            string    `json:"agent_key"`
 	DisplayName         string `json:"display_name,omitempty"`
 	Frontmatter         string `json:"frontmatter,omitempty"` // short expertise summary (NOT other_config.description which is the summoning prompt)
 	OwnerID             string `json:"owner_id"`

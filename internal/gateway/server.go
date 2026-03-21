@@ -43,7 +43,6 @@ type Server struct {
 	tracesHandler  *httpapi.TracesHandler // LLM trace listing API
 	wakeHandler    *httpapi.WakeHandler  // external wake/trigger API
 	mcpHandler         *httpapi.MCPHandler         // MCP server management API
-	customToolsHandler      *httpapi.CustomToolsHandler      // custom tool CRUD API
 	channelInstancesHandler *httpapi.ChannelInstancesHandler // channel instance CRUD API
 	providersHandler        *httpapi.ProvidersHandler        // provider CRUD API
 	teamEventsHandler       *httpapi.TeamEventsHandler       // team event history API
@@ -63,6 +62,7 @@ type Server struct {
 	usageHandler            *httpapi.UsageHandler            // usage analytics API
 	apiKeysHandler     *httpapi.APIKeysHandler      // API key management
 	apiKeyStore        store.APIKeyStore            // for API key auth lookup
+	tenantsHandler     *httpapi.TenantsHandler      // tenant management API
 	docsHandler        *httpapi.DocsHandler         // OpenAPI spec + Swagger UI
 	agentStore         store.AgentStore             // for context injection in tools_invoke
 	msgBus             *bus.MessageBus              // for MCP bridge media delivery
@@ -207,11 +207,6 @@ func (s *Server) BuildMux() *http.ServeMux {
 		s.mcpHandler.RegisterRoutes(mux)
 	}
 
-	// Custom tool CRUD API
-	if s.customToolsHandler != nil {
-		s.customToolsHandler.RegisterRoutes(mux)
-	}
-
 	// Secure CLI credential CRUD API
 	if s.secureCLIHandler != nil {
 		s.secureCLIHandler.RegisterRoutes(mux)
@@ -280,6 +275,11 @@ func (s *Server) BuildMux() *http.ServeMux {
 
 	if s.apiKeysHandler != nil {
 		s.apiKeysHandler.RegisterRoutes(mux)
+	}
+
+	// Tenant management API
+	if s.tenantsHandler != nil {
+		s.tenantsHandler.RegisterRoutes(mux)
 	}
 
 	if s.activityHandler != nil {
@@ -482,9 +482,6 @@ func (s *Server) SetWakeHandler(h *httpapi.WakeHandler) { s.wakeHandler = h }
 // SetMCPHandler sets the MCP server management handler.
 func (s *Server) SetMCPHandler(h *httpapi.MCPHandler) { s.mcpHandler = h }
 
-// SetCustomToolsHandler sets the custom tool CRUD handler.
-func (s *Server) SetCustomToolsHandler(h *httpapi.CustomToolsHandler) { s.customToolsHandler = h }
-
 // SetChannelInstancesHandler sets the channel instance CRUD handler.
 func (s *Server) SetChannelInstancesHandler(h *httpapi.ChannelInstancesHandler) {
 	s.channelInstancesHandler = h
@@ -522,6 +519,9 @@ func (s *Server) SetOAuthHandler(h *httpapi.OAuthHandler) { s.oauthHandler = h }
 
 // SetAPIKeysHandler sets the API key management handler.
 func (s *Server) SetAPIKeysHandler(h *httpapi.APIKeysHandler) { s.apiKeysHandler = h }
+
+// SetTenantsHandler sets the tenant management handler.
+func (s *Server) SetTenantsHandler(h *httpapi.TenantsHandler) { s.tenantsHandler = h }
 
 // SetAPIKeyStore sets the API key store for token-based auth lookup.
 func (s *Server) SetAPIKeyStore(st store.APIKeyStore) { s.apiKeyStore = st }

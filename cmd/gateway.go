@@ -282,19 +282,10 @@ func runGateway() {
 		server.SetAgentStore(pgStores.Agents)
 	}
 
-	// Dynamic custom tools: load global tools from DB before resolver
-	var dynamicLoader *tools.DynamicToolLoader
-	if pgStores.CustomTools != nil {
-		dynamicLoader = tools.NewDynamicToolLoader(pgStores.CustomTools, workspace)
-		if err := dynamicLoader.LoadGlobal(context.Background(), toolsReg); err != nil {
-			slog.Warn("failed to load global custom tools", "error", err)
-		}
-	}
-
 	var mcpPool *mcpbridge.Pool
 	var mediaStore *media.Store
 	var postTurn tools.PostTurnProcessor
-	contextFileInterceptor, mcpPool, mediaStore, postTurn = wireExtras(pgStores, agentRouter, providerRegistry, msgBus, pgStores.Sessions, toolsReg, toolPE, skillsLoader, hasMemory, traceCollector, workspace, cfg.Gateway.InjectionAction, cfg, sandboxMgr, dynamicLoader, redisClient)
+	contextFileInterceptor, mcpPool, mediaStore, postTurn = wireExtras(pgStores, agentRouter, providerRegistry, msgBus, pgStores.Sessions, toolsReg, toolPE, skillsLoader, hasMemory, traceCollector, workspace, cfg.Gateway.InjectionAction, cfg, sandboxMgr, redisClient)
 	if mcpPool != nil {
 		defer mcpPool.Stop()
 	}
@@ -303,7 +294,7 @@ func runGateway() {
 	if mcpMgr != nil {
 		mcpToolLister = mcpMgr
 	}
-	agentsH, skillsH, tracesH, mcpH, customToolsH, channelInstancesH, providersH, builtinToolsH, pendingMessagesH, teamEventsH, secureCLIH := wireHTTP(pgStores, cfg.Gateway.Token, cfg.Agents.Defaults.Workspace, msgBus, toolsReg, providerRegistry, permPE.IsOwner, gatewayAddr, mcpToolLister)
+	agentsH, skillsH, tracesH, mcpH, channelInstancesH, providersH, builtinToolsH, pendingMessagesH, teamEventsH, secureCLIH := wireHTTP(pgStores, cfg.Gateway.Token, cfg.Agents.Defaults.Workspace, msgBus, toolsReg, providerRegistry, permPE.IsOwner, gatewayAddr, mcpToolLister)
 	if providersH != nil {
 		providersH.SetAPIBaseFallback(cfg.Providers.APIBaseForType)
 	}
@@ -324,9 +315,6 @@ func runGateway() {
 	server.SetWakeHandler(wakeH)
 	if mcpH != nil {
 		server.SetMCPHandler(mcpH)
-	}
-	if customToolsH != nil {
-		server.SetCustomToolsHandler(customToolsH)
 	}
 	if channelInstancesH != nil {
 		server.SetChannelInstancesHandler(channelInstancesH)
@@ -865,6 +853,12 @@ func runGateway() {
 	// API key management RPC
 	if pgStores.APIKeys != nil {
 		methods.NewAPIKeysMethods(pgStores.APIKeys).Register(server.Router())
+	}
+
+	// Tenant management RPC + HTTP
+	if pgStores.Tenants != nil {
+		methods.NewTenantsMethods(pgStores.Tenants, msgBus, workspace).Register(server.Router())
+		server.SetTenantsHandler(httpapi.NewTenantsHandler(pgStores.Tenants, cfg.Gateway.Token, msgBus, workspace))
 	}
 
 	// Reload quota config on config changes via pub/sub.

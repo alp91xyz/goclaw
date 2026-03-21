@@ -9,13 +9,12 @@ import (
 	"github.com/nextlevelbuilder/goclaw/internal/tools"
 )
 
-// wireHTTP creates HTTP handlers (agents + skills + traces + MCP + custom tools + channel instances + providers + builtin tools + pending messages).
-func wireHTTP(stores *store.Stores, token, defaultWorkspace string, msgBus *bus.MessageBus, toolsReg *tools.Registry, providerReg *providers.Registry, isOwner func(string) bool, gatewayAddr string, mcpToolLister httpapi.MCPToolLister) (*httpapi.AgentsHandler, *httpapi.SkillsHandler, *httpapi.TracesHandler, *httpapi.MCPHandler, *httpapi.CustomToolsHandler, *httpapi.ChannelInstancesHandler, *httpapi.ProvidersHandler, *httpapi.BuiltinToolsHandler, *httpapi.PendingMessagesHandler, *httpapi.TeamEventsHandler, *httpapi.SecureCLIHandler) {
+// wireHTTP creates HTTP handlers (agents + skills + traces + MCP + channel instances + providers + builtin tools + pending messages).
+func wireHTTP(stores *store.Stores, token, defaultWorkspace string, msgBus *bus.MessageBus, toolsReg *tools.Registry, providerReg *providers.Registry, isOwner func(string) bool, gatewayAddr string, mcpToolLister httpapi.MCPToolLister) (*httpapi.AgentsHandler, *httpapi.SkillsHandler, *httpapi.TracesHandler, *httpapi.MCPHandler, *httpapi.ChannelInstancesHandler, *httpapi.ProvidersHandler, *httpapi.BuiltinToolsHandler, *httpapi.PendingMessagesHandler, *httpapi.TeamEventsHandler, *httpapi.SecureCLIHandler) {
 	var agentsH *httpapi.AgentsHandler
 	var skillsH *httpapi.SkillsHandler
 	var tracesH *httpapi.TracesHandler
 	var mcpH *httpapi.MCPHandler
-	var customToolsH *httpapi.CustomToolsHandler
 	var channelInstancesH *httpapi.ChannelInstancesHandler
 	var providersH *httpapi.ProvidersHandler
 	var builtinToolsH *httpapi.BuiltinToolsHandler
@@ -45,10 +44,6 @@ func wireHTTP(stores *store.Stores, token, defaultWorkspace string, msgBus *bus.
 
 	if stores != nil && stores.MCP != nil {
 		mcpH = httpapi.NewMCPHandler(stores.MCP, token, msgBus, mcpToolLister)
-	}
-
-	if stores != nil && stores.CustomTools != nil {
-		customToolsH = httpapi.NewCustomToolsHandler(stores.CustomTools, token, msgBus, toolsReg)
 	}
 
 	if stores != nil && stores.ChannelInstances != nil {
@@ -81,5 +76,5 @@ func wireHTTP(stores *store.Stores, token, defaultWorkspace string, msgBus *bus.
 		secureCLIH = httpapi.NewSecureCLIHandler(stores.SecureCLI, token, msgBus)
 	}
 
-	return agentsH, skillsH, tracesH, mcpH, customToolsH, channelInstancesH, providersH, builtinToolsH, pendingMessagesH, teamEventsH, secureCLIH
+	return agentsH, skillsH, tracesH, mcpH, channelInstancesH, providersH, builtinToolsH, pendingMessagesH, teamEventsH, secureCLIH
 }

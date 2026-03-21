@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/google/uuid"
 	httpapi "github.com/nextlevelbuilder/goclaw/internal/http"
 	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/permissions"
@@ -106,6 +107,7 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 		client.role = permissions.RoleAdmin
 		client.authenticated = true
 		client.userID = params.UserID
+		client.crossTenant = true
 		r.sendConnectResponse(client, req.ID)
 		return
 	}
@@ -132,6 +134,21 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 			} else {
 				client.userID = params.UserID
 			}
+			if keyData.TenantID == uuid.Nil {
+				client.crossTenant = true
+				slog.Debug("security.ws_connect_resolved",
+					"client", client.id,
+					"role", string(client.role),
+					"cross_tenant", true,
+				)
+			} else {
+				client.tenantID = keyData.TenantID
+				slog.Debug("security.ws_connect_resolved",
+					"client", client.id,
+					"role", string(client.role),
+					"tenant_id", client.tenantID.String(),
+				)
+			}
 			r.sendConnectResponse(client, req.ID)
 			return
 		}
@@ -142,6 +159,7 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 		client.role = permissions.RoleOperator
 		client.authenticated = true
 		client.userID = params.UserID
+		client.tenantID = store.MasterTenantID
 		r.sendConnectResponse(client, req.ID)
 		return
 	}
@@ -167,6 +185,7 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 			client.userID = params.UserID
 			client.pairedSenderID = params.SenderID
 			client.pairedChannel = "browser"
+			client.tenantID = store.MasterTenantID
 			slog.Info("browser pairing authenticated", "sender_id", params.SenderID, "client", client.id)
 			r.sendConnectResponse(client, req.ID)
 			return
@@ -201,14 +220,16 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 	client.role = permissions.RoleViewer
 	client.authenticated = true
 	client.userID = params.UserID
+	client.tenantID = store.MasterTenantID
 	r.sendConnectResponse(client, req.ID)
 }
 
 func (r *MethodRouter) sendConnectResponse(client *Client, reqID string) {
 	client.SendResponse(protocol.NewOKResponse(reqID, map[string]any{
-		"protocol": protocol.ProtocolVersion,
-		"role":     string(client.role),
-		"user_id":  client.userID,
+		"protocol":  protocol.ProtocolVersion,
+		"role":      string(client.role),
+		"user_id":   client.userID,
+		"tenant_id": client.tenantID.String(),
 		"server": map[string]any{
 			"name":    "goclaw",
 			"version": "0.2.0",

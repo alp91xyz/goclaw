@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/nextlevelbuilder/goclaw/internal/agent"
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
 	"github.com/nextlevelbuilder/goclaw/internal/permissions"
@@ -22,6 +23,14 @@ func clientCanReceiveEvent(c *Client, event bus.Event) bool {
 	// System-wide events go to everyone.
 	if isSystemEvent(event.Name) {
 		return true
+	}
+
+	// Tenant isolation: non-cross-tenant clients only receive events matching their tenant.
+	// Fail-closed: events with unset TenantID (uuid.Nil) are also blocked for tenant-scoped clients.
+	if !c.crossTenant && c.tenantID != uuid.Nil {
+		if event.TenantID == uuid.Nil || event.TenantID != c.tenantID {
+			return false
+		}
 	}
 
 	// Admin sees everything.

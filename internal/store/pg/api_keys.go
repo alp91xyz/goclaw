@@ -26,18 +26,22 @@ func (s *PGAPIKeyStore) Create(ctx context.Context, key *store.APIKeyData) error
 	if key.OwnerID != "" {
 		ownerID = &key.OwnerID
 	}
+	var tenantID *uuid.UUID
+	if key.TenantID != uuid.Nil {
+		tenantID = &key.TenantID
+	}
 	_, err := s.db.ExecContext(ctx,
-		`INSERT INTO api_keys (id, name, prefix, key_hash, scopes, owner_id, expires_at, created_by, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+		`INSERT INTO api_keys (id, name, prefix, key_hash, scopes, owner_id, tenant_id, expires_at, created_by, created_at, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
 		key.ID, key.Name, key.Prefix, key.KeyHash, pq.Array(key.Scopes),
-		ownerID, key.ExpiresAt, nilStr(key.CreatedBy), key.CreatedAt, key.UpdatedAt,
+		ownerID, tenantID, key.ExpiresAt, nilStr(key.CreatedBy), key.CreatedAt, key.UpdatedAt,
 	)
 	return err
 }
 
 func (s *PGAPIKeyStore) GetByHash(ctx context.Context, keyHash string) (*store.APIKeyData, error) {
 	row := s.db.QueryRowContext(ctx,
-		`SELECT id, name, prefix, key_hash, scopes, owner_id, expires_at, last_used_at, revoked, created_by, created_at, updated_at
+		`SELECT id, name, prefix, key_hash, scopes, owner_id, tenant_id, expires_at, last_used_at, revoked, created_by, created_at, updated_at
 		 FROM api_keys
 		 WHERE key_hash = $1 AND NOT revoked AND (expires_at IS NULL OR expires_at > now())`,
 		keyHash,
@@ -46,9 +50,10 @@ func (s *PGAPIKeyStore) GetByHash(ctx context.Context, keyHash string) (*store.A
 	var k store.APIKeyData
 	var createdBy *string
 	var ownerID *string
+	var tenantID *uuid.UUID
 	err := row.Scan(
 		&k.ID, &k.Name, &k.Prefix, &k.KeyHash, pq.Array(&k.Scopes),
-		&ownerID, &k.ExpiresAt, &k.LastUsedAt, &k.Revoked, &createdBy,
+		&ownerID, &tenantID, &k.ExpiresAt, &k.LastUsedAt, &k.Revoked, &createdBy,
 		&k.CreatedAt, &k.UpdatedAt,
 	)
 	if err != nil {
@@ -60,6 +65,9 @@ func (s *PGAPIKeyStore) GetByHash(ctx context.Context, keyHash string) (*store.A
 	if ownerID != nil {
 		k.OwnerID = *ownerID
 	}
+	if tenantID != nil {
+		k.TenantID = *tenantID
+	}
 
 	return &k, nil
 }
@@ -69,7 +77,7 @@ func (s *PGAPIKeyStore) List(ctx context.Context, ownerID string) ([]store.APIKe
 	var err error
 	if ownerID != "" {
 		rows, err = s.db.QueryContext(ctx,
-			`SELECT id, name, prefix, scopes, owner_id, expires_at, last_used_at, revoked, created_by, created_at, updated_at
+			`SELECT id, name, prefix, scopes, owner_id, tenant_id, expires_at, last_used_at, revoked, created_by, created_at, updated_at
 			 FROM api_keys
 			 WHERE owner_id = $1
 			 ORDER BY created_at DESC`,
@@ -77,7 +85,7 @@ func (s *PGAPIKeyStore) List(ctx context.Context, ownerID string) ([]store.APIKe
 		)
 	} else {
 		rows, err = s.db.QueryContext(ctx,
-			`SELECT id, name, prefix, scopes, owner_id, expires_at, last_used_at, revoked, created_by, created_at, updated_at
+			`SELECT id, name, prefix, scopes, owner_id, tenant_id, expires_at, last_used_at, revoked, created_by, created_at, updated_at
 			 FROM api_keys
 			 ORDER BY created_at DESC`,
 		)
@@ -92,9 +100,10 @@ func (s *PGAPIKeyStore) List(ctx context.Context, ownerID string) ([]store.APIKe
 		var k store.APIKeyData
 		var createdBy *string
 		var oID *string
+		var tID *uuid.UUID
 		if err := rows.Scan(
 			&k.ID, &k.Name, &k.Prefix, pq.Array(&k.Scopes),
-			&oID, &k.ExpiresAt, &k.LastUsedAt, &k.Revoked, &createdBy,
+			&oID, &tID, &k.ExpiresAt, &k.LastUsedAt, &k.Revoked, &createdBy,
 			&k.CreatedAt, &k.UpdatedAt,
 		); err != nil {
 			return nil, err
@@ -104,6 +113,9 @@ func (s *PGAPIKeyStore) List(ctx context.Context, ownerID string) ([]store.APIKe
 		}
 		if oID != nil {
 			k.OwnerID = *oID
+		}
+		if tID != nil {
+			k.TenantID = *tID
 		}
 		keys = append(keys, k)
 	}

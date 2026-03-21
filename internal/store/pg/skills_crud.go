@@ -132,11 +132,17 @@ func (s *PGSkillStore) CreateSkillManaged(ctx context.Context, p SkillCreatePara
 		return uuid.Nil, fmt.Errorf("get next version: %w", err)
 	}
 
+	// Resolve tenant_id: default to MasterTenantID if no tenant in context.
+	tenantID := store.TenantIDFromContext(ctx)
+	if tenantID == uuid.Nil {
+		tenantID = store.MasterTenantID
+	}
+
 	id := store.GenNewID()
 	var returnedID uuid.UUID
 	err = tx.QueryRowContext(ctx,
-		`INSERT INTO skills (id, name, slug, description, owner_id, visibility, version, status, frontmatter, file_path, file_size, file_hash, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', $8, $9, $10, $11, NOW(), NOW())
+		`INSERT INTO skills (id, name, slug, description, owner_id, tenant_id, visibility, version, status, frontmatter, file_path, file_size, file_hash, created_at, updated_at)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active', $9, $10, $11, $12, NOW(), NOW())
 		 ON CONFLICT (slug) DO UPDATE SET
 		   name = EXCLUDED.name, description = EXCLUDED.description,
 		   version = EXCLUDED.version, frontmatter = EXCLUDED.frontmatter,
@@ -145,7 +151,7 @@ func (s *PGSkillStore) CreateSkillManaged(ctx context.Context, p SkillCreatePara
 		   visibility = CASE WHEN skills.status IN ('archived', 'deleted') THEN 'private' ELSE skills.visibility END,
 		   status = 'active', updated_at = NOW()
 		 RETURNING id`,
-		id, p.Name, p.Slug, p.Description, p.OwnerID, p.Visibility, version,
+		id, p.Name, p.Slug, p.Description, p.OwnerID, tenantID, p.Visibility, version,
 		fmJSON, p.FilePath, p.FileSize, p.FileHash,
 	).Scan(&returnedID)
 	if err != nil {

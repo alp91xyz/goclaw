@@ -62,6 +62,7 @@ func (h *APIKeysHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		Name      string   `json:"name"`
 		Scopes    []string `json:"scopes"`
 		ExpiresIn *int     `json:"expires_in"` // seconds; nil = never
+		TenantID  string   `json:"tenant_id"`  // optional UUID; cross-tenant callers may specify or omit (NULL = system key)
 	}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidJSON)})
@@ -96,6 +97,22 @@ func (h *APIKeysHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Resolve tenant_id based on caller type.
+	var tenantID uuid.UUID // uuid.Nil = system-level (NULL in DB)
+	if store.IsCrossTenant(r.Context()) {
+		if input.TenantID != "" {
+			tid, err := uuid.Parse(input.TenantID)
+			if err != nil {
+				writeJSON(w, http.StatusBadRequest, map[string]string{"error": i18n.T(locale, i18n.MsgInvalidID, "tenant_id")})
+				return
+			}
+			tenantID = tid
+		}
+		// else: uuid.Nil stays → system-level key
+	} else {
+		tenantID = store.TenantIDFromContext(r.Context())
+	}
+
 	now := time.Now()
 	key := &store.APIKeyData{
 		ID:        store.GenNewID(),
@@ -103,6 +120,7 @@ func (h *APIKeysHandler) handleCreate(w http.ResponseWriter, r *http.Request) {
 		Prefix:    prefix,
 		KeyHash:   hash,
 		Scopes:    input.Scopes,
+		TenantID:  tenantID,
 		CreatedBy: extractUserID(r),
 		CreatedAt: now,
 		UpdatedAt: now,

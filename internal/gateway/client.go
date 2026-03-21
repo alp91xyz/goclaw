@@ -37,6 +37,9 @@ type Client struct {
 
 	// Team access cache for event filtering (lazily populated).
 	teamIDs map[string]bool
+
+	tenantID    uuid.UUID // resolved tenant (uuid.Nil = cross-tenant)
+	crossTenant bool      // true for owner/system admin
 }
 
 func NewClient(conn *websocket.Conn, server *Server, remoteIP string) *Client {
@@ -194,6 +197,12 @@ func (c *Client) ConnectedAt() time.Time { return c.connectedAt }
 
 // RemoteAddr returns the peer IP:port.
 func (c *Client) RemoteAddr() string { return c.remoteAddr }
+
+// TenantID returns the resolved tenant UUID (uuid.Nil means cross-tenant).
+func (c *Client) TenantID() uuid.UUID { return c.tenantID }
+
+// IsCrossTenant returns true if the client has cross-tenant (owner/system admin) access.
+func (c *Client) IsCrossTenant() bool { return c.crossTenant }
 
 // hasTeamAccess checks if the client has access to a team (for event filtering).
 // Returns true for admin role. For others, checks the lazily-populated teamIDs cache.

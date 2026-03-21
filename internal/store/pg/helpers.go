@@ -195,13 +195,13 @@ func execMapUpdate(ctx context.Context, db *sql.DB, table string, id uuid.UUID, 
 // tablesWithUpdatedAt lists tables that have an updated_at column.
 var tablesWithUpdatedAt = map[string]bool{
 	"agents": true, "llm_providers": true, "sessions": true,
-	"channel_instances": true, "cron_jobs": true, "custom_tools": true,
+	"channel_instances": true, "cron_jobs": true,
 	"skills": true, "mcp_servers": true, "agent_links": true,
 	"agent_teams": true, "team_tasks": true, "builtin_tools": true,
 	"agent_context_files": true, "user_context_files": true,
 	"user_agent_overrides": true, "config_secrets": true,
 	"memory_documents": true, "memory_chunks": true, "embedding_cache": true,
-	"secure_cli_binaries": true,
+	"secure_cli_binaries": true, "tenants": true,
 }
 
 func tableHasUpdatedAt(table string) bool {

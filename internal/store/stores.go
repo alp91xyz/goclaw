@@ -14,7 +14,6 @@ type Stores struct {
 	Providers ProviderStore
 	Tracing   TracingStore
 	MCP              MCPServerStore
-	CustomTools      CustomToolStore
 	ChannelInstances ChannelInstanceStore
 	ConfigSecrets    ConfigSecretsStore
 	AgentLinks       AgentLinkStore
@@ -29,4 +28,5 @@ type Stores struct {
 	APIKeys           APIKeyStore
 	Heartbeats        HeartbeatStore
 	ConfigPermissions ConfigPermissionStore
+	Tenants           TenantStore
 }

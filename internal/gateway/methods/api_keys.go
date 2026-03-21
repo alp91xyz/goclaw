@@ -60,6 +60,7 @@ func (m *APIKeysMethods) handleCreate(ctx context.Context, client *gateway.Clien
 		Scopes    []string `json:"scopes"`
 		ExpiresIn *int     `json:"expires_in"` // seconds; nil = never
 		OwnerID   string   `json:"owner_id"`   // optional; non-admin callers always get their own user_id
+		TenantID  string   `json:"tenant_id"`  // optional UUID; cross-tenant callers may specify or omit (NULL = system key)
 	}
 	if req.Params != nil {
 		if err := json.Unmarshal(req.Params, &params); err != nil {
@@ -98,6 +99,22 @@ func (m *APIKeysMethods) handleCreate(ctx context.Context, client *gateway.Clien
 		return
 	}
 
+	// Resolve tenant_id based on caller type.
+	var tenantID uuid.UUID // uuid.Nil = system-level (NULL in DB)
+	if client.IsCrossTenant() {
+		if params.TenantID != "" {
+			tid, err := uuid.Parse(params.TenantID)
+			if err != nil {
+				client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInvalidRequest, i18n.T(locale, i18n.MsgInvalidID, "tenant_id")))
+				return
+			}
+			tenantID = tid
+		}
+		// else: uuid.Nil stays → system-level key
+	} else {
+		tenantID = client.TenantID()
+	}
+
 	now := time.Now()
 	key := &store.APIKeyData{
 		ID:        store.GenNewID(),
@@ -106,6 +123,7 @@ func (m *APIKeysMethods) handleCreate(ctx context.Context, client *gateway.Clien
 		KeyHash:   hash,
 		Scopes:    params.Scopes,
 		OwnerID:   ownerID,
+		TenantID:  tenantID,
 		CreatedBy: store.UserIDFromContext(ctx),
 		CreatedAt: now,
 		UpdatedAt: now,

@@ -3,6 +3,8 @@ package bus
 import (
 	"context"
 	"encoding/json"
+
+	"github.com/google/uuid"
 )
 
 // MediaFile represents an inbound media file with its MIME type.
@@ -46,8 +48,9 @@ type MediaAttachment struct {
 
 // Event represents a server-side event to broadcast to WebSocket clients.
 type Event struct {
-	Name    string `json:"name"` // event name (e.g. "agent", "chat", "health")
-	Payload any    `json:"payload,omitempty"`
+	Name     string    `json:"name"`              // event name (e.g. "agent", "chat", "health")
+	Payload  any       `json:"payload,omitempty"`
+	TenantID uuid.UUID `json:"-"` // tenant scope for event filtering (not serialized to clients)
 }
 
 // Cache invalidation kind constants.
@@ -56,7 +59,6 @@ const (
 	CacheKindBootstrap        = "bootstrap"
 	CacheKindSkills           = "skills"
 	CacheKindCron             = "cron"
-	CacheKindCustomTools      = "custom_tools"
 	CacheKindChannelInstances = "channel_instances"
 	CacheKindBuiltinTools     = "builtin_tools"
 	CacheKindTeam             = "team"
@@ -67,6 +69,9 @@ const (
 	CacheKindAPIKeys          = "api_keys"
 	CacheKindHeartbeat        = "heartbeat"
 	CacheKindConfigPerms      = "config_perms"
+	CacheKindTenantUsers      = "tenant_users"
+	CacheKindAgentAccess      = "agent_access"
+	CacheKindTeamAccess       = "team_access"
 )
 
 // Topic constants for msgBus.Subscribe() / Broadcast().
@@ -75,7 +80,6 @@ const (
 	TopicCacheAgent            = "cache:agent"
 	TopicCacheSkills           = "cache:skills"
 	TopicCacheCron             = "cache:cron"
-	TopicCacheCustomTools      = "cache:custom_tools"
 	TopicCacheBuiltinTools     = "cache:builtin_tools"
 	TopicCacheTeam             = "cache:team"
 	TopicCacheUserWorkspace    = "cache:user_workspace"

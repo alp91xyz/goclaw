@@ -94,7 +94,7 @@ func (s *PGCronStore) GetJob(jobID string) (*store.CronJob, bool) {
 }
 
 func (s *PGCronStore) ListJobs(includeDisabled bool, agentID, userID string) []store.CronJob {
-	q := `SELECT id, agent_id, user_id, name, enabled, schedule_kind, cron_expression, run_at, timezone,
+	q := `SELECT id, tenant_id, agent_id, user_id, name, enabled, schedule_kind, cron_expression, run_at, timezone,
 		 interval_ms, payload, delete_after_run, next_run_at, last_run_at, last_status, last_error,
 		 created_at, updated_at FROM cron_jobs WHERE 1=1`
 

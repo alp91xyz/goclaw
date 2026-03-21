@@ -23,7 +23,7 @@ type ChannelFactory func(name string, creds json.RawMessage, cfg json.RawMessage
 	msgBus *bus.MessageBus, pairingSvc store.PairingStore) (Channel, error)
 
 // InstanceLoader loads channel instances from the database and registers them with the Manager.
-// Follows the DynamicToolLoader pattern: LoadAll at startup, Reload on cache invalidation.
+// Follows a load-all-at-startup pattern with cache invalidation for reload.
 type InstanceLoader struct {
 	store       store.ChannelInstanceStore
 	agentStore  store.AgentStore

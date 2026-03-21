@@ -175,4 +175,7 @@ const (
 	MsgSkillNudgePostscript = "skill.nudge_postscript"
 	MsgSkillNudge70Pct      = "skill.nudge_70_pct"
 	MsgSkillNudge90Pct      = "skill.nudge_90_pct"
+
+	// --- Tenants ---
+	MsgInvalidRole = "error.invalid_role" // "invalid role: allowed values are owner, admin, operator, member, viewer"
 )
