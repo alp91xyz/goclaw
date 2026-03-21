@@ -218,11 +218,11 @@ CREATE INDEX idx_traces_tenant_time ON traces(tenant_id, created_at DESC);
 -- ============================================================
 
 INSERT INTO tenant_users (tenant_id, user_id, role)
-SELECT DISTINCT '0193a5b0-7000-7000-8000-000000000001', owner_id, 'owner'
+SELECT DISTINCT '0193a5b0-7000-7000-8000-000000000001'::uuid, owner_id, 'owner'
 FROM agents
 WHERE owner_id IS NOT NULL AND owner_id != ''
 LIMIT 1
-ON CONFLICT DO NOTHING;
+ON CONFLICT (tenant_id, user_id) DO NOTHING;
 
 -- ============================================================
 -- Phase F: DROP custom_tools table (dead code — agent loop never wired)
@@ -332,7 +332,7 @@ CREATE UNIQUE INDEX idx_channel_instances_tenant_name ON channel_instances(tenan
 DROP INDEX IF EXISTS idx_usage_snapshots_unique;
 CREATE UNIQUE INDEX idx_usage_snapshots_unique ON usage_snapshots (
     bucket_hour,
-    COALESCE(agent_id, '00000000-0000-0000-0000-000000000000'),
+    COALESCE(agent_id, '00000000-0000-0000-0000-000000000000'::uuid),
     provider, model, channel,
     tenant_id
 );
