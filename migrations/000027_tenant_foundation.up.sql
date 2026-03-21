@@ -212,3 +212,33 @@ CREATE TABLE skill_tenant_configs (
 );
 
 CREATE INDEX idx_skill_tenant_configs_tenant ON skill_tenant_configs(tenant_id);
+
+-- ============================================================
+-- Phase I: Update UNIQUE constraints to include tenant_id
+-- Allows same name/key/slug across different tenants.
+-- ============================================================
+
+-- agents.agent_key: (agent_key) → (tenant_id, agent_key)
+-- Old constraint replaced by partial index in migration 23.
+DROP INDEX IF EXISTS idx_agents_agent_key_active;
+CREATE UNIQUE INDEX idx_agents_tenant_agent_key_active ON agents(tenant_id, agent_key) WHERE deleted_at IS NULL;
+
+-- sessions.session_key: globally unique → (tenant_id, session_key)
+ALTER TABLE sessions DROP CONSTRAINT IF EXISTS sessions_session_key_key;
+DROP INDEX IF EXISTS sessions_session_key_key;
+CREATE UNIQUE INDEX idx_sessions_tenant_session_key ON sessions(tenant_id, session_key);
+
+-- skills.slug: globally unique → (tenant_id, slug)
+ALTER TABLE skills DROP CONSTRAINT IF EXISTS skills_slug_key;
+DROP INDEX IF EXISTS skills_slug_key;
+CREATE UNIQUE INDEX idx_skills_tenant_slug ON skills(tenant_id, slug);
+
+-- mcp_servers.name: globally unique → (tenant_id, name)
+ALTER TABLE mcp_servers DROP CONSTRAINT IF EXISTS mcp_servers_name_key;
+DROP INDEX IF EXISTS mcp_servers_name_key;
+CREATE UNIQUE INDEX idx_mcp_servers_tenant_name ON mcp_servers(tenant_id, name);
+
+-- channel_contacts: (channel_type, sender_id) → (tenant_id, channel_type, sender_id)
+ALTER TABLE channel_contacts DROP CONSTRAINT IF EXISTS channel_contacts_channel_type_sender_id_key;
+DROP INDEX IF EXISTS channel_contacts_channel_type_sender_id_key;
+CREATE UNIQUE INDEX idx_channel_contacts_tenant_type_sender ON channel_contacts(tenant_id, channel_type, sender_id);

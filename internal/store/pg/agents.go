@@ -142,9 +142,20 @@ func (s *PGAgentStore) Create(ctx context.Context, agent *store.AgentData) error
 }
 
 func (s *PGAgentStore) GetByKey(ctx context.Context, agentKey string) (*store.AgentData, error) {
-	row := s.db.QueryRowContext(ctx,
-		`SELECT `+agentSelectCols+`
-		 FROM agents WHERE agent_key = $1 AND deleted_at IS NULL`, agentKey)
+	var row *sql.Row
+	if store.IsCrossTenant(ctx) {
+		row = s.db.QueryRowContext(ctx,
+			`SELECT `+agentSelectCols+`
+			 FROM agents WHERE agent_key = $1 AND deleted_at IS NULL`, agentKey)
+	} else {
+		tid := store.TenantIDFromContext(ctx)
+		if tid == uuid.Nil {
+			return nil, fmt.Errorf("agent not found: %s", agentKey)
+		}
+		row = s.db.QueryRowContext(ctx,
+			`SELECT `+agentSelectCols+`
+			 FROM agents WHERE agent_key = $1 AND deleted_at IS NULL AND tenant_id = $2`, agentKey, tid)
+	}
 	d, err := scanAgentRow(row)
 	if err != nil {
 		return nil, fmt.Errorf("agent not found: %s", agentKey)

@@ -95,7 +95,7 @@ func (s *PGSessionStore) GetOrCreate(ctx context.Context, key string) *store.Ses
 	msgsJSON, _ := json.Marshal([]providers.Message{})
 	s.db.Exec(
 		`INSERT INTO sessions (id, session_key, messages, created_at, updated_at, team_id, tenant_id)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (session_key) DO NOTHING`,
+		 VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (tenant_id, session_key) DO NOTHING`,
 		uuid.Must(uuid.NewV7()), key, msgsJSON, now, now, teamID, tenantIDForInsert(ctx),
 	)
 

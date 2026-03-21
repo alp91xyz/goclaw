@@ -120,6 +120,8 @@ func autoSetFollowup(ctx context.Context, teamStore store.TeamStore, agentStore 
 	if agentStore == nil {
 		return
 	}
+	// Channel dispatch: agent lookup must be cross-tenant (agent resolved before tenant is known).
+	ctx = store.WithCrossTenant(ctx)
 	// agentKey may be a slug ("default") or a UUID string (from WS clients).
 	var ag *store.AgentData
 	var err error

@@ -1,5 +1,21 @@
 -- Rollback: Plan 2 Tenant Foundation
 
+-- Phase I rollback: Restore original UNIQUE constraints
+DROP INDEX IF EXISTS idx_agents_tenant_agent_key_active;
+CREATE UNIQUE INDEX idx_agents_agent_key_active ON agents(agent_key) WHERE deleted_at IS NULL;
+
+DROP INDEX IF EXISTS idx_sessions_tenant_session_key;
+ALTER TABLE sessions ADD CONSTRAINT sessions_session_key_key UNIQUE (session_key);
+
+DROP INDEX IF EXISTS idx_skills_tenant_slug;
+ALTER TABLE skills ADD CONSTRAINT skills_slug_key UNIQUE (slug);
+
+DROP INDEX IF EXISTS idx_mcp_servers_tenant_name;
+ALTER TABLE mcp_servers ADD CONSTRAINT mcp_servers_name_key UNIQUE (name);
+
+DROP INDEX IF EXISTS idx_channel_contacts_tenant_type_sender;
+ALTER TABLE channel_contacts ADD CONSTRAINT channel_contacts_channel_type_sender_id_key UNIQUE (channel_type, sender_id);
+
 -- Drop new tables
 DROP TABLE IF EXISTS skill_tenant_configs;
 DROP TABLE IF EXISTS builtin_tool_tenant_configs;
