@@ -5,8 +5,9 @@ import { WsContext } from "@/hooks/use-ws";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useWsQueryInvalidation } from "@/hooks/use-query-invalidation";
 import { useWsEvent } from "@/hooks/use-ws-event";
-import { TEAM_RELATED_EVENTS } from "@/api/protocol";
+import { TEAM_RELATED_EVENTS, Methods } from "@/api/protocol";
 import { useTeamEventStore } from "@/stores/use-team-event-store";
+import type { TenantMembership } from "@/types/tenant";
 
 // In dev mode, connect directly to backend WS (bypass Vite proxy).
 // In production, use relative "/ws" path.
@@ -30,7 +31,21 @@ export function WsProvider({ children }: { children: React.ReactNode }) {
         const store = useAuthStore.getState();
         store.setConnected(state === "connected");
         if (state === "connected" && wsRef.current) {
-          store.setRole(wsRef.current.role || "");
+          const client = wsRef.current;
+          store.setRole(client.role || "");
+          store.setTenant(client.tenantId, client.tenantName, client.tenantSlug, client.crossTenant);
+          // Fetch tenant memberships asynchronously
+          client.call<{ tenants: TenantMembership[] }>(Methods.TENANTS_MINE)
+            .then((res) => {
+              store.setAvailableTenants(res?.tenants ?? []);
+            })
+            .catch(() => {
+              // Non-critical: silently ignore if not supported
+            });
+        }
+        if (state === "disconnected") {
+          store.setTenant("", "", "", false);
+          store.setAvailableTenants([]);
         }
       },
     );

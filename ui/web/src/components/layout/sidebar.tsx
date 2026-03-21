@@ -26,6 +26,7 @@ import {
   Contact,
   KeyRound,
   FileText,
+  Building2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SidebarGroup } from "./sidebar-group";
@@ -34,6 +35,7 @@ import { ConnectionStatus } from "./connection-status";
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { usePendingPairingsCount } from "@/hooks/use-pending-pairings-count";
+import { useTenants } from "@/hooks/use-tenants";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -43,6 +45,7 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onNavItemClick }: SidebarProps) {
   const { t } = useTranslation("sidebar");
   const { pendingCount } = usePendingPairingsCount();
+  const { isCrossTenant } = useTenants();
 
   return (
     <aside
@@ -111,6 +114,9 @@ export function Sidebar({ collapsed, onNavItemClick }: SidebarProps) {
         </SidebarGroup>
 
         <SidebarGroup label={t("groups.system")} collapsed={collapsed}>
+          {isCrossTenant && (
+            <SidebarItem to={ROUTES.TENANTS} icon={Building2} label={t("nav.tenants")} collapsed={collapsed} />
+          )}
           <SidebarItem to={ROUTES.PROVIDERS} icon={Cpu} label={t("nav.providers")} collapsed={collapsed} />
           <SidebarItem to={ROUTES.CLI_CREDENTIALS} icon={KeyRound} label={t("nav.cliCredentials")} collapsed={collapsed} />
           <SidebarItem to={ROUTES.API_KEYS} icon={KeyRound} label={t("nav.apiKeys")} collapsed={collapsed} />

@@ -20,8 +20,9 @@ type MethodHandler func(ctx context.Context, client *Client, req *protocol.Reque
 
 // MethodRouter maps method names to handlers.
 type MethodRouter struct {
-	handlers map[string]MethodHandler
-	server   *Server
+	handlers    map[string]MethodHandler
+	server      *Server
+	tenantStore store.TenantStore // optional, for enriching connect response
 }
 
 func NewMethodRouter(server *Server) *MethodRouter {
@@ -32,6 +33,9 @@ func NewMethodRouter(server *Server) *MethodRouter {
 	r.registerDefaults()
 	return r
 }
+
+// SetTenantStore sets the tenant store for enriching connect responses with tenant name/slug.
+func (r *MethodRouter) SetTenantStore(ts store.TenantStore) { r.tenantStore = ts }
 
 // Register adds a method handler.
 func (r *MethodRouter) Register(method string, handler MethodHandler) {
@@ -93,10 +97,11 @@ func (r *MethodRouter) registerDefaults() {
 func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *protocol.RequestFrame) {
 	// Parse connect params
 	var params struct {
-		Token    string `json:"token"`
-		UserID   string `json:"user_id"`
-		SenderID string `json:"sender_id"` // browser pairing: stored sender ID for reconnect
-		Locale   string `json:"locale"`    // user's preferred locale (en, vi, zh)
+		Token      string `json:"token"`
+		UserID     string `json:"user_id"`
+		SenderID   string `json:"sender_id"`   // browser pairing: stored sender ID for reconnect
+		Locale     string `json:"locale"`      // user's preferred locale (en, vi, zh)
+		TenantHint string `json:"tenant_hint"` // optional tenant slug for browser pairing multi-tenant
 	}
 	if req.Params != nil {
 		json.Unmarshal(req.Params, &params)
@@ -113,7 +118,7 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 		client.authenticated = true
 		client.userID = params.UserID
 		client.crossTenant = true
-		r.sendConnectResponse(client, req.ID)
+		r.sendConnectResponse(ctx, client, req.ID)
 		return
 	}
 
@@ -154,7 +159,7 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 					"tenant_id", client.tenantID.String(),
 				)
 			}
-			r.sendConnectResponse(client, req.ID)
+			r.sendConnectResponse(ctx, client, req.ID)
 			return
 		}
 	}
@@ -165,7 +170,7 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 		client.authenticated = true
 		client.userID = params.UserID
 		client.tenantID = store.MasterTenantID
-		r.sendConnectResponse(client, req.ID)
+		r.sendConnectResponse(ctx, client, req.ID)
 		return
 	}
 
@@ -190,9 +195,9 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 			client.userID = params.UserID
 			client.pairedSenderID = params.SenderID
 			client.pairedChannel = "browser"
-			client.tenantID = store.MasterTenantID
-			slog.Info("browser pairing authenticated", "sender_id", params.SenderID, "client", client.id)
-			r.sendConnectResponse(client, req.ID)
+			client.tenantID = r.resolveTenantHint(ctx, params.TenantHint)
+			slog.Info("browser pairing authenticated", "sender_id", params.SenderID, "client", client.id, "tenant_id", client.tenantID)
+			r.sendConnectResponse(ctx, client, req.ID)
 			return
 		}
 	}
@@ -225,21 +230,48 @@ func (r *MethodRouter) handleConnect(ctx context.Context, client *Client, req *p
 	client.role = permissions.RoleViewer
 	client.authenticated = true
 	client.userID = params.UserID
-	client.tenantID = store.MasterTenantID
-	r.sendConnectResponse(client, req.ID)
+	client.tenantID = r.resolveTenantHint(ctx, params.TenantHint)
+	r.sendConnectResponse(ctx, client, req.ID)
 }
 
-func (r *MethodRouter) sendConnectResponse(client *Client, reqID string) {
-	client.SendResponse(protocol.NewOKResponse(reqID, map[string]any{
-		"protocol":  protocol.ProtocolVersion,
-		"role":      string(client.role),
-		"user_id":   client.userID,
-		"tenant_id": client.tenantID.String(),
+func (r *MethodRouter) sendConnectResponse(ctx context.Context, client *Client, reqID string) {
+	resp := map[string]any{
+		"protocol":     protocol.ProtocolVersion,
+		"role":         string(client.role),
+		"user_id":      client.userID,
+		"tenant_id":    client.tenantID.String(),
+		"cross_tenant": client.crossTenant,
 		"server": map[string]any{
 			"name":    "goclaw",
 			"version": "0.2.0",
 		},
-	}))
+	}
+
+	// Enrich with tenant name/slug if tenant store available and tenant is set
+	if r.tenantStore != nil && client.tenantID != uuid.Nil {
+		if t, err := r.tenantStore.GetTenant(ctx, client.tenantID); err == nil && t != nil {
+			resp["tenant_name"] = t.Name
+			resp["tenant_slug"] = t.Slug
+			client.tenantName = t.Name
+			client.tenantSlug = t.Slug
+		}
+	}
+
+	client.SendResponse(protocol.NewOKResponse(reqID, resp))
+}
+
+// resolveTenantHint resolves a tenant slug hint to a UUID.
+// Returns MasterTenantID if hint is empty, store unavailable, or slug not found.
+func (r *MethodRouter) resolveTenantHint(ctx context.Context, hint string) uuid.UUID {
+	if hint == "" || r.tenantStore == nil {
+		return store.MasterTenantID
+	}
+	t, err := r.tenantStore.GetTenantBySlug(ctx, hint)
+	if err != nil || t == nil {
+		slog.Debug("tenant_hint not resolved, falling back to master", "hint", hint)
+		return store.MasterTenantID
+	}
+	return t.ID
 }
 
 func (r *MethodRouter) handleHealth(ctx context.Context, client *Client, req *protocol.RequestFrame) {

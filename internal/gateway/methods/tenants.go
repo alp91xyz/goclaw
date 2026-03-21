@@ -40,6 +40,7 @@ func (m *TenantsMethods) Register(router *gateway.MethodRouter) {
 	router.Register("tenants.users.list", m.handleUsersList)
 	router.Register("tenants.users.add", m.handleUsersAdd)
 	router.Register("tenants.users.remove", m.handleUsersRemove)
+	router.Register("tenants.mine", m.handleMine)
 }
 
 func (m *TenantsMethods) handleList(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
@@ -324,6 +325,62 @@ func (m *TenantsMethods) handleUsersRemove(ctx context.Context, client *gateway.
 
 	m.emitCacheInvalidate(bus.CacheKindTenantUsers, params.UserID)
 	client.SendResponse(protocol.NewOKResponse(req.ID, map[string]string{"ok": "true"}))
+}
+
+// handleMine returns the current user's tenant memberships.
+// Unlike other tenant methods, this does NOT require cross-tenant access.
+// Cross-tenant admins receive all tenants instead.
+func (m *TenantsMethods) handleMine(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
+	locale := store.LocaleFromContext(ctx)
+
+	type tenantEntry struct {
+		ID     string `json:"id"`
+		Name   string `json:"name"`
+		Slug   string `json:"slug"`
+		Role   string `json:"role"`
+		Status string `json:"status"`
+	}
+
+	// Cross-tenant admin: return all tenants with "owner" role
+	if client.IsCrossTenant() {
+		tenants, err := m.tenantStore.ListTenants(ctx)
+		if err != nil {
+			slog.Error("tenants.mine failed (cross-tenant)", "error", err)
+			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToList, "tenants")))
+			return
+		}
+		entries := make([]tenantEntry, len(tenants))
+		for i, t := range tenants {
+			entries[i] = tenantEntry{ID: t.ID.String(), Name: t.Name, Slug: t.Slug, Role: "owner", Status: t.Status}
+		}
+		client.SendResponse(protocol.NewOKResponse(req.ID, map[string]any{"tenants": entries}))
+		return
+	}
+
+	// Regular user: return their tenant memberships enriched with name/slug
+	userID := client.UserID()
+	if userID == "" {
+		client.SendResponse(protocol.NewOKResponse(req.ID, map[string]any{"tenants": []tenantEntry{}}))
+		return
+	}
+
+	memberships, err := m.tenantStore.ListUserTenants(ctx, userID)
+	if err != nil {
+		slog.Error("tenants.mine failed", "error", err, "user_id", userID)
+		client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToList, "tenants")))
+		return
+	}
+
+	entries := make([]tenantEntry, 0, len(memberships))
+	for _, mem := range memberships {
+		t, err := m.tenantStore.GetTenant(ctx, mem.TenantID)
+		if err != nil || t == nil || t.Status != store.TenantStatusActive {
+			continue
+		}
+		entries = append(entries, tenantEntry{ID: t.ID.String(), Name: t.Name, Slug: t.Slug, Role: mem.Role, Status: t.Status})
+	}
+
+	client.SendResponse(protocol.NewOKResponse(req.ID, map[string]any{"tenants": entries}))
 }
 
 func (m *TenantsMethods) emitCacheInvalidate(kind, key string) {

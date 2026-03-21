@@ -9,6 +9,7 @@ export interface ApiKeyData {
   created_by: string;
   created_at: string;
   updated_at: string;
+  tenant_id?: string;
 }
 
 export interface ApiKeyCreateInput {

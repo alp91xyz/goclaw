@@ -1,0 +1,21 @@
+{
+  "title": "Tổ chức",
+  "description": "Quản lý tổ chức và quyền truy cập",
+  "createTenant": "Tạo tổ chức",
+  "name": "Tên",
+  "slug": "Slug",
+  "status": "Trạng thái",
+  "users": "Người dùng",
+  "role": "Vai trò",
+  "addUser": "Thêm người dùng",
+  "removeUser": "Xóa người dùng",
+  "userId": "ID người dùng",
+  "active": "Hoạt động",
+  "suspended": "Tạm ngưng",
+  "archived": "Lưu trữ",
+  "allTenants": "Tất cả tổ chức",
+  "currentTenant": "Tổ chức hiện tại",
+  "noTenants": "Không tìm thấy tổ chức",
+  "confirmRemoveUser": "Xóa người dùng này khỏi tổ chức?",
+  "slugHelp": "Định danh URL (chữ thường, gạch ngang)"
+}

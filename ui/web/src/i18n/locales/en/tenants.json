@@ -1,0 +1,21 @@
+{
+  "title": "Tenants",
+  "description": "Manage tenants and user access",
+  "createTenant": "Create Tenant",
+  "name": "Name",
+  "slug": "Slug",
+  "status": "Status",
+  "users": "Users",
+  "role": "Role",
+  "addUser": "Add User",
+  "removeUser": "Remove User",
+  "userId": "User ID",
+  "active": "Active",
+  "suspended": "Suspended",
+  "archived": "Archived",
+  "allTenants": "All Tenants",
+  "currentTenant": "Current Tenant",
+  "noTenants": "No tenants found",
+  "confirmRemoveUser": "Remove this user from the tenant?",
+  "slugHelp": "URL-safe identifier (lowercase, hyphens only)"
+}

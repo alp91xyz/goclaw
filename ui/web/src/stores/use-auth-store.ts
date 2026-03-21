@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
+import type { TenantMembership } from "@/types/tenant";
 
 type UserRole = "admin" | "operator" | "viewer" | "";
 
@@ -10,11 +11,18 @@ interface AuthState {
   connected: boolean;
   role: UserRole; // server-assigned role from connect response
   serverInfo: { name?: string; version?: string } | null;
+  tenantId: string;
+  tenantName: string;
+  tenantSlug: string;
+  isCrossTenant: boolean;
+  availableTenants: TenantMembership[];
 
   setCredentials: (token: string, userId: string) => void;
   setPairing: (senderID: string, userId: string) => void;
   setConnected: (connected: boolean, serverInfo?: { name?: string; version?: string }) => void;
   setRole: (role: UserRole) => void;
+  setTenant: (id: string, name: string, slug: string, isCrossTenant: boolean) => void;
+  setAvailableTenants: (tenants: TenantMembership[]) => void;
   logout: () => void;
 }
 
@@ -25,6 +33,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   connected: false,
   role: "" as UserRole,
   serverInfo: null,
+  tenantId: "",
+  tenantName: "",
+  tenantSlug: "",
+  isCrossTenant: false,
+  availableTenants: [],
 
   setCredentials: (token, userId) => {
     localStorage.setItem(LOCAL_STORAGE_KEYS.TOKEN, token);
@@ -46,10 +59,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ role });
   },
 
+  setTenant: (id, name, slug, isCrossTenant) => {
+    set({ tenantId: id, tenantName: name, tenantSlug: slug, isCrossTenant });
+  },
+
+  setAvailableTenants: (tenants) => {
+    set({ availableTenants: tenants });
+  },
+
   logout: () => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
     localStorage.removeItem(LOCAL_STORAGE_KEYS.USER_ID);
     localStorage.removeItem(LOCAL_STORAGE_KEYS.SENDER_ID);
-    set({ token: "", userId: "", senderID: "", connected: false, role: "", serverInfo: null });
+    set({
+      token: "", userId: "", senderID: "", connected: false, role: "", serverInfo: null,
+      tenantId: "", tenantName: "", tenantSlug: "", isCrossTenant: false, availableTenants: [],
+    });
   },
 }));

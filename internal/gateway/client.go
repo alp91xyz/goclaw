@@ -40,6 +40,8 @@ type Client struct {
 
 	tenantID    uuid.UUID // resolved tenant (uuid.Nil = cross-tenant)
 	crossTenant bool      // true for owner/system admin
+	tenantName  string    // resolved tenant display name (set during connect)
+	tenantSlug  string    // resolved tenant URL slug (set during connect)
 }
 
 func NewClient(conn *websocket.Conn, server *Server, remoteIP string) *Client {

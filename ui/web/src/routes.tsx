@@ -96,6 +96,9 @@ const ApiKeysPage = lazyWithRetry(() =>
 const PackagesPage = lazyWithRetry(() =>
   import("@/pages/packages/packages-page").then((m) => ({ default: m.PackagesPage })),
 );
+const TenantsAdminPage = lazyWithRetry(() =>
+  import("@/pages/tenants-admin/tenants-admin-page").then((m) => ({ default: m.TenantsAdminPage })),
+);
 
 function PageLoader() {
   return (
@@ -160,6 +163,7 @@ export function AppRoutes() {
           <Route path={ROUTES.TTS} element={<RequireAdmin><TtsPage /></RequireAdmin>} />
           <Route path={ROUTES.STORAGE} element={<RequireAdmin><StoragePage /></RequireAdmin>} />
           <Route path={ROUTES.PACKAGES} element={<RequireAdmin><PackagesPage /></RequireAdmin>} />
+          <Route path={ROUTES.TENANTS} element={<RequireAdmin><TenantsAdminPage /></RequireAdmin>} />
 
           {/* Operator+ pages */}
           <Route path={ROUTES.TRACES} element={<TracesPage key="list" />} />

@@ -167,6 +167,16 @@ export const Methods = {
   CONFIG_PERMISSIONS_GRANT: "config.permissions.grant",
   CONFIG_PERMISSIONS_REVOKE: "config.permissions.revoke",
 
+  // Tenants (multi-tenant)
+  TENANTS_MINE: "tenants.mine",
+  TENANTS_LIST: "tenants.list",
+  TENANTS_GET: "tenants.get",
+  TENANTS_CREATE: "tenants.create",
+  TENANTS_UPDATE: "tenants.update",
+  TENANTS_USERS_LIST: "tenants.users.list",
+  TENANTS_USERS_ADD: "tenants.users.add",
+  TENANTS_USERS_REMOVE: "tenants.users.remove",
+
   // Phase 3+ - NICE TO HAVE
   LOGS_TAIL: "logs.tail",
 } as const;
