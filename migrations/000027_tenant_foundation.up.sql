@@ -336,3 +336,10 @@ CREATE UNIQUE INDEX idx_usage_snapshots_unique ON usage_snapshots (
     provider, model, channel,
     tenant_id
 );
+
+-- Cleanup: strip leaked gateway tokens from session media URLs.
+-- Old code embedded ?token=GATEWAY_TOKEN in markdown image URLs stored in session messages.
+-- New code stores clean paths; frontend adds auth at render time.
+UPDATE sessions
+SET messages = regexp_replace(messages::text, '\?token=[a-f0-9]+', '', 'g')::jsonb
+WHERE messages::text LIKE '%?token=%';
