@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { useBootstrapStatus, type SetupStep } from "./hooks/use-bootstrap-status";
 import { SetupLayout } from "./setup-layout";
 import { SetupStepper } from "./setup-stepper";
@@ -8,7 +9,8 @@ import { StepModel } from "./step-model";
 import { StepAgent } from "./step-agent";
 import { StepChannel } from "./step-channel";
 import { SetupCompleteModal } from "./setup-complete-modal";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants";
+import { useUiStore } from "@/stores/use-ui-store";
 import type { ProviderData } from "@/types/provider";
 import type { AgentData } from "@/types/agent";
 
@@ -20,7 +22,30 @@ function PageLoader() {
   );
 }
 
+function LanguageSelector() {
+  const { language, setLanguage } = useUiStore();
+  return (
+    <div className="flex items-center gap-1.5">
+      {SUPPORTED_LANGUAGES.map((lang) => (
+        <button
+          key={lang}
+          type="button"
+          onClick={() => setLanguage(lang)}
+          className={`text-xs px-2 py-1 rounded transition-colors ${
+            language === lang
+              ? "text-foreground font-medium bg-muted"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          {LANGUAGE_LABELS[lang]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function SetupPage() {
+  const { t } = useTranslation("setup");
   const navigate = useNavigate();
   const { currentStep, loading, providers, agents } = useBootstrapStatus();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -104,6 +129,24 @@ export function SetupPage() {
           onComplete={handleFinish}
           onSkip={handleFinish}
         />
+      )}
+
+      {/* Footer: skip link + language selector */}
+      {!showComplete && (
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <button
+            type="button"
+            className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors"
+            onClick={() => {
+              if (window.confirm(t("skipSetupConfirm"))) {
+                navigate(ROUTES.OVERVIEW, { replace: true });
+              }
+            }}
+          >
+            {t("skipSetup")}
+          </button>
+          <LanguageSelector />
+        </div>
       )}
 
       <SetupCompleteModal
