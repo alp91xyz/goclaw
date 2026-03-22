@@ -297,18 +297,22 @@ func (s *PGTracingStore) CreateSpan(ctx context.Context, span *store.SpanData) e
 	if span.ID == uuid.Nil {
 		span.ID = store.GenNewID()
 	}
+	tenantID := span.TenantID
+	if tenantID == uuid.Nil {
+		tenantID = store.MasterTenantID
+	}
 	_, err := s.db.ExecContext(ctx,
 		`INSERT INTO spans (id, trace_id, parent_span_id, agent_id, span_type, name,
 		 start_time, end_time, duration_ms, status, error, level,
 		 model, provider, input_tokens, output_tokens, finish_reason,
 		 model_params, tool_name, tool_call_id, input_preview, output_preview,
-		 metadata, team_id, created_at)
-		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)`,
+		 metadata, team_id, created_at, tenant_id)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`,
 		span.ID, span.TraceID, span.ParentSpanID, span.AgentID, span.SpanType, nilStr(span.Name),
 		span.StartTime, nilTime(span.EndTime), nilInt(span.DurationMS), span.Status, nilStr(span.Error), span.Level,
 		nilStr(span.Model), nilStr(span.Provider), nilInt(span.InputTokens), nilInt(span.OutputTokens), nilStr(span.FinishReason),
 		jsonOrNull(span.ModelParams), nilStr(span.ToolName), nilStr(span.ToolCallID), nilStr(span.InputPreview), nilStr(span.OutputPreview),
-		jsonOrNull(span.Metadata), nilUUID(span.TeamID), span.CreatedAt,
+		jsonOrNull(span.Metadata), nilUUID(span.TeamID), span.CreatedAt, tenantID,
 	)
 	return err
 }
@@ -390,7 +394,7 @@ func (s *PGTracingStore) BatchCreateSpans(ctx context.Context, spans []store.Spa
 	}
 
 	// Build multi-row INSERT
-	const cols = 25
+	const cols = 26
 	valueGroups := make([]string, len(spans))
 	args := make([]any, 0, len(spans)*cols)
 
@@ -398,6 +402,10 @@ func (s *PGTracingStore) BatchCreateSpans(ctx context.Context, spans []store.Spa
 		if span.ID == uuid.Nil {
 			span.ID = store.GenNewID()
 			spans[i].ID = span.ID
+		}
+		tenantID := span.TenantID
+		if tenantID == uuid.Nil {
+			tenantID = store.MasterTenantID
 		}
 		base := i * cols
 		placeholders := make([]string, cols)
@@ -411,7 +419,7 @@ func (s *PGTracingStore) BatchCreateSpans(ctx context.Context, spans []store.Spa
 			span.StartTime, nilTime(span.EndTime), nilInt(span.DurationMS), span.Status, nilStr(span.Error), span.Level,
 			nilStr(span.Model), nilStr(span.Provider), nilInt(span.InputTokens), nilInt(span.OutputTokens), nilStr(span.FinishReason),
 			jsonOrNull(span.ModelParams), nilStr(span.ToolName), nilStr(span.ToolCallID), nilStr(span.InputPreview), nilStr(span.OutputPreview),
-			jsonOrNull(span.Metadata), nilUUID(span.TeamID), span.CreatedAt,
+			jsonOrNull(span.Metadata), nilUUID(span.TeamID), span.CreatedAt, tenantID,
 		)
 	}
 
@@ -419,7 +427,7 @@ func (s *PGTracingStore) BatchCreateSpans(ctx context.Context, spans []store.Spa
 		 start_time, end_time, duration_ms, status, error, level,
 		 model, provider, input_tokens, output_tokens, finish_reason,
 		 model_params, tool_name, tool_call_id, input_preview, output_preview,
-		 metadata, team_id, created_at)
+		 metadata, team_id, created_at, tenant_id)
 		 VALUES ` + strings.Join(valueGroups, ", ")
 
 	_, err := s.db.ExecContext(ctx, q, args...)
