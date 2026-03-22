@@ -75,12 +75,17 @@ func (h *TeamAttachmentsHandler) handleDownload(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// Resolve absolute disk path scoped to tenant: {dataDir}/tenants/{slug}/teams/{teamID}/{chatID}/{path}
+	// Resolve disk path. Absolute paths (new) are used directly;
+	// relative paths (legacy) are joined with the team workspace base.
 	tid := store.TenantIDFromContext(r.Context())
 	slug := store.TenantSlugFromContext(r.Context())
 	teamBase := config.TenantTeamDir(h.dataDir, tid, slug, att.TeamID)
-	absPath := filepath.Join(teamBase, att.ChatID, att.Path)
-	cleanPath := filepath.Clean(absPath)
+	var cleanPath string
+	if filepath.IsAbs(att.Path) {
+		cleanPath = filepath.Clean(att.Path)
+	} else {
+		cleanPath = filepath.Clean(filepath.Join(teamBase, att.ChatID, att.Path))
+	}
 	if !strings.HasPrefix(cleanPath, teamBase+string(filepath.Separator)) && cleanPath != teamBase {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid attachment path"})
 		return
