@@ -111,6 +111,9 @@ export class HttpClient {
     if (userId) h["X-GoClaw-User-Id"] = userId;
     const senderID = this.getSenderID();
     if (senderID) h["X-GoClaw-Sender-Id"] = senderID;
+    // Tenant scope: narrow cross-tenant admin to a specific tenant
+    const tenantScope = localStorage.getItem("goclaw:tenant_scope");
+    if (tenantScope) h["X-GoClaw-Tenant-Scope"] = tenantScope;
     return h;
   }
 

@@ -867,6 +867,7 @@ func runGateway() {
 		methods.NewTenantsMethods(pgStores.Tenants, msgBus, workspace).Register(server.Router())
 		server.SetTenantsHandler(httpapi.NewTenantsHandler(pgStores.Tenants, cfg.Gateway.Token, msgBus, workspace))
 		server.Router().SetTenantStore(pgStores.Tenants)
+		httpapi.InitTenantStore(pgStores.Tenants)
 	}
 
 	// Reload quota config on config changes via pub/sub.

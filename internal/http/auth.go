@@ -78,6 +78,7 @@ func extractAgentID(r *http.Request, model string) string {
 
 var pkgAPIKeyCache *apiKeyCache
 var pkgPairingStore store.PairingStore
+var pkgTenantStore store.TenantStore
 
 // InitAPIKeyCache initializes the shared API key cache with TTL and pubsub invalidation.
 // Must be called once during server startup before handling requests.
@@ -96,6 +97,12 @@ func InitAPIKeyCache(s store.APIKeyStore, mb *bus.MessageBus) {
 // Allows browser-paired users to access HTTP APIs via X-GoClaw-Sender-Id header.
 func InitPairingAuth(ps store.PairingStore) {
 	pkgPairingStore = ps
+}
+
+// InitTenantStore sets the tenant store for HTTP auth.
+// Allows gateway token requests to scope to a specific tenant via X-GoClaw-Tenant-Scope header.
+func InitTenantStore(ts store.TenantStore) {
+	pkgTenantStore = ts
 }
 
 // ResolveAPIKey checks if the bearer token is a valid API key using the shared cache.
@@ -126,9 +133,15 @@ func resolveAuth(r *http.Request, gatewayToken string) authResult {
 // resolveAuthBearer is like resolveAuth but accepts a pre-extracted bearer token.
 // Useful for handlers that also accept tokens from query params.
 func resolveAuthBearer(r *http.Request, gatewayToken, bearer string) authResult {
-	// Gateway token → admin (cross-tenant)
+	// Gateway token → admin (cross-tenant, or scoped via X-GoClaw-Tenant-Scope header)
 	if gatewayToken != "" && tokenMatch(bearer, gatewayToken) {
-		return authResult{Role: permissions.RoleAdmin, Authenticated: true, CrossTenant: true}
+		res := authResult{Role: permissions.RoleAdmin, Authenticated: true, CrossTenant: true}
+		if scopeSlug := r.Header.Get("X-GoClaw-Tenant-Scope"); scopeSlug != "" && pkgTenantStore != nil {
+			if t, err := pkgTenantStore.GetTenantBySlug(r.Context(), scopeSlug); err == nil && t != nil {
+				res.TenantID = t.ID
+			}
+		}
+		return res
 	}
 	// API key → role from scopes
 	if keyData, role := ResolveAPIKey(r.Context(), bearer); role != "" {
@@ -211,7 +224,15 @@ func requireAuth(token string, minRole permissions.Role, next http.HandlerFunc) 
 		if userID != "" {
 			ctx = store.WithUserID(ctx, userID)
 		}
-		if auth.CrossTenant {
+		if auth.CrossTenant && auth.TenantID != uuid.Nil {
+			// Cross-tenant admin with tenant scope: filter data by chosen tenant
+			ctx = store.WithTenantID(ctx, auth.TenantID)
+			slog.Debug("security.http_auth_resolved",
+				"path", r.URL.Path,
+				"role", string(auth.Role),
+				"tenant_scope", auth.TenantID.String(),
+			)
+		} else if auth.CrossTenant {
 			ctx = store.WithCrossTenant(ctx)
 			slog.Debug("security.http_auth_resolved",
 				"path", r.URL.Path,
