@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/nextlevelbuilder/goclaw/internal/config"
 	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/store"
 )
@@ -76,15 +75,13 @@ func (h *TeamAttachmentsHandler) handleDownload(w http.ResponseWriter, r *http.R
 	}
 
 	// Resolve disk path. Absolute paths (new) are used directly;
-	// relative paths (legacy) are joined with the team workspace base.
+	// relative paths (legacy) are joined with the team workspace directory.
 	var cleanPath string
 	if filepath.IsAbs(att.Path) {
 		cleanPath = filepath.Clean(att.Path)
 	} else {
-		tid := store.TenantIDFromContext(r.Context())
-		slug := store.TenantSlugFromContext(r.Context())
-		teamBase := config.TenantTeamDir(h.dataDir, tid, slug, att.TeamID)
-		cleanPath = filepath.Clean(filepath.Join(teamBase, att.ChatID, att.Path))
+		// Legacy: {workspace}/teams/{teamID}/{chatID}/{relPath}
+		cleanPath = filepath.Clean(filepath.Join(h.dataDir, "teams", att.TeamID.String(), att.ChatID, att.Path))
 	}
 	// Security: file must be within the workspace root to prevent path traversal.
 	wsRoot := filepath.Clean(h.dataDir) + string(filepath.Separator)
