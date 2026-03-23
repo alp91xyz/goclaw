@@ -108,6 +108,10 @@ A Go port of [OpenClaw](https://github.com/openclaw/openclaw) with enhanced secu
   <img src="_statics/architecture.jpg" alt="GoClaw Architecture" width="800" />
 </p>
 
+<p align="center">
+  <img src="_statics/goclaw_multi_tenant.png" alt="GoClaw Multi-Tenant" width="800" />
+</p>
+
 ## Quick Start
 
 **Prerequisites:** Go 1.26+, PostgreSQL 18 with pgvector, Docker (optional)
