@@ -161,7 +161,7 @@ export function TraceDetailDialog({ traceId, onClose, getTrace, onNavigateTrace,
               )}
               {t("detail.export")}
             </button>
-            {trace && (trace.status === "running" || trace.status === "pending") && onAbortRun && (
+            {trace && (trace.status === "running") && onAbortRun && (
               <button
                 type="button"
                 onClick={(e) => onAbortRun(trace, e)}

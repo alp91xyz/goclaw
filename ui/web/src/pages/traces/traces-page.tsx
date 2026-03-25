@@ -162,7 +162,7 @@ export function TracesPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
                         <StatusBadge status={trace.status} />
-                        {(trace.status === "running" || trace.status === "pending") && (
+                        {(trace.status === "running") && (
                           <Button
                             variant="destructive"
                             size="icon-xs"
