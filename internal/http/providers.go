@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/nextlevelbuilder/goclaw/internal/bus"
+	"github.com/nextlevelbuilder/goclaw/internal/config"
 	"github.com/nextlevelbuilder/goclaw/internal/i18n"
 	"github.com/nextlevelbuilder/goclaw/internal/oauth"
 	"github.com/nextlevelbuilder/goclaw/internal/providers"
@@ -139,6 +140,12 @@ func (h *ProvidersHandler) registerInMemory(p *store.LLMProviderData) {
 			cliOpts = append(cliOpts, providers.WithClaudeCLIMCPConfigData(mcpData))
 		}
 		h.providerReg.RegisterForTenant(p.TenantID, providers.NewClaudeCLIProvider(cliPath, cliOpts...))
+		return
+	}
+	// Ollama doesn't need an API key — inject a dummy value like startup does.
+	// In Docker, swap localhost → host.docker.internal so the container can reach the host.
+	if p.ProviderType == store.ProviderOllama {
+		h.providerReg.RegisterForTenant(p.TenantID, providers.NewOpenAIProvider(p.Name, "ollama", config.DockerLocalhost(p.APIBase), "llama3.3"))
 		return
 	}
 	if p.APIKey == "" {
