@@ -288,7 +288,7 @@ func (m *CloudflareManager) Get(ctx context.Context, key string, workspace strin
 		return sb, nil
 	}
 
-	workerName := fmt.Sprintf("goclaw-sbx-%s", sanitizeKey(scopeKey))
+	workerName := fmt.Sprintf("goclaw-sbx-%s", sanitizeWorkerKey(scopeKey))
 	secret := fmt.Sprintf("sbx-%s-%d", scopeKey, time.Now().UnixNano())
 
 	// Deploy the sandbox worker
@@ -498,8 +498,8 @@ func (m *CloudflareManager) pruneIdle() {
 	}
 }
 
-// sanitizeKey converts a scope key to a valid Worker name (lowercase, alphanumeric + hyphens).
-func sanitizeKey(key string) string {
+// sanitizeWorkerKey converts a scope key to a valid Worker name (lowercase, alphanumeric + hyphens).
+func sanitizeWorkerKey(key string) string {
 	clean := strings.Map(func(r rune) rune {
 		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' {
 			return r
